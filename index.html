@@ -8,24 +8,24 @@
         @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 
         :root {
-            --neon-pink: #ff4da6;
-            --neon-cyan: #4df3ff;
-            --neon-purple: #c86cff;
-            --neon-yellow: #ffe866;
-            --neon-green: #68ff7a;
+            --neon-pink: #ff2bd6;
+            --neon-cyan: #00f5ff;
+            --neon-purple: #8f5bff;
+            --neon-yellow: #fff066;
+            --neon-green: #00ffb3;
 
-            --bg-top: #17001f;
-            --bg-mid: #0d0017;
-            --bg-bottom: #030008;
+            --bg-top: #05081f;
+            --bg-mid: #0a1030;
+            --bg-bottom: #02030d;
 
-            --text-bright: #f7fbff;
-            --text-dim: #9aa3ad;
+            --text-bright: #f3ffff;
+            --text-dim: #8ea7b8;
         }
 
         body {
             margin: 0;
             padding: 0;
-            background-color: #05000a;
+            background-color: #040613;
             color: #fff;
             font-family: 'VT323', monospace;
             display: flex;
@@ -53,9 +53,9 @@
         #gameWrapper {
             position: relative;
             padding: 12px;
-            background: #140022;
+            background: #09122c;
             border-radius: 12px;
-            box-shadow: 0 0 60px rgba(77, 243, 255, 0.28), 0 0 90px rgba(255, 77, 166, 0.18);
+            box-shadow: 0 0 60px rgba(0, 245, 255, 0.35), 0 0 90px rgba(255, 43, 214, 0.22);
         }
 
         #gameContainer {
@@ -83,7 +83,7 @@
             font-size: 38px;
             z-index: 10;
             color: var(--text-bright);
-            text-shadow: 0 0 10px rgba(77, 243, 255, 0.9), 0 0 20px rgba(77, 243, 255, 0.5);
+            text-shadow: 0 0 10px rgba(0, 245, 255, 0.95), 0 0 20px rgba(0, 245, 255, 0.55);
         }
 
         #wordDisplay {
@@ -100,11 +100,11 @@
 
         .typed {
             color: var(--neon-cyan);
-            text-shadow: 0 0 14px var(--neon-cyan), 0 0 28px rgba(255,255,255,0.8);
+            text-shadow: 0 0 14px var(--neon-cyan), 0 0 28px rgba(255,255,255,0.85);
         }
 
         .untyped {
-            color: #cfd7df;
+            color: #c7d5e3;
             opacity: 0.5;
             text-shadow: 0 0 10px rgba(0,0,0,0.8);
         }
@@ -129,7 +129,7 @@
         #overlay {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(8, 0, 20, 0.9);
+            background: rgba(4, 8, 28, 0.9);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -163,7 +163,7 @@
             padding: 15px 40px;
             border-radius: 12px;
             border: 3px solid var(--neon-purple);
-            box-shadow: inset 0 0 30px rgba(200, 108, 255, 0.35);
+            box-shadow: inset 0 0 30px rgba(143, 91, 255, 0.35);
         }
 
         .lock-typed {
@@ -175,14 +175,14 @@
             padding: 15px 50px;
             font-size: 38px;
             font-family: 'VT323', monospace;
-            background: rgba(255, 77, 166, 0.12);
+            background: rgba(255, 43, 214, 0.12);
             color: var(--neon-pink);
             border: 3px solid var(--neon-pink);
             border-radius: 8px;
             cursor: pointer;
             transition: 0.3s;
             text-shadow: 0 0 10px var(--neon-pink);
-            box-shadow: 0 0 25px rgba(255, 77, 166, 0.35);
+            box-shadow: 0 0 25px rgba(255, 43, 214, 0.35);
             margin-top: 30px;
             pointer-events: auto;
             text-transform: uppercase;
@@ -199,13 +199,13 @@
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             gap: 15px;
-            background: rgba(77, 243, 255, 0.06);
+            background: rgba(0, 245, 255, 0.06);
             border: 2px solid var(--neon-cyan);
             padding: 20px;
             border-radius: 10px;
             margin-top: 15px;
             width: 90%;
-            box-shadow: 0 0 30px rgba(77, 243, 255, 0.14);
+            box-shadow: 0 0 30px rgba(0, 245, 255, 0.14);
         }
 
         .stat-box {
@@ -248,7 +248,7 @@
 <body>
 
     <h1>SYNTHWAVE TYPE DASH</h1>
-    <p style="color: var(--text-bright); margin-bottom: 20px; z-index: 10; font-size: 24px; text-shadow: 0 0 8px rgba(77,243,255,0.8);">
+    <p style="color: var(--text-bright); margin-bottom: 20px; z-index: 10; font-size: 24px; text-shadow: 0 0 8px rgba(0,245,255,0.8);">
         Tippfehler setzen das Wort zurück. Der letzte Buchstabe löst den Sprung aus!
     </p>
 
@@ -320,7 +320,6 @@
         const statErrors = document.getElementById('statErrors');
         const statMaxSpd = document.getElementById('statMaxSpd');
 
-        // Ausschließlich Tasten der Grundreihe (ASDFGHJKLÖ)
         const wordsLevel1 = ["a", "s", "d", "f", "g", "h", "j", "k", "l", "ö"];
         const wordsLevel2 = ["as", "df", "gh", "jk", "lö", "sa", "fd", "hj", "kl", "da", "la", "ha", "fl", "gl"];
         const wordsLevel3 = ["das", "fad", "lass", "fall", "saal", "hall", "kahl", "als", "lag", "fass", "glas", "gas", "hass", "kass"];
@@ -543,9 +542,9 @@
                 obs.height = 50;
             } else if (type === 'neon_pool') {
                 obs.y = baseGroundY - 15;
-                obs.width = 180; // Breiterer Pool
+                obs.width = 180;
                 obs.height = 15;
-                obs.platY = baseGroundY - 60; // Höhe der schwebenden Plattform
+                obs.platY = baseGroundY - 60;
             } else if (type === 'sawblade') {
                 obs.y = baseGroundY - 50;
                 obs.width = 50;
@@ -690,11 +689,9 @@
                 spawnObstacle();
             }
 
-            // Physik Update
             player.dy += player.gravity;
             player.y += player.dy;
 
-            // Finde heraus, ob der Spieler auf einer Plattform oder dem normalen Boden landen muss
             let currentGroundY = baseGroundY;
             
             for (let i = 0; i < obstacles.length; i++) {
@@ -703,20 +700,17 @@
 
                 let hitBoxMargin = 10;
 
-                // Plattform Check beim Neon-Pool
                 if (obs.type === 'neon_pool') {
-                    // Wenn der Spieler fällt (dy >= 0) und horizontal über der Plattform ist
                     if (player.dy >= 0 &&
                         player.x + player.width - 5 > obs.x &&
                         player.x + 5 < obs.x + obs.width &&
                         player.y + player.height >= obs.platY &&
-                        player.y + player.height - player.dy <= obs.platY + 15) { // +15 Toleranz für schnelles Fallen
+                        player.y + player.height - player.dy <= obs.platY + 15) {
                         
                         currentGroundY = obs.platY;
                     }
                 }
 
-                // Todes-Kollisionen
                 if (obs.type === 'spike' || obs.type === 'double_spike' || obs.type === 'triple_spike') {
                     if (
                         player.x < obs.x + obs.width - hitBoxMargin &&
@@ -743,7 +737,6 @@
                     let dist = Math.sqrt(Math.pow(cx - px, 2) + Math.pow(cy - py, 2));
                     if (dist < 35) gameOver("SHREDDED BY SAWBLADE");
                 } else if (obs.type === 'neon_pool') {
-                    // Wenn der Spieler ins Becken fällt (unterhalb der Plattform)
                     if (
                         player.x + player.width > obs.x + 10 &&
                         player.x < obs.x + obs.width - 10 &&
@@ -753,7 +746,6 @@
                     }
                 }
 
-                // Punkte sammeln
                 if (obs.x + obs.width < player.x && !obs.passed) {
                     obs.passed = true;
                     score += 10;
@@ -766,35 +758,29 @@
                 }
             }
 
-            // Bodenkollision (entweder normaler Boden oder Plattform)
             if (player.y >= currentGroundY - player.height) {
                 player.y = currentGroundY - player.height;
                 player.dy = 0;
                 
-                // Lande-Effekt & Ausrichten
                 if (player.isJumping) {
                     player.isJumping = false;
                     createParticles(player.x + player.width / 2, player.y + player.height, "var(--neon-cyan)", 15);
                 }
             }
 
-            // Rotation des Quadrats
             if (player.isJumping || player.dy > 1) {
                 player.rotation += 0.15;
             } else {
                 player.rotation = Math.round(player.rotation / (Math.PI / 2)) * (Math.PI / 2);
             }
 
-            // Trail updaten
             player.trail.push({ x: player.x, y: player.y, rot: player.rotation, life: 1 });
             if (player.trail.length > 10) player.trail.shift();
 
-            // Alte Hindernisse löschen
             if (obstacles.length > 0 && obstacles[0].x + obstacles[0].width < -250) {
                 obstacles.shift();
             }
 
-            // Partikel updaten
             for (let i = particles.length - 1; i >= 0; i--) {
                 particles[i].x += particles[i].vx;
                 particles[i].y += particles[i].vy;
@@ -813,19 +799,19 @@
         }
 
         function drawCity() {
-            ctx.fillStyle = "#140126";
+            ctx.fillStyle = "#0a1430";
             for (let i = 0; i < 20; i++) {
                 let h = 50 + Math.abs(Math.sin(i * 1.5) * 100);
                 ctx.fillRect((i * 80) + cityOffset, baseGroundY - h, 70, h);
 
-                ctx.fillStyle = "rgba(77, 243, 255, 0.3)";
+                ctx.fillStyle = "rgba(0, 245, 255, 0.45)";
                 if (i % 2 === 0) ctx.fillRect((i * 80) + cityOffset + 10, baseGroundY - h + 10, 20, 20);
-                ctx.fillStyle = "#140126";
+                ctx.fillStyle = "#0a1430";
             }
         }
 
         function drawMountains() {
-            ctx.fillStyle = "#200033";
+            ctx.fillStyle = "#11204d";
             ctx.beginPath();
             ctx.moveTo(0, baseGroundY);
             for (let i = 0; i < 20; i++) {
@@ -834,10 +820,10 @@
             ctx.lineTo(canvas.width * 2, baseGroundY);
             ctx.fill();
 
-            ctx.strokeStyle = "#d884ff";
+            ctx.strokeStyle = "#ff2bd6";
             ctx.lineWidth = 3;
             ctx.shadowBlur = 15;
-            ctx.shadowColor = "#d884ff";
+            ctx.shadowColor = "#ff2bd6";
             ctx.stroke();
             ctx.shadowBlur = 0;
         }
@@ -845,7 +831,6 @@
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Sterne
             ctx.fillStyle = "#ffffff";
             stars.forEach(s => {
                 ctx.globalAlpha = Math.random() * 0.5 + 0.55;
@@ -853,17 +838,15 @@
             });
             ctx.globalAlpha = 1;
 
-            // Sonne
-            ctx.fillStyle = "#ff78b8";
+            ctx.fillStyle = "#ff2bd6";
             ctx.shadowBlur = 80;
-            ctx.shadowColor = "#ff78b8";
+            ctx.shadowColor = "#ff2bd6";
             ctx.beginPath();
             ctx.arc(400, 250, 160, Math.PI, 0);
             ctx.fill();
             ctx.shadowBlur = 0;
 
-            // Sonnen-Streifen
-            ctx.fillStyle = "#2a0730";
+            ctx.fillStyle = "#09132b";
             for (let i = 0; i < 8; i++) {
                 ctx.fillRect(200, 200 - (i * 16), 400, i * 4);
             }
@@ -871,11 +854,10 @@
             drawCity();
             drawMountains();
 
-            // Neon Grid Boden
-            ctx.strokeStyle = "rgba(77, 243, 255, 0.55)";
+            ctx.strokeStyle = "rgba(0, 245, 255, 0.55)";
             ctx.lineWidth = 2;
             ctx.shadowBlur = 8;
-            ctx.shadowColor = "rgba(77, 243, 255, 0.8)";
+            ctx.shadowColor = "rgba(0, 245, 255, 0.85)";
             for (let i = -100; i < canvas.width + 100; i += 60) {
                 ctx.beginPath();
                 ctx.moveTo(i + backgroundOffset, baseGroundY);
@@ -883,23 +865,21 @@
                 ctx.stroke();
             }
 
-            // Horizont-Linie
-            ctx.strokeStyle = "#7ff7ff";
+            ctx.strokeStyle = "#00f5ff";
             ctx.lineWidth = 5;
             ctx.shadowBlur = 20;
-            ctx.shadowColor = "#7ff7ff";
+            ctx.shadowColor = "#00f5ff";
             ctx.beginPath();
             ctx.moveTo(0, baseGroundY);
             ctx.lineTo(canvas.width, baseGroundY);
             ctx.stroke();
             ctx.shadowBlur = 0;
 
-            // Hindernisse zeichnen
             obstacles.forEach(obs => {
                 if (obs.type === 'spike' || obs.type === 'double_spike' || obs.type === 'triple_spike') {
                     ctx.shadowBlur = 25;
-                    ctx.shadowColor = "#ff5faf";
-                    ctx.fillStyle = "#ff5faf";
+                    ctx.shadowColor = "#ff2bd6";
+                    ctx.fillStyle = "#ff2bd6";
 
                     let count = obs.type === 'spike' ? 1 : (obs.type === 'double_spike' ? 2 : 3);
                     for (let i = 0; i < count; i++) {
@@ -911,7 +891,7 @@
                         ctx.closePath();
                         ctx.fill();
 
-                        ctx.fillStyle = "#5b163a";
+                        ctx.fillStyle = "#5b0b4a";
                         ctx.shadowBlur = 0;
                         ctx.beginPath();
                         ctx.moveTo(offsetX + 20, obs.y + 12);
@@ -920,12 +900,12 @@
                         ctx.closePath();
                         ctx.fill();
 
-                        ctx.fillStyle = "#ff5faf";
+                        ctx.fillStyle = "#ff2bd6";
                     }
                 } else if (obs.type === 'laser_wall') {
                     ctx.shadowBlur = 30;
-                    ctx.shadowColor = "#66f6ff";
-                    ctx.fillStyle = "rgba(102, 246, 255, 0.92)";
+                    ctx.shadowColor = "#00f5ff";
+                    ctx.fillStyle = "rgba(0, 245, 255, 0.95)";
                     ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
 
                     ctx.fillStyle = "#ffffff";
@@ -936,13 +916,13 @@
                     ctx.rotate(frames * 0.2);
 
                     ctx.shadowBlur = 20;
-                    ctx.shadowColor = "#ff6ab8";
-                    ctx.fillStyle = "#aab2ba";
+                    ctx.shadowColor = "#00f5ff";
+                    ctx.fillStyle = "#dfe8f4";
                     ctx.beginPath();
                     ctx.arc(0, 0, 25, 0, Math.PI * 2);
                     ctx.fill();
 
-                    ctx.strokeStyle = "#ff6ab8";
+                    ctx.strokeStyle = "#ff2bd6";
                     ctx.lineWidth = 4;
                     for (let i = 0; i < 8; i++) {
                         ctx.rotate(Math.PI / 4);
@@ -954,11 +934,10 @@
                     }
                     ctx.restore();
                 } else if (obs.type === 'neon_pool') {
-                    // Pool (Säure/Lava)
                     let wave = Math.sin(frames * 0.15) * 4;
                     ctx.shadowBlur = 25;
-                    ctx.shadowColor = "#68ff7a";
-                    ctx.fillStyle = "#68ff7a";
+                    ctx.shadowColor = "#ff2bd6";
+                    ctx.fillStyle = "#ff2bd6";
                     ctx.fillRect(obs.x, obs.y + wave, obs.width, obs.height);
 
                     ctx.fillStyle = "#ffffff";
@@ -966,10 +945,9 @@
                     ctx.fillRect(obs.x + 10, obs.y + wave + 2, obs.width - 20, 2);
                     ctx.globalAlpha = 1;
 
-                    // Schwebende Plattform darüber
                     ctx.shadowBlur = 15;
-                    ctx.shadowColor = "#4df3ff";
-                    ctx.fillStyle = "rgba(77, 243, 255, 0.8)";
+                    ctx.shadowColor = "#00f5ff";
+                    ctx.fillStyle = "rgba(0, 245, 255, 0.88)";
                     ctx.fillRect(obs.x, obs.platY, obs.width, 10);
                     
                     ctx.strokeStyle = "#ffffff";
@@ -979,15 +957,13 @@
                 ctx.shadowBlur = 0;
             });
 
-            // Spieler zeichnen
             if (gameState !== 'GAME_OVER') {
-                // Trail
                 player.trail.forEach(t => {
                     if (t.life > 0) {
                         ctx.save();
                         ctx.translate(t.x + player.width / 2, t.y + player.height / 2);
                         ctx.rotate(t.rot);
-                        ctx.fillStyle = `rgba(77, 243, 255, ${t.life * 0.5})`;
+                        ctx.fillStyle = `rgba(0, 245, 255, ${t.life * 0.5})`;
                         ctx.fillRect(-player.width / 2, -player.height / 2, player.width, player.height);
                         ctx.restore();
                     }
@@ -1000,25 +976,21 @@
                 ctx.rotate(player.rotation);
                 ctx.scale(pulse, pulse);
 
-                // Quadrat Basis
-                ctx.fillStyle = "#77f7ff";
+                ctx.fillStyle = "#00f5ff";
                 ctx.shadowBlur = 30;
-                ctx.shadowColor = "#77f7ff";
+                ctx.shadowColor = "#00f5ff";
                 ctx.fillRect(-player.width / 2, -player.height / 2, player.width, player.height);
 
-                // Quadrat Innen (Dunkel)
-                ctx.fillStyle = "#07131a";
+                ctx.fillStyle = "#08101f";
                 ctx.fillRect(-12, -12, 24, 24);
 
-                // Quadrat Kern (Pink)
-                ctx.fillStyle = "#ff5faf";
+                ctx.fillStyle = "#ff2bd6";
                 ctx.shadowBlur = 15;
-                ctx.shadowColor = "#ff5faf";
+                ctx.shadowColor = "#ff2bd6";
                 ctx.fillRect(-4, -4, 8, 8);
                 ctx.restore();
             }
 
-            // Explosions- und Sprung-Partikel
             particles.forEach(p => {
                 ctx.fillStyle = p.color;
                 ctx.globalAlpha = p.life;
@@ -1030,7 +1002,6 @@
             ctx.globalAlpha = 1;
             ctx.shadowBlur = 0;
 
-            // Schwebender Punkte-Text
             ctx.font = "28px VT323";
             ctx.textAlign = "center";
             floatingTexts.forEach(ft => {
