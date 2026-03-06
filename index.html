@@ -3,14 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Typing Jump & Run - Grundreihe</title>
+    <title>Geometry Type Dash</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap');
+
         body {
             margin: 0;
             padding: 0;
-            background-color: #1e1e24;
+            background-color: #0b0c10;
             color: #fff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Orbitron', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -22,11 +24,11 @@
         #gameContainer {
             position: relative;
             width: 800px;
-            height: 400px;
-            background-color: #2b2b36;
-            border: 4px solid #44475a;
-            border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            height: 450px;
+            background: linear-gradient(180deg, #1f2833 0%, #0b0c10 100%);
+            border: 4px solid #66fcf1;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(102, 252, 241, 0.4);
             overflow: hidden;
         }
 
@@ -41,29 +43,33 @@
             right: 20px;
             display: flex;
             justify-content: space-between;
-            font-size: 24px;
-            font-weight: bold;
+            font-size: 20px;
+            font-weight: 700;
             z-index: 10;
+            color: #c5c6c7;
+            text-shadow: 0 0 5px rgba(255,255,255,0.5);
         }
 
         #wordDisplay {
             position: absolute;
-            top: 100px;
+            top: 120px;
             width: 100%;
             text-align: center;
-            font-size: 48px;
-            letter-spacing: 5px;
+            font-size: 50px;
+            font-weight: 900;
+            letter-spacing: 6px;
             z-index: 10;
+            text-shadow: 0 0 10px rgba(0,0,0,0.8);
         }
 
-        .typed { color: #50fa7b; }
-        .untyped { color: #f8f8f2; }
-        .error { color: #ff5555; }
+        .typed { color: #66fcf1; text-shadow: 0 0 15px #66fcf1; }
+        .untyped { color: #ffffff; }
+        .error { color: #ff0055; text-shadow: 0 0 15px #ff0055; }
 
         #overlay {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(11, 12, 16, 0.85);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -71,41 +77,75 @@
             z-index: 20;
         }
 
+        h1 {
+            color: #66fcf1;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px rgba(102, 252, 241, 0.5);
+            margin-bottom: 5px;
+        }
+
+        #overlayTitle {
+            font-size: 40px;
+            color: #ff0055;
+            text-shadow: 0 0 15px #ff0055;
+            margin-bottom: 10px;
+        }
+
         button {
-            padding: 10px 20px;
-            font-size: 20px;
-            background-color: #bd93f9;
-            color: #282a36;
-            border: none;
+            padding: 12px 30px;
+            font-size: 22px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            background-color: transparent;
+            color: #66fcf1;
+            border: 3px solid #66fcf1;
             border-radius: 5px;
             cursor: pointer;
-            font-weight: bold;
-            margin-top: 20px;
-            transition: background 0.2s;
+            margin-top: 30px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
         }
 
         button:hover {
-            background-color: #ff79c6;
+            background-color: #66fcf1;
+            color: #0b0c10;
+            box-shadow: 0 0 20px #66fcf1;
+        }
+        
+        .level-up {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 40px;
+            color: #fce81a;
+            text-shadow: 0 0 20px #fce81a;
+            opacity: 0;
+            z-index: 15;
+            pointer-events: none;
+            transition: opacity 0.5s;
         }
     </style>
 </head>
 <body>
 
-    <h1>Typing Dash: Grundreihe</h1>
-    <p>Tippe das Wort fehlerfrei ab, um über das Hindernis zu springen! Ein Fehler = Game Over.</p>
+    <h1>Geometry Type Dash</h1>
+    <p style="color: #c5c6c7; margin-bottom: 20px;">Tippe fehlerfrei, um zu springen. 1 Fehler = Game Over.</p>
 
     <div id="gameContainer">
         <div id="ui">
-            <span id="scoreDisplay">Score: 0</span>
-            <span id="speedDisplay">Speed: 1.0x</span>
+            <span id="scoreDisplay">SCORE: 0</span>
+            <span id="levelDisplay">LEVEL: 1</span>
         </div>
         <div id="wordDisplay"></div>
-        <canvas id="gameCanvas" width="800" height="400"></canvas>
+        <div id="levelUpMsg" class="level-up">LEVEL UP!</div>
+        <canvas id="gameCanvas" width="800" height="450"></canvas>
         
         <div id="overlay">
-            <h2 id="overlayTitle">Bereit?</h2>
-            <p id="overlayText">Finger auf ASDF JKLÖ legen.</p>
-            <button id="startBtn">Spiel Starten</button>
+            <h2 id="overlayTitle">BEREIT?</h2>
+            <p id="overlayText" style="color: #c5c6c7; font-size: 18px;">Finger auf die Grundreihe (ASDF JKLÖ).</p>
+            <button id="startBtn">START DASH</button>
         </div>
     </div>
 
@@ -114,57 +154,61 @@
         const ctx = canvas.getContext('2d');
         const wordDisplay = document.getElementById('wordDisplay');
         const scoreDisplay = document.getElementById('scoreDisplay');
-        const speedDisplay = document.getElementById('speedDisplay');
+        const levelDisplay = document.getElementById('levelDisplay');
         const overlay = document.getElementById('overlay');
         const overlayTitle = document.getElementById('overlayTitle');
         const overlayText = document.getElementById('overlayText');
         const startBtn = document.getElementById('startBtn');
+        const levelUpMsg = document.getElementById('levelUpMsg');
 
-        // Nur Grundreihen-Wörter/Kombinationen (a, s, d, f, g, h, j, k, l, ö)
-        const wordList = [
-            "das", "all", "hall", "kahl", "lass", "fall", "gas", "glas", 
-            "saal", "lag", "hag", "fad", "kalk", "ass", "fas", "gal",
-            "asdf", "jklö", "als", "hasch", "kass", "fall", "schlag" 
-        ];
+        // Dynamischer Schwierigkeitsgrad
+        const wordsLevel1 = ["a", "s", "d", "f", "g", "h", "j", "k", "l", "ö"];
+        const wordsLevel2 = ["as", "df", "ja", "so", "da", "la", "al", "ha", "fl", "gl"];
+        const wordsLevel3 = ["das", "all", "hall", "kahl", "lass", "fall", "gas", "glas", "schlag", "fad", "lag"];
 
-        // Spielvariablen
         let gameActive = false;
         let score = 0;
-        let gameSpeed = 3;
-        let baseSpeed = 3;
+        let level = 1;
+        let gameSpeed = 4.5;
+        let baseSpeed = 4.5;
+        let backgroundOffset = 0;
         
         let currentWord = "";
         let typedText = "";
         
-        // Spieler (Block)
+        const groundY = 380;
+
+        // Spieler (Neon Würfel)
         const player = {
-            x: 100,
-            y: 300,
+            x: 120,
+            y: groundY - 40,
             width: 40,
             height: 40,
             dy: 0,
-            jumpForce: -14,
-            gravity: 0.6,
-            isJumping: false
+            jumpForce: -15,
+            gravity: 0.8,
+            isJumping: false,
+            rotation: 0
         };
 
-        // Hindernis
+        // Hindernis (Stachel / Spike)
         const obstacle = {
             x: 800,
-            y: 300,
+            y: groundY - 40,
             width: 40,
             height: 40,
-            active: false
+            active: false,
+            passed: false // Verhindert mehrfaches Punkten pro Hindernis
         };
-
-        const groundY = 340;
 
         function initGame() {
             score = 0;
+            level = 1;
             gameSpeed = baseSpeed;
             player.y = groundY - player.height;
             player.dy = 0;
             player.isJumping = false;
+            player.rotation = 0;
             
             spawnObstacle();
             updateUI();
@@ -174,12 +218,18 @@
             gameLoop();
         }
 
+        function getWordForLevel() {
+            if (level === 1) return wordsLevel1[Math.floor(Math.random() * wordsLevel1.length)];
+            if (level === 2) return wordsLevel2[Math.floor(Math.random() * wordsLevel2.length)];
+            return wordsLevel3[Math.floor(Math.random() * wordsLevel3.length)];
+        }
+
         function spawnObstacle() {
             obstacle.x = canvas.width;
             obstacle.active = true;
+            obstacle.passed = false;
             
-            // Zufälliges Wort aus der Liste wählen
-            currentWord = wordList[Math.floor(Math.random() * wordList.length)];
+            currentWord = getWordForLevel();
             typedText = "";
             renderWord();
         }
@@ -203,49 +253,61 @@
             }
         }
 
+        function triggerLevelUp() {
+            levelUpMsg.style.opacity = 1;
+            setTimeout(() => { levelUpMsg.style.opacity = 0; }, 1500);
+        }
+
         function gameOver(reason) {
             gameActive = false;
             overlay.style.display = 'flex';
-            overlayTitle.innerText = "Game Over!";
+            overlayTitle.style.color = "#ff0055";
+            overlayTitle.style.textShadow = "0 0 15px #ff0055";
+            overlayTitle.innerText = "CRASHED!";
             overlayText.innerText = reason + " | Score: " + score;
-            startBtn.innerText = "Nochmal versuchen";
+            startBtn.innerText = "RETRY";
         }
 
         // Tastatur-Eingabe
         document.addEventListener('keydown', (e) => {
             if (!gameActive) return;
-
-            // Ignoriere Modifikatoren
             if (e.key === "Shift" || e.key === "Control" || e.key === "Alt") return;
 
             const expectedChar = currentWord[typedText.length];
             const typedChar = e.key.toLowerCase();
 
             if (typedChar === expectedChar) {
-                // Richtig getippt
                 typedText += typedChar;
                 renderWord();
 
-                // Wort komplett?
+                // Wort komplett abgetippt -> Sprung auslösen!
                 if (typedText === currentWord) {
                     jump();
-                    score += 10;
-                    gameSpeed += 0.2; // Progressiver Flow: Spiel wird schneller
-                    obstacle.active = false; // Hindernis verschwindet beim Sprung gedanklich
-                    setTimeout(spawnObstacle, 500); // Neues Hindernis nach kurzem Delay
+                    wordDisplay.innerHTML = ""; // Wort ausblenden während Sprung
                 }
             } else {
-                // Falsch getippt -> Sofortiges Game Over laut Konzept
-                typedText += typedChar; // Zeigt den falschen Buchstaben kurz an
+                typedText += typedChar;
                 renderWord(true);
-                gameOver("Tippfehler!");
+                gameOver("Tippfehler!"); // Strikte Bestrafung laut Konzept
             }
         });
 
         function update() {
+            // Hintergrund scrollen
+            backgroundOffset -= gameSpeed * 0.5;
+            if (backgroundOffset <= -40) backgroundOffset = 0;
+
             // Spieler Physik
             player.dy += player.gravity;
             player.y += player.dy;
+
+            // Rotation in der Luft (Geometry Dash Effekt)
+            if (player.isJumping) {
+                player.rotation += 0.15;
+            } else {
+                // Einrasten bei Landung
+                player.rotation = Math.round(player.rotation / (Math.PI/2)) * (Math.PI/2); 
+            }
 
             // Bodenkollision
             if (player.y >= groundY - player.height) {
@@ -258,18 +320,29 @@
             if (obstacle.active) {
                 obstacle.x -= gameSpeed;
 
-                // Kollision mit Hindernis prüfen
+                // Kollisionserkennung (AABB)
                 if (
-                    player.x < obstacle.x + obstacle.width &&
-                    player.x + player.width > obstacle.x &&
+                    player.x < obstacle.x + obstacle.width - 10 && // Hitbox etwas kleiner machen
+                    player.x + player.width - 10 > obstacle.x &&
                     player.y < obstacle.y + obstacle.height &&
-                    player.y + player.height > obstacle.y
+                    player.y + player.height > obstacle.y + 10
                 ) {
-                    gameOver("Hindernis getroffen! Zu langsam.");
+                    gameOver("Stachel berührt! Zu spät getippt.");
                 }
 
-                // Hindernis verpasst (sollte eigentlich durch Sprung gelöst werden)
-                if (obstacle.x + obstacle.width < 0) {
+                // Hindernis erfolgreich überwunden
+                if (obstacle.x + obstacle.width < player.x && !obstacle.passed) {
+                    obstacle.passed = true;
+                    score += 10;
+                    gameSpeed += 0.15; // Progressiver Flow
+                    
+                    // Level System
+                    if (score === 50 && level === 1) { level = 2; triggerLevelUp(); }
+                    if (score === 150 && level === 2) { level = 3; triggerLevelUp(); }
+                }
+
+                // Neues Hindernis spawnen, wenn das alte aus dem Bild ist
+                if (obstacle.x + obstacle.width < -100) {
                     obstacle.active = false;
                     spawnObstacle();
                 }
@@ -277,27 +350,74 @@
         }
 
         function draw() {
-            // Hintergrund löschen
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Boden zeichnen
-            ctx.fillStyle = "#44475a";
-            ctx.fillRect(0, groundY, canvas.width, canvas.height - groundY);
-
-            // Spieler zeichnen (Neon Grün)
-            ctx.fillStyle = "#50fa7b";
-            ctx.fillRect(player.x, player.y, player.width, player.height);
-
-            // Hindernis zeichnen (Neon Rot)
-            if (obstacle.active) {
-                ctx.fillStyle = "#ff5555";
-                ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            // Raster-Hintergrund zeichnen (für Geschwindigkeitseffekt)
+            ctx.strokeStyle = "rgba(102, 252, 241, 0.1)";
+            ctx.lineWidth = 1;
+            for (let i = 0; i < canvas.width; i += 40) {
+                ctx.beginPath();
+                ctx.moveTo(i + backgroundOffset, 0);
+                ctx.lineTo(i + backgroundOffset, groundY);
+                ctx.stroke();
             }
+
+            // Boden zeichnen
+            ctx.fillStyle = "#121212";
+            ctx.fillRect(0, groundY, canvas.width, canvas.height - groundY);
+            
+            // Boden-Linie (Neon)
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = "#66fcf1";
+            ctx.strokeStyle = "#66fcf1";
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(0, groundY);
+            ctx.lineTo(canvas.width, groundY);
+            ctx.stroke();
+            ctx.shadowBlur = 0; // Reset
+
+            // Spieler zeichnen (mit Rotation)
+            ctx.save();
+            ctx.translate(player.x + player.width/2, player.y + player.height/2);
+            ctx.rotate(player.rotation);
+            ctx.fillStyle = "#66fcf1";
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = "#66fcf1";
+            ctx.fillRect(-player.width/2, -player.height/2, player.width, player.height);
+            // Kleines inneres Quadrat für mehr Details
+            ctx.fillStyle = "#0b0c10";
+            ctx.fillRect(-player.width/4, -player.height/4, player.width/2, player.height/2);
+            ctx.restore();
+
+            // Hindernis zeichnen (Stachel / Dreieck)
+            if (obstacle.active) {
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = "#ff0055";
+                ctx.fillStyle = "#ff0055";
+                ctx.beginPath();
+                ctx.moveTo(obstacle.x + obstacle.width / 2, obstacle.y); // Spitze
+                ctx.lineTo(obstacle.x + obstacle.width, obstacle.y + obstacle.height); // Unten rechts
+                ctx.lineTo(obstacle.x, obstacle.y + obstacle.height); // Unten links
+                ctx.closePath();
+                ctx.fill();
+                
+                // Inneres dunkles Dreieck
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = "#0b0c10";
+                ctx.beginPath();
+                ctx.moveTo(obstacle.x + obstacle.width / 2, obstacle.y + 10);
+                ctx.lineTo(obstacle.x + obstacle.width - 8, obstacle.y + obstacle.height - 5);
+                ctx.lineTo(obstacle.x + 8, obstacle.y + obstacle.height - 5);
+                ctx.closePath();
+                ctx.fill();
+            }
+            ctx.shadowBlur = 0;
         }
 
         function updateUI() {
-            scoreDisplay.innerText = "Score: " + score;
-            speedDisplay.innerText = "Speed: " + (gameSpeed / baseSpeed).toFixed(1) + "x";
+            scoreDisplay.innerText = "SCORE: " + score;
+            levelDisplay.innerText = "LEVEL: " + level;
         }
 
         function gameLoop() {
