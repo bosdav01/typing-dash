@@ -3,34 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retro Type Dash - Manual Jump Edition</title>
+    <title>Geometry Type Dash</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
-
         :root {
-            --neon-pink: #ff4da6;
-            --neon-cyan: #4df3ff;
-            --neon-purple: #c86cff;
-            --neon-yellow: #ffe866;
-            --neon-green: #68ff7a;
-
-            --bg-top: #17001f;
-            --bg-mid: #0d0017;
-            --bg-bottom: #030008;
-
-            --panel-bg: #12001d;
-            --text-bright: #f7fbff;
-            --text-dim: #9aa3ad;
-            --text-dark: #58616b;
-            --danger-dark: #5b163a;
+            --gd-bg: #287dff;        /* Stereo Madness Blue */
+            --gd-ground: #00388b;    /* Darker Blue Ground */
+            --gd-player-1: #ffea00;  /* Yellow */
+            --gd-player-2: #00e5ff;  /* Cyan */
+            
+            --text-bright: #ffffff;
+            --text-stroke: 3px 3px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
         }
 
         body {
             margin: 0;
             padding: 0;
-            background-color: #05000a;
+            background-color: #111;
             color: #fff;
-            font-family: 'VT323', monospace;
+            font-family: 'Fredoka', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -40,33 +31,20 @@
             user-select: none;
         }
 
-        body::after {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background:
-                linear-gradient(rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.22) 50%),
-                radial-gradient(circle at center, transparent 48%, rgba(0,0,0,0.55) 100%);
-            z-index: 100;
-            background-size: 100% 4px, 100% 100%;
-            pointer-events: none;
-            opacity: 0.75;
-        }
-
         #gameWrapper {
             position: relative;
-            padding: 12px;
-            background: #140022;
+            padding: 10px;
+            background: #222;
             border-radius: 12px;
-            box-shadow: 0 0 60px rgba(77, 243, 255, 0.28), 0 0 90px rgba(255, 77, 166, 0.18);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
         }
 
         #gameContainer {
             position: relative;
             width: 800px;
             height: 450px;
-            background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-mid) 55%, var(--bg-bottom) 100%);
-            border: 3px solid var(--neon-cyan);
+            background: var(--gd-bg);
+            border: 4px solid #fff;
             border-radius: 8px;
             overflow: hidden;
             z-index: 10;
@@ -83,10 +61,11 @@
             right: 20px;
             display: flex;
             justify-content: space-between;
-            font-size: 38px;
+            font-size: 32px;
             z-index: 10;
             color: var(--text-bright);
-            text-shadow: 0 0 10px rgba(77, 243, 255, 0.9), 0 0 20px rgba(77, 243, 255, 0.5);
+            text-shadow: var(--text-stroke);
+            letter-spacing: 2px;
         }
 
         #wordDisplay {
@@ -94,31 +73,29 @@
             top: 80px;
             width: 100%;
             text-align: center;
-            font-size: 75px;
-            letter-spacing: 12px;
+            font-size: 65px;
+            letter-spacing: 8px;
             z-index: 10;
-            text-shadow: 0 5px 20px rgba(0,0,0,0.95);
+            text-transform: uppercase;
+            text-shadow: 4px 4px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
             transition: transform 0.05s;
         }
 
         .typed {
-            color: var(--neon-cyan);
-            text-shadow: 0 0 14px var(--neon-cyan), 0 0 28px rgba(255,255,255,0.8);
+            color: #00ff00; /* Bright Green */
         }
 
         .untyped {
-            color: #cfd7df;
-            opacity: 0.72;
-            text-shadow: 0 0 10px rgba(0,0,0,0.65);
+            color: #ffffff;
+            opacity: 0.9;
         }
 
         .error {
-            color: var(--neon-pink);
-            text-shadow: 0 0 18px var(--neon-pink), 0 0 32px rgba(255,255,255,0.25);
+            color: #ff0000; /* Bright Red */
         }
 
         @keyframes shake {
-            0% { transform: translateX(0); color: var(--neon-pink); }
+            0% { transform: translateX(0); color: #ff0000; }
             25% { transform: translateX(-15px); }
             50% { transform: translateX(15px); }
             75% { transform: translateX(-15px); }
@@ -132,115 +109,117 @@
         #overlay {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(8, 0, 20, 0.9);
+            background: rgba(0, 0, 0, 0.75);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 50;
-            backdrop-filter: blur(5px);
         }
 
         h1 {
-            color: var(--neon-pink);
-            font-size: 45px;
-            text-shadow: 0 0 25px var(--neon-pink);
+            color: #fff;
+            font-size: 40px;
+            text-shadow: var(--text-stroke);
             margin-bottom: 5px;
-            letter-spacing: 4px;
+            letter-spacing: 2px;
         }
 
         .bigTitle {
-            font-size: 70px;
-            color: var(--neon-cyan);
-            text-shadow: 0 0 30px var(--neon-cyan);
+            font-size: 60px;
+            color: #ffea00;
+            text-shadow: var(--text-stroke);
             margin-bottom: 5px;
             text-align: center;
+            letter-spacing: 2px;
         }
 
         #lockInDisplay {
-            font-size: 65px;
-            letter-spacing: 18px;
+            font-size: 55px;
+            letter-spacing: 12px;
             margin-top: 20px;
-            color: #555;
-            background: rgba(0,0,0,0.78);
+            color: #888;
+            background: rgba(0,0,0,0.8);
             padding: 15px 40px;
             border-radius: 12px;
-            border: 3px solid var(--neon-purple);
-            box-shadow: inset 0 0 30px rgba(200, 108, 255, 0.35);
+            border: 4px solid #fff;
+            text-shadow: 2px 2px 0 #000;
         }
 
         .lock-typed {
-            color: var(--neon-cyan);
-            text-shadow: 0 0 24px var(--neon-cyan);
+            color: #00ff00;
         }
 
         button.bootBtn {
             padding: 15px 50px;
-            font-size: 38px;
-            font-family: 'VT323', monospace;
-            background: rgba(255, 77, 166, 0.12);
-            color: var(--neon-pink);
-            border: 3px solid var(--neon-pink);
+            font-size: 32px;
+            font-family: 'Fredoka', sans-serif;
+            background: #00ff00;
+            color: #000;
+            border: 4px solid #fff;
             border-radius: 8px;
             cursor: pointer;
-            transition: 0.3s;
-            text-shadow: 0 0 10px var(--neon-pink);
-            box-shadow: 0 0 25px rgba(255, 77, 166, 0.35);
+            transition: 0.2s;
             margin-top: 30px;
             pointer-events: auto;
             text-transform: uppercase;
+            font-weight: bold;
+            box-shadow: 0 6px 0 #008800;
         }
 
         button.bootBtn:hover {
-            background: var(--neon-pink);
-            color: #000;
-            box-shadow: 0 0 50px var(--neon-pink);
-            transform: scale(1.05);
+            transform: translateY(2px);
+            box-shadow: 0 4px 0 #008800;
+        }
+
+        button.bootBtn:active {
+            transform: translateY(6px);
+            box-shadow: 0 0 0 #008800;
         }
 
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             gap: 15px;
-            background: rgba(77, 243, 255, 0.06);
-            border: 2px solid var(--neon-cyan);
+            background: rgba(0, 0, 0, 0.6);
+            border: 3px solid #fff;
             padding: 20px;
             border-radius: 10px;
             margin-top: 15px;
             width: 90%;
-            box-shadow: 0 0 30px rgba(77, 243, 255, 0.14);
         }
 
         .stat-box {
             text-align: center;
-            background: rgba(0,0,0,0.62);
+            background: rgba(255,255,255,0.1);
             padding: 10px;
             border-radius: 5px;
-            border: 1px solid #39414b;
+            border: 2px solid #555;
         }
 
         .stat-label {
-            color: #b8c1ca;
-            font-size: 24px;
+            color: #ddd;
+            font-size: 18px;
             text-transform: uppercase;
+            text-shadow: 2px 2px 0 #000;
         }
 
         .stat-value {
             color: #fff;
-            font-size: 45px;
-            text-shadow: 0 0 15px var(--neon-cyan);
+            font-size: 38px;
+            text-shadow: 2px 2px 0 #000;
         }
 
         .stat-value.bad {
-            color: var(--neon-pink);
-            text-shadow: 0 0 15px var(--neon-pink);
+            color: #ff3333;
         }
 
         .blinking-text {
-            animation: blinker 1.5s linear infinite;
-            color: #c0c6cc;
-            font-size: 24px;
+            animation: blinker 1s linear infinite;
+            color: #fff;
+            font-size: 20px;
             margin-top: 15px;
+            text-shadow: 2px 2px 0 #000;
         }
 
         @keyframes blinker {
@@ -250,8 +229,8 @@
 </head>
 <body>
 
-    <h1>SYNTHWAVE TYPE DASH</h1>
-    <p style="color: var(--text-bright); margin-bottom: 20px; z-index: 10; font-size: 24px; text-shadow: 0 0 8px rgba(77,243,255,0.8);">
+    <h1>GEOMETRY TYPE DASH</h1>
+    <p style="color: #fff; margin-bottom: 20px; z-index: 10; font-size: 20px; text-shadow: 2px 2px 0 #000;">
         Tippfehler setzen das Wort zurück. Der letzte Buchstabe löst den Sprung aus!
     </p>
 
@@ -268,18 +247,18 @@
             <div id="overlay">
                 <div id="bootScreen" style="text-align: center;">
                     <h2 class="bigTitle">SYSTEM READY</h2>
-                    <button class="bootBtn" id="bootBtn">INITIATE SEQUENCE</button>
+                    <button class="bootBtn" id="bootBtn">START LEVEL</button>
                 </div>
 
                 <div id="lockInScreen" style="display: none; text-align: center;">
-                    <h2 class="bigTitle">TACTICAL LOCK-IN</h2>
-                    <p style="color: #fff; font-size: 28px;">Bestätige die Grundreihe (links nach rechts):</p>
+                    <h2 class="bigTitle" style="color:#fff;">TACTICAL LOCK-IN</h2>
+                    <p style="color: #fff; font-size: 24px; text-shadow: 2px 2px 0 #000;">Bestätige die Grundreihe (links nach rechts):</p>
                     <div id="lockInDisplay">ASDFGHJKLÖ</div>
                 </div>
 
                 <div id="deathScreen" style="display: none; text-align: center; width: 100%; flex-direction: column; align-items: center;">
-                    <h2 class="bigTitle" style="color: var(--neon-pink); text-shadow: 0 0 30px var(--neon-pink); margin-top: 5px;">CRASH DETECTED</h2>
-                    <p id="deathReason" style="color: #fff; font-size: 32px; margin-top: 0; text-shadow: 0 0 10px #fff;"></p>
+                    <h2 class="bigTitle" style="color: #ff3333; margin-top: 5px;">LEVEL FAILED</h2>
+                    <p id="deathReason" style="color: #fff; font-size: 28px; margin-top: 0; text-shadow: 2px 2px 0 #000;"></p>
 
                     <div class="stats-grid">
                         <div class="stat-box"><div class="stat-label">Total Score</div><div class="stat-value" id="statScore">0</div></div>
@@ -290,8 +269,8 @@
                         <div class="stat-box"><div class="stat-label">Top Speed</div><div class="stat-value" id="statMaxSpd">1.0x</div></div>
                     </div>
 
-                    <button class="bootBtn" id="restartBtn" style="margin-top: 15px; padding: 10px 40px;">REBOOT SYSTEM</button>
-                    <div class="blinking-text">> oder drücke [ENTER] <</div>
+                    <button class="bootBtn" id="restartBtn" style="margin-top: 20px;">RESTART</button>
+                    <div class="blinking-text">oder drücke [ENTER]</div>
                 </div>
             </div>
         </div>
@@ -337,7 +316,6 @@
 
         let backgroundOffset = 0;
         let mountainOffset = 0;
-        let cityOffset = 0;
         let frames = 0;
 
         let typedText = "";
@@ -352,7 +330,7 @@
             maxSpeed: 1.0
         };
 
-        const baseGroundY = 380;
+        const baseGroundY = 360; // Boden etwas höher angesetzt für bessere Proportionen
 
         let animationFrameId = null;
         let loopRunning = false;
@@ -374,16 +352,6 @@
         const obstacles = [];
         let particles = [];
         let floatingTexts = [];
-        let stars = [];
-
-        for (let i = 0; i < 60; i++) {
-            stars.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * (baseGroundY - 150),
-                size: Math.random() * 2.5 + 0.5,
-                speed: Math.random() * 0.8 + 0.2
-            });
-        }
 
         function stopGameLoop() {
             loopRunning = false;
@@ -437,7 +405,7 @@
                 if (i < lockInIndex) {
                     html += `<span class="lock-typed">${lockInTarget[i].toUpperCase()}</span>`;
                 } else {
-                    html += `<span style="color:#666;">${lockInTarget[i].toUpperCase()}</span>`;
+                    html += `<span style="color:#555;">${lockInTarget[i].toUpperCase()}</span>`;
                 }
             }
             lockInDisplay.innerHTML = html;
@@ -460,10 +428,8 @@
 
             score = 0;
             gameSpeed = baseSpeed;
-
             backgroundOffset = 0;
             mountainOffset = 0;
-            cityOffset = 0;
             frames = 0;
 
             player.y = baseGroundY - player.height;
@@ -503,9 +469,9 @@
                 particles.push({
                     x: x,
                     y: y,
-                    vx: (Math.random() - 0.5) * 15,
-                    vy: (Math.random() - 1) * 15,
-                    size: Math.random() * 6 + 2,
+                    vx: (Math.random() - 0.5) * 12,
+                    vy: (Math.random() - 1) * 12,
+                    size: Math.random() * 8 + 4,
                     life: 1,
                     color: color
                 });
@@ -518,11 +484,11 @@
 
         function spawnObstacle() {
             let obs = { x: canvas.width, passed: false };
-            let types = ['spike', 'double_spike', 'triple_spike', 'laser_wall', 'acid_pool', 'sawblade', 'plasma_gate'];
+            let types = ['spike', 'double_spike', 'triple_spike', 'block_wall', 'lava_pool', 'sawblade', 'tall_block'];
 
-            if (score < 100) types = ['spike', 'laser_wall'];
-            else if (score < 250) types = ['spike', 'double_spike', 'laser_wall', 'acid_pool'];
-            else if (score < 400) types = ['spike', 'double_spike', 'sawblade', 'acid_pool'];
+            if (score < 100) types = ['spike', 'block_wall'];
+            else if (score < 250) types = ['spike', 'double_spike', 'block_wall', 'lava_pool'];
+            else if (score < 400) types = ['spike', 'double_spike', 'sawblade', 'lava_pool'];
 
             let type = types[Math.floor(Math.random() * types.length)];
             obs.type = type;
@@ -539,11 +505,11 @@
                 obs.y = baseGroundY - 40;
                 obs.width = 120;
                 obs.height = 40;
-            } else if (type === 'laser_wall') {
-                obs.y = baseGroundY - 50;
-                obs.width = 20;
-                obs.height = 50;
-            } else if (type === 'acid_pool') {
+            } else if (type === 'block_wall') {
+                obs.y = baseGroundY - 40;
+                obs.width = 40;
+                obs.height = 40;
+            } else if (type === 'lava_pool') {
                 obs.y = baseGroundY - 15;
                 obs.width = 140;
                 obs.height = 15;
@@ -551,10 +517,10 @@
                 obs.y = baseGroundY - 50;
                 obs.width = 50;
                 obs.height = 50;
-            } else if (type === 'plasma_gate') {
-                obs.y = baseGroundY - 90;
-                obs.width = 30;
-                obs.height = 90;
+            } else if (type === 'tall_block') {
+                obs.y = baseGroundY - 80;
+                obs.width = 40;
+                obs.height = 80;
             }
 
             obstacles.push(obs);
@@ -586,7 +552,8 @@
             if (!player.isJumping && player.dy === 0) {
                 player.dy = player.jumpForce;
                 player.isJumping = true;
-                createParticles(player.x + player.width / 2, player.y + player.height, "var(--neon-cyan)", 15);
+                // Kleine Staubpartikel beim Absprung
+                createParticles(player.x + player.width / 2, player.y + player.height, "#ffffff", 8);
             }
         }
 
@@ -607,7 +574,9 @@
             if (gameState === 'GAME_OVER') return;
 
             gameState = 'GAME_OVER';
-            createParticles(player.x + player.width / 2, player.y + player.height / 2, "var(--neon-pink)", 60);
+            // GD-Typische Explosion (Gelb und Türkis)
+            createParticles(player.x + player.width / 2, player.y + player.height / 2, "var(--gd-player-1)", 30);
+            createParticles(player.x + player.width / 2, player.y + player.height / 2, "var(--gd-player-2)", 30);
 
             bgMusic.pause();
             calculateStats();
@@ -672,21 +641,10 @@
 
             frames++;
 
-            backgroundOffset -= gameSpeed * 0.5;
-            mountainOffset -= gameSpeed * 0.15;
-            cityOffset -= gameSpeed * 0.05;
+            backgroundOffset -= gameSpeed * 1.0; 
+            mountainOffset -= gameSpeed * 0.3;   // Parallax Hintergrund
 
-            if (backgroundOffset <= -80) backgroundOffset = 0;
-            if (mountainOffset <= -800) mountainOffset = 0;
-            if (cityOffset <= -800) cityOffset = 0;
-
-            stars.forEach(s => {
-                s.x -= s.speed;
-                if (s.x < 0) {
-                    s.x = canvas.width;
-                    s.y = Math.random() * (baseGroundY - 150);
-                }
-            });
+            if (mountainOffset <= -1200) mountainOffset = 0;
 
             let lastObs = obstacles[obstacles.length - 1];
             let minDistance = 350 + (gameSpeed * 10);
@@ -697,20 +655,22 @@
             player.dy += player.gravity;
             player.y += player.dy;
 
+            // GD-Rotationslogik
             if (player.isJumping || player.dy > 1) {
                 player.rotation += 0.15;
             } else {
+                // Raste auf 90-Grad-Winkel ein, wenn am Boden
                 player.rotation = Math.round(player.rotation / (Math.PI / 2)) * (Math.PI / 2);
             }
 
             player.trail.push({ x: player.x, y: player.y, rot: player.rotation, life: 1 });
-            if (player.trail.length > 8) player.trail.shift();
+            if (player.trail.length > 6) player.trail.shift();
 
             for (let i = 0; i < obstacles.length; i++) {
                 let obs = obstacles[i];
                 obs.x -= gameSpeed;
 
-                let hitBoxMargin = 10;
+                let hitBoxMargin = 8; // Großzügigere Hitbox
 
                 if (obs.type === 'spike' || obs.type === 'double_spike' || obs.type === 'triple_spike') {
                     if (
@@ -719,16 +679,16 @@
                         player.y < obs.y + obs.height &&
                         player.y + player.height > obs.y + 15
                     ) {
-                        gameOver("IMPALED BY SPIKES");
+                        gameOver("HIT A SPIKE");
                     }
-                } else if (obs.type === 'laser_wall' || obs.type === 'plasma_gate') {
+                } else if (obs.type === 'block_wall' || obs.type === 'tall_block') {
                     if (
-                        player.x < obs.x + obs.width - 5 &&
-                        player.x + player.width - 5 > obs.x &&
+                        player.x < obs.x + obs.width - 2 &&
+                        player.x + player.width - 2 > obs.x &&
                         player.y < obs.y + obs.height &&
-                        player.y + player.height > obs.y + 10
+                        player.y + player.height > obs.y + 2
                     ) {
-                        gameOver("ZAPPED BY LASER");
+                        gameOver("CRASHED INTO WALL");
                     }
                 } else if (obs.type === 'sawblade') {
                     let cx = obs.x + obs.width / 2;
@@ -736,14 +696,14 @@
                     let px = player.x + player.width / 2;
                     let py = player.y + player.height / 2;
                     let dist = Math.sqrt(Math.pow(cx - px, 2) + Math.pow(cy - py, 2));
-                    if (dist < 35) gameOver("SHREDDED BY SAWBLADE");
-                } else if (obs.type === 'acid_pool') {
+                    if (dist < 32) gameOver("SAWBLADE COLLISION");
+                } else if (obs.type === 'lava_pool') {
                     if (
                         player.x + player.width > obs.x + 10 &&
                         player.x < obs.x + obs.width - 10 &&
-                        player.y + player.height > obs.y
+                        player.y + player.height > obs.y + 5
                     ) {
-                        gameOver("DISSOLVED IN ACID");
+                        gameOver("MELTED IN LAVA");
                     }
                 }
 
@@ -755,122 +715,111 @@
                     let currentSpeedMult = gameSpeed / baseSpeed;
                     if (currentSpeedMult > stats.maxSpeed) stats.maxSpeed = currentSpeedMult;
 
-                    addFloatingText("+10", player.x, player.y - 40, "var(--neon-pink)");
+                    addFloatingText("+10", player.x, player.y - 40, "#00ff00");
                 }
             }
 
+            // Bodenkollision
             if (player.y >= baseGroundY - player.height) {
                 player.y = baseGroundY - player.height;
                 player.dy = 0;
                 if (player.isJumping) {
                     player.isJumping = false;
-                    createParticles(player.x + player.width / 2, player.y + player.height, "var(--neon-cyan)", 10);
                 }
             }
 
+            // Hindernisse aufräumen
             if (obstacles.length > 0 && obstacles[0].x + obstacles[0].width < -150) {
                 obstacles.shift();
             }
 
+            // Partikel aktualisieren
             for (let i = particles.length - 1; i >= 0; i--) {
                 particles[i].x += particles[i].vx;
                 particles[i].y += particles[i].vy;
-                particles[i].vy += 0.5;
-                particles[i].life -= 0.03;
+                particles[i].vy += 0.5; // Gravitation auf Partikel
+                particles[i].life -= 0.04;
                 if (particles[i].life <= 0) particles.splice(i, 1);
             }
 
-            for (let i = 0; i < player.trail.length; i++) player.trail[i].life -= 0.12;
+            // Trail verblassen
+            for (let i = 0; i < player.trail.length; i++) player.trail[i].life -= 0.16;
 
+            // Floating Text hochwandern lassen
             for (let i = floatingTexts.length - 1; i >= 0; i--) {
-                floatingTexts[i].y -= 1;
+                floatingTexts[i].y -= 1.5;
                 floatingTexts[i].life -= 0.02;
                 if (floatingTexts[i].life <= 0) floatingTexts.splice(i, 1);
             }
         }
 
-        function drawCity() {
-            ctx.fillStyle = "#140126";
-            for (let i = 0; i < 20; i++) {
-                let h = 50 + Math.abs(Math.sin(i * 1.5) * 100);
-                ctx.fillRect((i * 80) + cityOffset, baseGroundY - h, 70, h);
-
-                ctx.fillStyle = "rgba(77, 243, 255, 0.3)";
-                if (i % 2 === 0) ctx.fillRect((i * 80) + cityOffset + 10, baseGroundY - h + 10, 20, 20);
-                ctx.fillStyle = "#140126";
-            }
-        }
-
         function drawMountains() {
-            ctx.fillStyle = "#200033";
+            // Hintere, hellere Berge
+            ctx.fillStyle = "#1e6ae6"; 
             ctx.beginPath();
             ctx.moveTo(0, baseGroundY);
             for (let i = 0; i < 20; i++) {
-                ctx.lineTo((i * 100) + mountainOffset, baseGroundY - 80 - Math.abs(Math.sin(i * 45) * 60));
+                ctx.lineTo((i * 150) + mountainOffset, baseGroundY - 120 - Math.abs(Math.sin(i * 2) * 80));
+                ctx.lineTo((i * 150) + 75 + mountainOffset, baseGroundY);
             }
-            ctx.lineTo(canvas.width * 2, baseGroundY);
+            ctx.lineTo(canvas.width, baseGroundY);
             ctx.fill();
 
-            ctx.strokeStyle = "#d884ff";
-            ctx.lineWidth = 3;
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = "#d884ff";
-            ctx.stroke();
-            ctx.shadowBlur = 0;
+            // Vordere, etwas dunklere Berge
+            ctx.fillStyle = "#165bd1";
+            ctx.beginPath();
+            ctx.moveTo(0, baseGroundY);
+            for (let i = 0; i < 20; i++) {
+                ctx.lineTo((i * 200) + mountainOffset * 1.5 - 50, baseGroundY - 60 - Math.abs(Math.cos(i) * 50));
+                ctx.lineTo((i * 200) + 100 + mountainOffset * 1.5 - 50, baseGroundY);
+            }
+            ctx.lineTo(canvas.width, baseGroundY);
+            ctx.fill();
+        }
+
+        function drawGround() {
+            // Dunkelblauer Boden
+            ctx.fillStyle = "var(--gd-ground)";
+            ctx.fillRect(0, baseGroundY, canvas.width, canvas.height - baseGroundY);
+
+            // Weiße Trennlinie am Boden
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, baseGroundY, canvas.width, 3);
+
+            // Raster auf dem Boden (bewegt sich mit dem BackgroundOffset)
+            ctx.strokeStyle = "rgba(0, 0, 0, 0.4)";
+            ctx.lineWidth = 2;
+            
+            let gridSize = 50;
+            // Vertikale Linien
+            let startX = backgroundOffset % gridSize;
+            for (let x = startX; x < canvas.width; x += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, baseGroundY + 3);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            // Horizontale Linien
+            for (let y = baseGroundY + 3 + (gridSize/2); y < canvas.height; y += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
         }
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            ctx.fillStyle = "#ffffff";
-            stars.forEach(s => {
-                ctx.globalAlpha = Math.random() * 0.5 + 0.55;
-                ctx.fillRect(s.x, s.y, s.size, s.size);
-            });
-            ctx.globalAlpha = 1;
-
-            ctx.fillStyle = "#ff78b8";
-            ctx.shadowBlur = 80;
-            ctx.shadowColor = "#ff78b8";
-            ctx.beginPath();
-            ctx.arc(400, 250, 160, Math.PI, 0);
-            ctx.fill();
-            ctx.shadowBlur = 0;
-
-            ctx.fillStyle = "#2a0730";
-            for (let i = 0; i < 8; i++) {
-                ctx.fillRect(200, 200 - (i * 16), 400, i * 4);
-            }
-
-            drawCity();
             drawMountains();
+            drawGround();
 
-            ctx.strokeStyle = "rgba(77, 243, 255, 0.55)";
-            ctx.lineWidth = 2;
-            ctx.shadowBlur = 8;
-            ctx.shadowColor = "rgba(77, 243, 255, 0.8)";
-            for (let i = -100; i < canvas.width + 100; i += 60) {
-                ctx.beginPath();
-                ctx.moveTo(i + backgroundOffset, baseGroundY);
-                ctx.lineTo((i - 400) * 2 + 400, canvas.height);
-                ctx.stroke();
-            }
-
-            ctx.strokeStyle = "#7ff7ff";
-            ctx.lineWidth = 5;
-            ctx.shadowBlur = 20;
-            ctx.shadowColor = "#7ff7ff";
-            ctx.beginPath();
-            ctx.moveTo(0, baseGroundY);
-            ctx.lineTo(canvas.width, baseGroundY);
-            ctx.stroke();
-            ctx.shadowBlur = 0;
-
+            // Hindernisse zeichnen
             obstacles.forEach(obs => {
                 if (obs.type === 'spike' || obs.type === 'double_spike' || obs.type === 'triple_spike') {
-                    ctx.shadowBlur = 25;
-                    ctx.shadowColor = "#ff5faf";
-                    ctx.fillStyle = "#ff5faf";
+                    ctx.fillStyle = "#000000";
+                    ctx.strokeStyle = "#ffffff";
+                    ctx.lineWidth = 2;
 
                     let count = obs.type === 'spike' ? 1 : (obs.type === 'double_spike' ? 2 : 3);
                     for (let i = 0; i < count; i++) {
@@ -881,136 +830,126 @@
                         ctx.lineTo(offsetX, obs.y + obs.height);
                         ctx.closePath();
                         ctx.fill();
-
-                        ctx.fillStyle = "#5b163a";
-                        ctx.shadowBlur = 0;
-                        ctx.beginPath();
-                        ctx.moveTo(offsetX + 20, obs.y + 12);
-                        ctx.lineTo(offsetX + 32, obs.y + obs.height - 4);
-                        ctx.lineTo(offsetX + 8, obs.y + obs.height - 4);
-                        ctx.closePath();
-                        ctx.fill();
-
-                        ctx.fillStyle = "#ff5faf";
+                        ctx.stroke();
                     }
-                } else if (obs.type === 'laser_wall') {
-                    ctx.shadowBlur = 30;
-                    ctx.shadowColor = "#66f6ff";
-                    ctx.fillStyle = "rgba(102, 246, 255, 0.92)";
+                } else if (obs.type === 'block_wall' || obs.type === 'tall_block') {
+                    // Geometry Dash typische solide Blöcke
+                    ctx.fillStyle = "#000000";
                     ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-
-                    ctx.fillStyle = "#ffffff";
-                    ctx.fillRect(obs.x + 8, obs.y, 4, obs.height);
-                } else if (obs.type === 'plasma_gate') {
-                    ctx.shadowBlur = 30;
-                    ctx.shadowColor = "#ffe866";
-                    ctx.fillStyle = "rgba(255, 232, 102, 0.55)";
-                    ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-
-                    ctx.strokeStyle = "#fff2a6";
-                    ctx.lineWidth = 3;
-                    ctx.strokeRect(obs.x, obs.y, obs.width, obs.height);
-
-                    ctx.beginPath();
-                    ctx.moveTo(obs.x + 15, obs.y);
-                    ctx.lineTo(obs.x + 5 + Math.random() * 20, obs.y + 30);
-                    ctx.lineTo(obs.x + 5 + Math.random() * 20, obs.y + 60);
-                    ctx.lineTo(obs.x + 15, obs.y + 90);
+                    
                     ctx.strokeStyle = "#ffffff";
-                    ctx.stroke();
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(obs.x + 1, obs.y + 1, obs.width - 2, obs.height - 2);
+                    
+                    // Inneres Muster
+                    ctx.strokeStyle = "rgba(255,255,255,0.2)";
+                    ctx.strokeRect(obs.x + 8, obs.y + 8, obs.width - 16, obs.height - 16);
+
                 } else if (obs.type === 'sawblade') {
                     ctx.save();
                     ctx.translate(obs.x + obs.width / 2, obs.y + obs.height / 2);
-                    ctx.rotate(frames * 0.2);
+                    ctx.rotate(frames * -0.15); // Dreht sich gegen den Uhrzeigersinn
 
-                    ctx.shadowBlur = 20;
-                    ctx.shadowColor = "#ff6ab8";
-                    ctx.fillStyle = "#aab2ba";
+                    // Äußeres Sägeblatt (Schwarz/Grau)
+                    ctx.fillStyle = "#555555";
                     ctx.beginPath();
                     ctx.arc(0, 0, 25, 0, Math.PI * 2);
                     ctx.fill();
 
-                    ctx.strokeStyle = "#ff6ab8";
-                    ctx.lineWidth = 4;
+                    // Zähne
+                    ctx.fillStyle = "#000000";
                     for (let i = 0; i < 8; i++) {
                         ctx.rotate(Math.PI / 4);
                         ctx.beginPath();
-                        ctx.moveTo(25, 0);
-                        ctx.lineTo(35, 5);
-                        ctx.lineTo(25, 10);
-                        ctx.stroke();
+                        ctx.moveTo(15, -5);
+                        ctx.lineTo(30, 0);
+                        ctx.lineTo(15, 5);
+                        ctx.fill();
                     }
-                    ctx.restore();
-                } else if (obs.type === 'acid_pool') {
-                    let wave = Math.sin(frames * 0.15) * 4;
-                    ctx.shadowBlur = 25;
-                    ctx.shadowColor = "#7bff8d";
-                    ctx.fillStyle = "#7bff8d";
-                    ctx.fillRect(obs.x, obs.y + wave, obs.width, obs.height);
 
+                    // Innerer weißer Kreis
                     ctx.fillStyle = "#ffffff";
-                    ctx.globalAlpha = 0.55;
-                    ctx.fillRect(obs.x + 10, obs.y + wave + 2, obs.width - 20, 2);
-                    ctx.globalAlpha = 1;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, 10, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.restore();
+                } else if (obs.type === 'lava_pool') {
+                    let wave = Math.sin(frames * 0.15) * 3;
+                    
+                    // Rote Grundmasse
+                    ctx.fillStyle = "#ff2a00";
+                    ctx.fillRect(obs.x, obs.y + 5, obs.width, obs.height - 5);
+                    
+                    // Gelbe leuchtende Oberfläche (wellig)
+                    ctx.fillStyle = "#ffea00";
+                    ctx.fillRect(obs.x, obs.y + 5 + wave, obs.width, 4);
                 }
-                ctx.shadowBlur = 0;
             });
 
+            // Spieler zeichnen (falls am Leben)
             if (gameState !== 'GAME_OVER') {
+                // Trail
                 player.trail.forEach(t => {
                     if (t.life > 0) {
                         ctx.save();
                         ctx.translate(t.x + player.width / 2, t.y + player.height / 2);
                         ctx.rotate(t.rot);
-                        ctx.fillStyle = `rgba(77, 243, 255, ${t.life * 0.42})`;
+                        ctx.globalAlpha = t.life * 0.5;
+                        ctx.fillStyle = "var(--gd-player-1)";
                         ctx.fillRect(-player.width / 2, -player.height / 2, player.width, player.height);
                         ctx.restore();
                     }
                 });
+                ctx.globalAlpha = 1;
 
-                let pulse = 1 + Math.sin(frames * 0.2) * 0.05;
-
+                // Hauptspieler
                 ctx.save();
                 ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
                 ctx.rotate(player.rotation);
-                ctx.scale(pulse, pulse);
 
-                ctx.fillStyle = "#77f7ff";
-                ctx.shadowBlur = 30;
-                ctx.shadowColor = "#77f7ff";
+                // Schwarze Outline
+                ctx.fillStyle = "#000000";
+                ctx.fillRect(-player.width / 2 - 2, -player.height / 2 - 2, player.width + 4, player.height + 4);
+
+                // Primärfarbe (Gelb)
+                ctx.fillStyle = "var(--gd-player-1)";
                 ctx.fillRect(-player.width / 2, -player.height / 2, player.width, player.height);
 
-                ctx.fillStyle = "#07131a";
-                ctx.fillRect(-12, -12, 24, 24);
+                // Sekundärfarbe (Cyan innen)
+                ctx.fillStyle = "var(--gd-player-2)";
+                let inner = player.width / 2.5;
+                ctx.fillRect(-inner / 2, -inner / 2, inner, inner);
 
-                ctx.fillStyle = "#ff5faf";
-                ctx.fillRect(-4, -4, 8, 8);
+                // Weiße Highlights
+                ctx.fillStyle = "#ffffff";
+                ctx.fillRect(-player.width/2 + 2, -player.height/2 + 2, 8, 4);
+
                 ctx.restore();
             }
 
+            // Partikel (beim Tod oder Absprung)
             particles.forEach(p => {
                 ctx.fillStyle = p.color;
                 ctx.globalAlpha = p.life;
-                ctx.shadowBlur = 20;
-                ctx.shadowColor = p.color;
                 ctx.fillRect(p.x, p.y, p.size, p.size);
             });
-
             ctx.globalAlpha = 1;
-            ctx.shadowBlur = 0;
 
-            ctx.font = "28px VT323";
+            // Schwebender Text (+10)
+            ctx.font = "24px 'Fredoka', sans-serif";
             ctx.textAlign = "center";
             floatingTexts.forEach(ft => {
                 ctx.fillStyle = ft.color;
                 ctx.globalAlpha = ft.life;
-                ctx.shadowBlur = 15;
-                ctx.shadowColor = ft.color;
+                // Harter Schatten für den Floating-Text
+                ctx.shadowColor = "#000";
+                ctx.shadowOffsetX = 2;
+                ctx.shadowOffsetY = 2;
                 ctx.fillText(ft.text, ft.x + 20, ft.y);
+                ctx.shadowColor = "transparent"; // Reset
             });
-
             ctx.globalAlpha = 1;
-            ctx.shadowBlur = 0;
         }
 
         function updateUI() {
@@ -1033,7 +972,7 @@
             }
         }
 
-        draw();
+        draw(); // Einmal initial zeichnen
     </script>
 </body>
 </html>
