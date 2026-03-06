@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Jump & Run - Grundreihe</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #1e1e24;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #gameContainer {
+            position: relative;
+            width: 800px;
+            height: 400px;
+            background-color: #2b2b36;
+            border: 4px solid #44475a;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        #ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 24px;
+            font-weight: bold;
+            z-index: 10;
+        }
+
+        #wordDisplay {
+            position: absolute;
+            top: 100px;
+            width: 100%;
+            text-align: center;
+            font-size: 48px;
+            letter-spacing: 5px;
+            z-index: 10;
+        }
+
+        .typed { color: #50fa7b; }
+        .untyped { color: #f8f8f2; }
+        .error { color: #ff5555; }
+
+        #overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 20px;
+            background-color: #bd93f9;
+            color: #282a36;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background-color: #ff79c6;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Typing Dash: Grundreihe</h1>
+    <p>Tippe das Wort fehlerfrei ab, um über das Hindernis zu springen! Ein Fehler = Game Over.</p>
+
+    <div id="gameContainer">
+        <div id="ui">
+            <span id="scoreDisplay">Score: 0</span>
+            <span id="speedDisplay">Speed: 1.0x</span>
+        </div>
+        <div id="wordDisplay"></div>
+        <canvas id="gameCanvas" width="800" height="400"></canvas>
+        
+        <div id="overlay">
+            <h2 id="overlayTitle">Bereit?</h2>
+            <p id="overlayText">Finger auf ASDF JKLÖ legen.</p>
+            <button id="startBtn">Spiel Starten</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const wordDisplay = document.getElementById('wordDisplay');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const speedDisplay = document.getElementById('speedDisplay');
+        const overlay = document.getElementById('overlay');
+        const overlayTitle = document.getElementById('overlayTitle');
+        const overlayText = document.getElementById('overlayText');
+        const startBtn = document.getElementById('startBtn');
+
+        // Nur Grundreihen-Wörter/Kombinationen (a, s, d, f, g, h, j, k, l, ö)
+        const wordList = [
+            "das", "all", "hall", "kahl", "lass", "fall", "gas", "glas", 
+            "saal", "lag", "hag", "fad", "kalk", "ass", "fas", "gal",
+            "asdf", "jklö", "als", "hasch", "kass", "fall", "schlag" 
+        ];
+
+        // Spielvariablen
+        let gameActive = false;
+        let score = 0;
+        let gameSpeed = 3;
+        let baseSpeed = 3;
+        
+        let currentWord = "";
+        let typedText = "";
+        
+        // Spieler (Block)
+        const player = {
+            x: 100,
+            y: 300,
+            width: 40,
+            height: 40,
+            dy: 0,
+            jumpForce: -14,
+            gravity: 0.6,
+            isJumping: false
+        };
+
+        // Hindernis
+        const obstacle = {
+            x: 800,
+            y: 300,
+            width: 40,
+            height: 40,
+            active: false
+        };
+
+        const groundY = 340;
+
+        function initGame() {
+            score = 0;
+            gameSpeed = baseSpeed;
+            player.y = groundY - player.height;
+            player.dy = 0;
+            player.isJumping = false;
+            
+            spawnObstacle();
+            updateUI();
+            
+            gameActive = true;
+            overlay.style.display = 'none';
+            gameLoop();
+        }
+
+        function spawnObstacle() {
+            obstacle.x = canvas.width;
+            obstacle.active = true;
+            
+            // Zufälliges Wort aus der Liste wählen
+            currentWord = wordList[Math.floor(Math.random() * wordList.length)];
+            typedText = "";
+            renderWord();
+        }
+
+        function renderWord(isError = false) {
+            let html = "";
+            for (let i = 0; i < currentWord.length; i++) {
+                if (i < typedText.length) {
+                    html += `<span class="${isError && i === typedText.length - 1 ? 'error' : 'typed'}">${currentWord[i]}</span>`;
+                } else {
+                    html += `<span class="untyped">${currentWord[i]}</span>`;
+                }
+            }
+            wordDisplay.innerHTML = html;
+        }
+
+        function jump() {
+            if (!player.isJumping) {
+                player.dy = player.jumpForce;
+                player.isJumping = true;
+            }
+        }
+
+        function gameOver(reason) {
+            gameActive = false;
+            overlay.style.display = 'flex';
+            overlayTitle.innerText = "Game Over!";
+            overlayText.innerText = reason + " | Score: " + score;
+            startBtn.innerText = "Nochmal versuchen";
+        }
+
+        // Tastatur-Eingabe
+        document.addEventListener('keydown', (e) => {
+            if (!gameActive) return;
+
+            // Ignoriere Modifikatoren
+            if (e.key === "Shift" || e.key === "Control" || e.key === "Alt") return;
+
+            const expectedChar = currentWord[typedText.length];
+            const typedChar = e.key.toLowerCase();
+
+            if (typedChar === expectedChar) {
+                // Richtig getippt
+                typedText += typedChar;
+                renderWord();
+
+                // Wort komplett?
+                if (typedText === currentWord) {
+                    jump();
+                    score += 10;
+                    gameSpeed += 0.2; // Progressiver Flow: Spiel wird schneller
+                    obstacle.active = false; // Hindernis verschwindet beim Sprung gedanklich
+                    setTimeout(spawnObstacle, 500); // Neues Hindernis nach kurzem Delay
+                }
+            } else {
+                // Falsch getippt -> Sofortiges Game Over laut Konzept
+                typedText += typedChar; // Zeigt den falschen Buchstaben kurz an
+                renderWord(true);
+                gameOver("Tippfehler!");
+            }
+        });
+
+        function update() {
+            // Spieler Physik
+            player.dy += player.gravity;
+            player.y += player.dy;
+
+            // Bodenkollision
+            if (player.y >= groundY - player.height) {
+                player.y = groundY - player.height;
+                player.dy = 0;
+                player.isJumping = false;
+            }
+
+            // Hindernis bewegen
+            if (obstacle.active) {
+                obstacle.x -= gameSpeed;
+
+                // Kollision mit Hindernis prüfen
+                if (
+                    player.x < obstacle.x + obstacle.width &&
+                    player.x + player.width > obstacle.x &&
+                    player.y < obstacle.y + obstacle.height &&
+                    player.y + player.height > obstacle.y
+                ) {
+                    gameOver("Hindernis getroffen! Zu langsam.");
+                }
+
+                // Hindernis verpasst (sollte eigentlich durch Sprung gelöst werden)
+                if (obstacle.x + obstacle.width < 0) {
+                    obstacle.active = false;
+                    spawnObstacle();
+                }
+            }
+        }
+
+        function draw() {
+            // Hintergrund löschen
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Boden zeichnen
+            ctx.fillStyle = "#44475a";
+            ctx.fillRect(0, groundY, canvas.width, canvas.height - groundY);
+
+            // Spieler zeichnen (Neon Grün)
+            ctx.fillStyle = "#50fa7b";
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+
+            // Hindernis zeichnen (Neon Rot)
+            if (obstacle.active) {
+                ctx.fillStyle = "#ff5555";
+                ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            }
+        }
+
+        function updateUI() {
+            scoreDisplay.innerText = "Score: " + score;
+            speedDisplay.innerText = "Speed: " + (gameSpeed / baseSpeed).toFixed(1) + "x";
+        }
+
+        function gameLoop() {
+            if (!gameActive) return;
+            
+            update();
+            draw();
+            updateUI();
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        startBtn.addEventListener('click', initGame);
+    </script>
+</body>
+</html>
