@@ -1,637 +1,883 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retro Type Dash - Neon Edition</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Geometry Type Dash Optimized</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap');
 
         :root {
-            --neon-pink: #ff007f;
-            --neon-cyan: #00e5ff;
-            --neon-purple: #d500f9;
-            --neon-yellow: #ffea00;
-            --bg-top: #3a005c;
-            --bg-bottom: #12002b;
+            --bg: #0b0c10;
+            --panel: #1f2833;
+            --cyan: #66fcf1;
+            --white: #ffffff;
+            --muted: #c5c6c7;
+            --red: #ff0055;
+            --yellow: #fce81a;
+            --ground: #121212;
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
-            margin: 0; padding: 0; background-color: #0a0014; color: #fff;
-            font-family: 'VT323', monospace; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; height: 100vh;
-            overflow: hidden; user-select: none;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg);
+            color: var(--white);
+            font-family: 'Orbitron', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
         }
 
-        /* CRT Scanlines - Heller gemacht */
-        body::after {
-            content: ""; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
-            z-index: 100; background-size: 100% 4px; pointer-events: none;
-            opacity: 0.6;
+        h1 {
+            color: var(--cyan);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px rgba(102, 252, 241, 0.5);
+            margin: 0 0 8px;
         }
 
-        #gameWrapper {
-            position: relative; padding: 12px; background: #1a0033; border-radius: 12px;
-            box-shadow: 0 0 40px rgba(0, 229, 255, 0.4), 0 0 80px rgba(255, 0, 127, 0.3);
+        .subtitle {
+            color: var(--muted);
+            margin: 0 0 18px;
+            text-align: center;
+            padding: 0 12px;
         }
 
         #gameContainer {
-            position: relative; width: 800px; height: 450px;
-            background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
-            border: 3px solid var(--neon-cyan); border-radius: 8px; overflow: hidden; z-index: 10;
+            position: relative;
+            width: 800px;
+            height: 450px;
+            max-width: calc(100vw - 24px);
+            max-height: calc((100vw - 24px) * 0.5625);
+            background: linear-gradient(180deg, var(--panel) 0%, var(--bg) 100%);
+            border: 4px solid var(--cyan);
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(102, 252, 241, 0.35);
+            overflow: hidden;
         }
 
-        canvas { display: block; }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
 
         #ui {
-            position: absolute; top: 15px; left: 20px; right: 20px;
-            display: flex; justify-content: space-between;
-            font-size: 38px; z-index: 10; color: var(--neon-yellow); text-shadow: 0 0 15px var(--neon-yellow);
+            position: absolute;
+            top: 18px;
+            left: 18px;
+            right: 18px;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            z-index: 10;
+            color: var(--muted);
+            text-shadow: 0 0 5px rgba(255,255,255,0.35);
         }
 
         #wordDisplay {
-            position: absolute; top: 80px; width: 100%; text-align: center;
-            font-size: 75px; letter-spacing: 12px; z-index: 10;
-            text-shadow: 0 5px 20px rgba(0,0,0,0.9); transition: transform 0.05s;
+            position: absolute;
+            top: 108px;
+            width: 100%;
+            text-align: center;
+            font-size: 48px;
+            font-weight: 900;
+            letter-spacing: 6px;
+            z-index: 10;
+            text-shadow: 0 0 10px rgba(0,0,0,0.85);
+            user-select: none;
+            min-height: 64px;
         }
 
-        #comboBarContainer {
-            position: absolute; top: 175px; left: 50%; transform: translateX(-50%);
-            width: 250px; height: 10px; background: rgba(0,0,0,0.6);
-            border: 2px solid var(--neon-cyan); border-radius: 5px; z-index: 10; display: none;
-            box-shadow: 0 0 10px var(--neon-cyan);
-        }
-        #comboBar {
-            width: 100%; height: 100%; background: var(--neon-cyan);
-            box-shadow: 0 0 15px var(--neon-cyan); transition: width 0.1s linear;
+        .typed {
+            color: var(--cyan);
+            text-shadow: 0 0 15px var(--cyan);
         }
 
-        .typed { color: var(--neon-cyan); text-shadow: 0 0 20px var(--neon-cyan), 0 0 40px #fff; }
-        .untyped { color: #e0e0e0; text-shadow: 0 0 8px #fff; }
-        .error { color: var(--neon-pink); text-shadow: 0 0 25px var(--neon-pink); }
-
-        @keyframes shake {
-            0% { transform: translateX(0); color: var(--neon-pink); }
-            25% { transform: translateX(-15px); }
-            50% { transform: translateX(15px); }
-            75% { transform: translateX(-15px); }
-            100% { transform: translateX(0); color: #fff; }
+        .untyped {
+            color: var(--white);
         }
-        .shake-active { animation: shake 0.25s; }
+
+        .error {
+            color: var(--red);
+            text-shadow: 0 0 15px var(--red);
+        }
 
         #overlay {
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(18, 0, 43, 0.85); display: flex; flex-direction: column;
-            align-items: center; justify-content: center; z-index: 50;
-            backdrop-filter: blur(4px);
+            position: absolute;
+            inset: 0;
+            background: rgba(11, 12, 16, 0.88);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            text-align: center;
+            padding: 24px;
         }
 
-        h1 { color: var(--neon-pink); font-size: 45px; text-shadow: 0 0 25px var(--neon-pink); margin-bottom: 5px; letter-spacing: 6px;}
-        .bigTitle { font-size: 70px; color: var(--neon-cyan); text-shadow: 0 0 30px var(--neon-cyan); margin-bottom: 5px; letter-spacing: 5px; text-align: center;}
-
-        #lockInDisplay {
-            font-size: 65px; letter-spacing: 18px; margin-top: 20px; color: #444;
-            background: rgba(0,0,0,0.8); padding: 15px 40px; border-radius: 12px; border: 3px solid var(--neon-purple);
-            box-shadow: inset 0 0 30px rgba(213, 0, 249, 0.4), 0 0 20px rgba(213, 0, 249, 0.3);
+        #overlayTitle {
+            font-size: 38px;
+            color: var(--red);
+            text-shadow: 0 0 15px var(--red);
+            margin: 0 0 10px;
         }
-        .lock-typed { color: var(--neon-cyan); text-shadow: 0 0 30px var(--neon-cyan); }
 
-        button.bootBtn {
-            padding: 15px 50px; font-size: 38px; font-family: 'VT323', monospace;
-            background: rgba(255, 0, 127, 0.1); color: var(--neon-pink); border: 3px solid var(--neon-pink); border-radius: 8px;
-            cursor: pointer; transition: 0.3s; text-shadow: 0 0 10px var(--neon-pink); box-shadow: 0 0 25px rgba(255, 0, 127, 0.5);
-            margin-top: 30px; pointer-events: auto; text-transform: uppercase;
+        #overlayText {
+            color: var(--muted);
+            font-size: 18px;
+            max-width: 560px;
+            line-height: 1.5;
+            margin: 0;
         }
-        button.bootBtn:hover { background: var(--neon-pink); color: #000; box-shadow: 0 0 50px var(--neon-pink); transform: scale(1.05); }
 
-        /* Stats Screen Styles */
-        .stats-grid {
-            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;
-            background: rgba(0, 229, 255, 0.1); border: 2px solid var(--neon-cyan);
-            padding: 20px; border-radius: 10px; margin-top: 15px; width: 90%;
-            box-shadow: 0 0 30px rgba(0, 229, 255, 0.2);
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin-top: 26px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
-        .stat-box { text-align: center; background: rgba(0,0,0,0.6); padding: 10px; border-radius: 5px; border: 1px solid #444;}
-        .stat-label { color: #aaa; font-size: 24px; text-transform: uppercase; }
-        .stat-value { color: #fff; font-size: 40px; text-shadow: 0 0 15px var(--neon-yellow); }
-        .stat-value.bad { color: var(--neon-pink); text-shadow: 0 0 15px var(--neon-pink); }
-        
-        .blinking-text { animation: blinker 1.5s linear infinite; color: #aaa; font-size: 24px; margin-top: 15px;}
-        @keyframes blinker { 50% { opacity: 0; } }
 
+        button {
+            padding: 12px 26px;
+            font-size: 18px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            background-color: transparent;
+            color: var(--cyan);
+            border: 3px solid var(--cyan);
+            border-radius: 7px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+        }
+
+        button:hover {
+            background-color: var(--cyan);
+            color: var(--bg);
+            box-shadow: 0 0 18px var(--cyan);
+        }
+
+        button.secondary {
+            color: var(--muted);
+            border-color: rgba(197, 198, 199, 0.45);
+        }
+
+        button.secondary:hover {
+            background: rgba(197, 198, 199, 0.2);
+            color: var(--white);
+            box-shadow: none;
+        }
+
+        .level-up {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 40px;
+            color: var(--yellow);
+            text-shadow: 0 0 20px var(--yellow);
+            opacity: 0;
+            z-index: 15;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+
+        .hintbar {
+            margin-top: 10px;
+            color: #8e9499;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        @media (max-width: 860px) {
+            #wordDisplay {
+                font-size: 34px;
+                top: 96px;
+                letter-spacing: 4px;
+            }
+
+            #ui {
+                font-size: 15px;
+            }
+
+            .subtitle {
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 <body>
+    <h1>Geometry Type Dash</h1>
+    <p class="subtitle">Tippe fehlerfrei im Takt. Die Musik läuft jetzt beat-synchron zum Gameplay.</p>
 
-    <h1>SYNTHWAVE TYPE DASH</h1>
-    <p style="color: var(--neon-cyan); margin-bottom: 20px; z-index: 10; font-size: 26px; text-shadow: 0 0 10px var(--neon-cyan);">Ein Tippfehler oder langes Zögern bricht die Combo ab!</p>
+    <div id="gameContainer">
+        <div id="ui">
+            <span id="scoreDisplay">SCORE: 0</span>
+            <span id="levelDisplay">LEVEL: 1</span>
+            <span id="comboDisplay">COMBO: 0</span>
+            <span id="audioDisplay">AUDIO: ON</span>
+        </div>
 
-    <div id="gameWrapper">
-        <div id="gameContainer">
-            <div id="ui">
-                <span id="scoreDisplay">SCORE: 0000</span>
-                <span id="speedDisplay">SPD: 1.0</span>
+        <div id="wordDisplay"></div>
+        <div id="levelUpMsg" class="level-up">LEVEL UP!</div>
+        <canvas id="gameCanvas" width="800" height="450"></canvas>
+
+        <div id="overlay">
+            <h2 id="overlayTitle">BEREIT?</h2>
+            <p id="overlayText">Finger auf die Grundreihe. Die Musik startet gemeinsam mit dem Run und bleibt in einem stabilen Raster, damit nichts offbeat wirkt.</p>
+            <div class="controls">
+                <button id="startBtn">START DASH</button>
+                <button id="audioBtn" class="secondary">AUDIO TOGGLE</button>
             </div>
-            <div id="wordDisplay"></div>
-            <div id="comboBarContainer"><div id="comboBar"></div></div>
-            <canvas id="gameCanvas" width="800" height="450"></canvas>
-            
-            <div id="overlay">
-                <div id="bootScreen" style="text-align: center;">
-                    <h2 class="bigTitle">SYSTEM READY</h2>
-                    <button class="bootBtn" id="bootBtn">INITIATE SEQUENCE</button>
-                </div>
-
-                <div id="lockInScreen" style="display: none; text-align: center;">
-                    <h2 class="bigTitle">TACTICAL LOCK-IN</h2>
-                    <p style="color: #fff; font-size: 28px;">Tippe die Grundreihe (links nach rechts):</p>
-                    <div id="lockInDisplay">ASDFGHJKLÖ</div>
-                </div>
-
-                <div id="deathScreen" style="display: none; text-align: center; width: 100%; display: flex; flex-direction: column; align-items: center;">
-                    <h2 class="bigTitle" style="color: var(--neon-pink); text-shadow: 0 0 30px var(--neon-pink); margin-top: 10px;">SIGNAL LOST</h2>
-                    <p id="deathReason" style="color: #fff; font-size: 32px; margin-top: 0; text-shadow: 0 0 10px #fff;"></p>
-                    
-                    <div class="stats-grid">
-                        <div class="stat-box"><div class="stat-label">Total Score</div><div class="stat-value" id="statScore">0</div></div>
-                        <div class="stat-box"><div class="stat-label">Accuracy</div><div class="stat-value" id="statAcc">0%</div></div>
-                        <div class="stat-box"><div class="stat-label">Speed (KPM)</div><div class="stat-value" id="statKpm">0</div></div>
-                        <div class="stat-box"><div class="stat-label">Words Cleared</div><div class="stat-value" id="statWords">0</div></div>
-                        <div class="stat-box"><div class="stat-label">Errors Made</div><div class="stat-value bad" id="statErrors">0</div></div>
-                        <div class="stat-box"><div class="stat-label">Top Speed</div><div class="stat-value" id="statMaxSpd">1.0x</div></div>
-                    </div>
-                    
-                    <button class="bootBtn" id="restartBtn" style="margin-top: 15px; padding: 10px 40px;">REBOOT SYSTEM</button>
-                    <div class="blinking-text" id="restartPrompt">oder drücke [ENTER]</div>
-                </div>
-            </div>
+            <div class="hintbar">Grundreihe: ASDF JKLÖ</div>
         </div>
     </div>
-
-    <audio id="bgMusic" loop preload="auto">
-        <source src="https://assets.mixkit.co/music/preview/mixkit-arcade-retro-background-219.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="crashSound" preload="auto">
-        <source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg">
-    </audio>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
+
         const wordDisplay = document.getElementById('wordDisplay');
-        const comboBarContainer = document.getElementById('comboBarContainer');
-        const comboBar = document.getElementById('comboBar');
-        
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const levelDisplay = document.getElementById('levelDisplay');
+        const comboDisplay = document.getElementById('comboDisplay');
+        const audioDisplay = document.getElementById('audioDisplay');
         const overlay = document.getElementById('overlay');
-        const bootScreen = document.getElementById('bootScreen');
-        const lockInScreen = document.getElementById('lockInScreen');
-        const deathScreen = document.getElementById('deathScreen');
-        const lockInDisplay = document.getElementById('lockInDisplay');
-        
-        const bootBtn = document.getElementById('bootBtn');
-        const restartBtn = document.getElementById('restartBtn');
-        const bgMusic = document.getElementById('bgMusic');
-        const crashSound = document.getElementById('crashSound');
+        const overlayTitle = document.getElementById('overlayTitle');
+        const overlayText = document.getElementById('overlayText');
+        const startBtn = document.getElementById('startBtn');
+        const audioBtn = document.getElementById('audioBtn');
+        const levelUpMsg = document.getElementById('levelUpMsg');
 
-        // Stats Elements
-        const statScore = document.getElementById('statScore');
-        const statAcc = document.getElementById('statAcc');
-        const statWords = document.getElementById('statWords');
-        const statKpm = document.getElementById('statKpm');
-        const statErrors = document.getElementById('statErrors');
-        const statMaxSpd = document.getElementById('statMaxSpd');
-
-        // Lexikon
-        const wordsLevel1 = ["a", "s", "d", "f", "g", "h", "j", "k", "l", "ö"];
-        const wordsLevel2 = ["as", "df", "gh", "jk", "lö", "sa", "fd", "hj", "kl", "da", "la", "ha"];
-        const wordsLevel3 = ["das", "fad", "lass", "fall", "saal", "hall", "kahl", "als", "lag", "fass", "glas", "schlag"];
-
-        const lockInTarget = "asdfghjklö";
-        let lockInIndex = 0;
-        let gameState = 'BOOT'; 
-
-        // Core Game State 
-        let score = 0; 
-        const baseSpeed = 5.0; 
-        let gameSpeed = baseSpeed; 
-        
-        let backgroundOffset = 0; let mountainOffset = 0; let frames = 0;
-        let currentWord = ""; let typedText = ""; let lastObstacleType = '';
-        
-        let stats = { totalKeystrokes: 0, correctKeystrokes: 0, errors: 0, wordsCleared: 0, startTime: 0, maxSpeed: 1.0 };
-        let comboTimer = 0; const maxComboTime = 100;
-        const baseGroundY = 380;
-
-        // Spieler
-        const player = {
-            x: 120, y: baseGroundY - 40, width: 40, height: 40,
-            dy: 0, jumpForce: -14.5, gravity: 0.8,
-            isJumping: false, rotation: 0, trail: []
+        const CONFIG = {
+            width: 800,
+            height: 450,
+            groundY: 380,
+            baseSpeed: 320,
+            speedGainPerPass: 10,
+            minObstacleGap: 1.55,
+            maxObstacleGap: 2.15,
+            hitFlashMs: 120,
+            level2Score: 50,
+            level3Score: 150,
+            bpmByLevel: {
+                1: 128,
+                2: 138,
+                3: 148
+            }
         };
 
-        const obstacles = [];
-        let particles = []; let floatingTexts = []; let stars = []; 
+        const WORDS = {
+            1: ["a", "s", "d", "f", "g", "h", "j", "k", "l", "ö"],
+            2: ["as", "df", "ja", "so", "da", "la", "al", "ha", "fl", "gl"],
+            3: ["das", "all", "hall", "kahl", "lass", "fall", "gas", "glas", "schlag", "fad", "lag"]
+        };
 
-        for(let i=0; i<60; i++) {
-            stars.push({
-                x: Math.random() * canvas.width, y: Math.random() * (baseGroundY - 100),
-                size: Math.random() * 2.5 + 0.5, speed: Math.random() * 0.8 + 0.2
+        const state = {
+            gameActive: false,
+            score: 0,
+            level: 1,
+            combo: 0,
+            speed: CONFIG.baseSpeed,
+            currentWord: '',
+            typedText: '',
+            lastTime: 0,
+            animationId: null,
+            backgroundOffset: 0,
+            audioEnabled: true,
+            justErrored: false,
+            nextSpawnTimer: 0
+        };
+
+        const player = {
+            x: 120,
+            y: CONFIG.groundY - 40,
+            width: 40,
+            height: 40,
+            vy: 0,
+            jumpForce: -720,
+            gravity: 2300,
+            isJumping: false,
+            rotation: 0,
+            trail: []
+        };
+
+        const obstacle = {
+            x: CONFIG.width,
+            y: CONFIG.groundY - 40,
+            width: 40,
+            height: 40,
+            active: false,
+            passed: false
+        };
+
+        const audio = {
+            ctx: null,
+            master: null,
+            musicGain: null,
+            sfxGain: null,
+            nextNoteTime: 0,
+            schedulerId: null,
+            isRunning: false,
+            lookaheadMs: 25,
+            scheduleAheadTime: 0.14,
+            beatIndex: 0,
+            currentBpm: CONFIG.bpmByLevel[1],
+            leadSynthEnabled: true
+        };
+
+        function ensureAudio() {
+            if (audio.ctx) return;
+            audio.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            audio.master = audio.ctx.createGain();
+            audio.musicGain = audio.ctx.createGain();
+            audio.sfxGain = audio.ctx.createGain();
+
+            audio.master.gain.value = 0.8;
+            audio.musicGain.gain.value = 0.18;
+            audio.sfxGain.gain.value = 0.28;
+
+            audio.musicGain.connect(audio.master);
+            audio.sfxGain.connect(audio.master);
+            audio.master.connect(audio.ctx.destination);
+        }
+
+        async function resumeAudio() {
+            ensureAudio();
+            if (audio.ctx.state === 'suspended') {
+                await audio.ctx.resume();
+            }
+        }
+
+        function updateAudioLabel() {
+            audioDisplay.textContent = `AUDIO: ${state.audioEnabled ? 'ON' : 'OFF'}`;
+        }
+
+        function setMusicBpmForLevel() {
+            audio.currentBpm = CONFIG.bpmByLevel[state.level] || CONFIG.bpmByLevel[3];
+        }
+
+        function startMusic() {
+            if (!state.audioEnabled) return;
+            ensureAudio();
+            stopMusic(false);
+            setMusicBpmForLevel();
+            audio.nextNoteTime = audio.ctx.currentTime + 0.08;
+            audio.beatIndex = 0;
+            audio.isRunning = true;
+            audio.schedulerId = setInterval(scheduleMusic, audio.lookaheadMs);
+        }
+
+        function stopMusic(hardMute = true) {
+            if (audio.schedulerId) {
+                clearInterval(audio.schedulerId);
+                audio.schedulerId = null;
+            }
+            audio.isRunning = false;
+            if (hardMute && audio.musicGain) {
+                const now = audio.ctx.currentTime;
+                audio.musicGain.gain.cancelScheduledValues(now);
+                audio.musicGain.gain.setValueAtTime(audio.musicGain.gain.value, now);
+                audio.musicGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
+                setTimeout(() => {
+                    if (audio.musicGain) audio.musicGain.gain.value = 0.18;
+                }, 120);
+            }
+        }
+
+        function scheduleMusic() {
+            if (!audio.ctx || !audio.isRunning || !state.gameActive) return;
+            while (audio.nextNoteTime < audio.ctx.currentTime + audio.scheduleAheadTime) {
+                scheduleBeat(audio.nextNoteTime, audio.beatIndex);
+                const secondsPerBeat = 60 / audio.currentBpm;
+                audio.nextNoteTime += secondsPerBeat;
+                audio.beatIndex++;
+            }
+        }
+
+        function scheduleBeat(time, beatIndex) {
+            const beatInBar = beatIndex % 4;
+            const isKick = beatInBar === 0 || beatInBar === 2;
+            const isSnare = beatInBar === 1 || beatInBar === 3;
+            const isLead = beatIndex % 2 === 0;
+
+            if (isKick) synthKick(time);
+            if (isSnare) synthSnare(time);
+            synthHat(time);
+            if (isLead) synthLead(time, beatIndex);
+        }
+
+        function synthKick(time) {
+            const osc = audio.ctx.createOscillator();
+            const gain = audio.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(150, time);
+            osc.frequency.exponentialRampToValueAtTime(45, time + 0.12);
+            gain.gain.setValueAtTime(0.9, time);
+            gain.gain.exponentialRampToValueAtTime(0.001, time + 0.14);
+            osc.connect(gain).connect(audio.musicGain);
+            osc.start(time);
+            osc.stop(time + 0.15);
+        }
+
+        function synthSnare(time) {
+            const bufferSize = audio.ctx.sampleRate * 0.14;
+            const buffer = audio.ctx.createBuffer(1, bufferSize, audio.ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 2.5);
+            }
+
+            const noise = audio.ctx.createBufferSource();
+            const filter = audio.ctx.createBiquadFilter();
+            const gain = audio.ctx.createGain();
+
+            noise.buffer = buffer;
+            filter.type = 'highpass';
+            filter.frequency.value = 1500;
+            gain.gain.setValueAtTime(0.35, time);
+            gain.gain.exponentialRampToValueAtTime(0.001, time + 0.11);
+
+            noise.connect(filter).connect(gain).connect(audio.musicGain);
+            noise.start(time);
+            noise.stop(time + 0.12);
+        }
+
+        function synthHat(time) {
+            const bufferSize = audio.ctx.sampleRate * 0.04;
+            const buffer = audio.ctx.createBuffer(1, bufferSize, audio.ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 7);
+            }
+
+            const noise = audio.ctx.createBufferSource();
+            const filter = audio.ctx.createBiquadFilter();
+            const gain = audio.ctx.createGain();
+
+            noise.buffer = buffer;
+            filter.type = 'highpass';
+            filter.frequency.value = 5500;
+            gain.gain.setValueAtTime(0.12, time);
+            gain.gain.exponentialRampToValueAtTime(0.001, time + 0.03);
+
+            noise.connect(filter).connect(gain).connect(audio.musicGain);
+            noise.start(time);
+            noise.stop(time + 0.04);
+        }
+
+        function synthLead(time, beatIndex) {
+            if (!audio.leadSynthEnabled) return;
+            const pattern = [523.25, 659.25, 783.99, 659.25, 587.33, 698.46, 880.0, 698.46];
+            const freq = pattern[beatIndex % pattern.length];
+            const osc = audio.ctx.createOscillator();
+            const gain = audio.ctx.createGain();
+            const filter = audio.ctx.createBiquadFilter();
+
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(freq, time);
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(1800, time);
+            gain.gain.setValueAtTime(0.0001, time);
+            gain.gain.linearRampToValueAtTime(0.08, time + 0.01);
+            gain.gain.exponentialRampToValueAtTime(0.001, time + 0.18);
+
+            osc.connect(filter).connect(gain).connect(audio.musicGain);
+            osc.start(time);
+            osc.stop(time + 0.2);
+        }
+
+        function playJumpSfx() {
+            if (!state.audioEnabled || !audio.ctx) return;
+            const now = audio.ctx.currentTime;
+            const osc = audio.ctx.createOscillator();
+            const gain = audio.ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(500, now);
+            osc.frequency.exponentialRampToValueAtTime(950, now + 0.08);
+            gain.gain.setValueAtTime(0.12, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+            osc.connect(gain).connect(audio.sfxGain);
+            osc.start(now);
+            osc.stop(now + 0.1);
+        }
+
+        function playCrashSfx() {
+            if (!state.audioEnabled || !audio.ctx) return;
+            const now = audio.ctx.currentTime;
+            const bufferSize = audio.ctx.sampleRate * 0.2;
+            const buffer = audio.ctx.createBuffer(1, bufferSize, audio.ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 1.8);
+            }
+
+            const noise = audio.ctx.createBufferSource();
+            const filter = audio.ctx.createBiquadFilter();
+            const gain = audio.ctx.createGain();
+            noise.buffer = buffer;
+            filter.type = 'bandpass';
+            filter.frequency.value = 500;
+            gain.gain.setValueAtTime(0.35, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+            noise.connect(filter).connect(gain).connect(audio.sfxGain);
+            noise.start(now);
+            noise.stop(now + 0.22);
+        }
+
+        function playLevelUpSfx() {
+            if (!state.audioEnabled || !audio.ctx) return;
+            const now = audio.ctx.currentTime;
+            [659.25, 783.99, 1046.5].forEach((freq, i) => {
+                const t = now + i * 0.05;
+                const osc = audio.ctx.createOscillator();
+                const gain = audio.ctx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(freq, t);
+                gain.gain.setValueAtTime(0.0001, t);
+                gain.gain.linearRampToValueAtTime(0.08, t + 0.01);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+                osc.connect(gain).connect(audio.sfxGain);
+                osc.start(t);
+                osc.stop(t + 0.2);
             });
         }
 
-        // --- Buttons & Audio ---
-        bootBtn.addEventListener('click', () => {
-            bgMusic.volume = 0.4;
-            bgMusic.play().catch(e => console.log("Audio braucht Klick"));
-            bootScreen.style.display = 'none';
-            lockInScreen.style.display = 'block';
-            gameState = 'LOCK_IN';
-            updateLockInUI();
-        });
-
-        restartBtn.addEventListener('click', () => {
-            deathScreen.style.display = 'none';
-            lockInScreen.style.display = 'block';
-            gameState = 'LOCK_IN';
-            lockInIndex = 0; updateLockInUI();
-        });
-
-        function updateLockInUI() {
-            let html = "";
-            for (let i = 0; i < lockInTarget.length; i++) {
-                if (i < lockInIndex) html += `<span class="lock-typed">${lockInTarget[i].toUpperCase()}</span>`;
-                else html += `<span style="color:#555;">${lockInTarget[i].toUpperCase()}</span>`;
-            }
-            lockInDisplay.innerHTML = html;
+        function getWordForLevel() {
+            const pool = WORDS[state.level] || WORDS[3];
+            return pool[Math.floor(Math.random() * pool.length)];
         }
 
-        function initGame() {
-            score = 0; gameSpeed = baseSpeed; 
-            player.y = baseGroundY - player.height; player.dy = 0; 
-            player.isJumping = false; player.rotation = 0; player.trail = [];
-            obstacles.length = 0; particles = []; floatingTexts = []; frames = 0; lastObstacleType = '';
-            comboTimer = 0; comboBarContainer.style.display = 'none';
-            
-            stats = { totalKeystrokes: 0, correctKeystrokes: 0, errors: 0, wordsCleared: 0, startTime: Date.now(), maxSpeed: 1.0 };
-            
-            bgMusic.play().catch(e=>{}); // Musik sicherstellen
-            
-            spawnObstacle(); updateUI();
-            
-            gameState = 'PLAYING';
-            overlay.style.display = 'none';
-            deathScreen.style.display = 'none';
-            gameLoop();
-        }
-
-        function createParticles(x, y, color, count = 20) {
-            for (let i = 0; i < count; i++) {
-                particles.push({
-                    x: x, y: y, vx: (Math.random() - 0.5) * 15, vy: (Math.random() - 1) * 15,
-                    size: Math.random() * 6 + 2, life: 1, color: color
-                });
-            }
-        }
-
-        function addFloatingText(text, x, y, color) {
-            floatingTexts.push({ text: text, x: x, y: y, life: 1, color: color });
+        function getSecondsPerBeat() {
+            return 60 / (CONFIG.bpmByLevel[state.level] || CONFIG.bpmByLevel[3]);
         }
 
         function spawnObstacle() {
-            let obs = { x: canvas.width, passed: false };
-            let types = ['spike', 'double_spike', 'platform_lava', 'laser_wall'];
-            
-            let type = types[Math.floor(Math.random() * types.length)];
-            if (type === lastObstacleType) type = types[(types.indexOf(type) + 1) % types.length];
+            obstacle.x = CONFIG.width;
+            obstacle.active = true;
+            obstacle.passed = false;
+            state.currentWord = getWordForLevel();
+            state.typedText = '';
+            renderWord();
+        }
 
-            obs.type = type;
-            if (type === 'spike') {
-                obs.y = baseGroundY - 40; obs.width = 40; obs.height = 40;
-            } else if (type === 'double_spike') {
-                obs.y = baseGroundY - 40; obs.width = 80; obs.height = 40;
-            } else if (type === 'platform_lava') {
-                obs.y = baseGroundY - 120; obs.width = 180; obs.height = 20;
-            } else if (type === 'laser_wall') {
-                obs.y = baseGroundY - 45; obs.width = 20; obs.height = 45; 
-            }
-
-            lastObstacleType = type;
-            obstacles.push(obs);
-            
-            let level = score < 150 ? 1 : (score < 400 ? 2 : 3);
-            let wordList = level === 1 ? wordsLevel1 : (level === 2 ? wordsLevel2 : wordsLevel3);
-            currentWord = wordList[Math.floor(Math.random() * wordList.length)];
-            typedText = ""; renderWord();
+        function queueNextObstacle() {
+            const beat = getSecondsPerBeat();
+            const beatsUntilNext = state.level === 1 ? 4 : state.level === 2 ? 4 : 3;
+            state.nextSpawnTimer = beat * beatsUntilNext;
         }
 
         function renderWord(isError = false) {
-            let html = "";
-            for (let i = 0; i < currentWord.length; i++) {
-                if (i < typedText.length) html += `<span class="typed">${currentWord[i]}</span>`;
-                else if (i === typedText.length && isError) html += `<span class="error">${currentWord[i]}</span>`;
-                else html += `<span class="untyped">${currentWord[i]}</span>`;
+            let html = '';
+            for (let i = 0; i < state.currentWord.length; i++) {
+                if (i < state.typedText.length) {
+                    const cls = isError && i === state.typedText.length - 1 ? 'error' : 'typed';
+                    html += `<span class="${cls}">${state.currentWord[i]}</span>`;
+                } else {
+                    html += `<span class="untyped">${state.currentWord[i]}</span>`;
+                }
             }
             wordDisplay.innerHTML = html;
         }
 
-        function failWord() {
-            typedText = ""; comboTimer = 0; comboBarContainer.style.display = 'none';
-            renderWord(true); 
-            wordDisplay.classList.remove('shake-active'); void wordDisplay.offsetWidth; 
-            wordDisplay.classList.add('shake-active');
+        function resetPlayer() {
+            player.y = CONFIG.groundY - player.height;
+            player.vy = 0;
+            player.isJumping = false;
+            player.rotation = 0;
+            player.trail = [];
         }
 
         function jump() {
-            if (!player.isJumping && player.dy === 0) { 
-                player.dy = player.jumpForce; player.isJumping = true;
-                comboTimer = 0; comboBarContainer.style.display = 'none';
-                createParticles(player.x + player.width/2, player.y + player.height, "var(--neon-cyan)", 15);
-                stats.wordsCleared++;
-                addFloatingText("PERFECT", player.x, player.y - 20, "var(--neon-cyan)");
+            if (player.isJumping) return;
+            player.vy = player.jumpForce;
+            player.isJumping = true;
+            playJumpSfx();
+        }
+
+        function triggerLevelUp() {
+            levelUpMsg.style.opacity = 1;
+            playLevelUpSfx();
+            setTimeout(() => {
+                levelUpMsg.style.opacity = 0;
+            }, 1200);
+        }
+
+        function updateLevel() {
+            if (state.score >= CONFIG.level3Score && state.level < 3) {
+                state.level = 3;
+                setMusicBpmForLevel();
+                triggerLevelUp();
+            } else if (state.score >= CONFIG.level2Score && state.level < 2) {
+                state.level = 2;
+                setMusicBpmForLevel();
+                triggerLevelUp();
             }
         }
 
-        function calculateStats() {
-            let secondsAlive = (Date.now() - stats.startTime) / 1000;
-            let accuracy = stats.totalKeystrokes > 0 ? Math.round((stats.correctKeystrokes / stats.totalKeystrokes) * 100) : 0;
-            let kpm = secondsAlive > 0 ? Math.round((stats.correctKeystrokes / secondsAlive) * 60) : 0;
-            
-            statScore.innerText = score.toString().padStart(4, '0');
-            statAcc.innerText = accuracy + "%";
-            statWords.innerText = stats.wordsCleared;
-            statKpm.innerText = kpm;
-            statErrors.innerText = stats.errors;
-            statMaxSpd.innerText = stats.maxSpeed.toFixed(1) + "x";
+        function initGame() {
+            state.score = 0;
+            state.level = 1;
+            state.combo = 0;
+            state.speed = CONFIG.baseSpeed;
+            state.currentWord = '';
+            state.typedText = '';
+            state.justErrored = false;
+            state.lastTime = 0;
+            state.backgroundOffset = 0;
+            resetPlayer();
+            spawnObstacle();
+            queueNextObstacle();
+            updateUI();
+            overlay.style.display = 'none';
+            state.gameActive = true;
+            cancelAnimationFrame(state.animationId);
+            state.animationId = requestAnimationFrame(gameLoop);
         }
 
         function gameOver(reason) {
-            gameState = 'GAME_OVER';
-            comboBarContainer.style.display = 'none';
-            createParticles(player.x + player.width/2, player.y + player.height/2, "var(--neon-pink)", 60);
-            
-            bgMusic.pause();
-            crashSound.volume = 0.5;
-            crashSound.play().catch(e=>{});
-
-            calculateStats();
-
-            setTimeout(() => {
-                overlay.style.display = 'flex';
-                bootScreen.style.display = 'none';
-                lockInScreen.style.display = 'none';
-                document.getElementById('deathReason').innerText = reason;
-                deathScreen.style.display = 'flex';
-            }, 800); 
+            state.gameActive = false;
+            stopMusic();
+            playCrashSfx();
+            overlay.style.display = 'flex';
+            overlayTitle.innerText = 'CRASHED!';
+            overlayText.innerText = `${reason} | Score: ${state.score}`;
+            startBtn.innerText = 'RETRY';
+            wordDisplay.innerHTML = '';
         }
 
-        document.addEventListener('keydown', (e) => {
-            if (["Shift", "Control", "Alt", "CapsLock", "Tab"].includes(e.key)) return;
-            
-            if (gameState === 'GAME_OVER' && e.key === 'Enter') {
-                restartBtn.click();
-                return;
-            }
+        function update(delta) {
+            state.backgroundOffset -= state.speed * 0.22 * delta;
+            if (state.backgroundOffset <= -40) state.backgroundOffset += 40;
 
-            const key = e.key.toLowerCase();
+            player.vy += player.gravity * delta;
+            player.y += player.vy * delta;
 
-            if (gameState === 'LOCK_IN') {
-                if (key === lockInTarget[lockInIndex]) {
-                    lockInIndex++; updateLockInUI();
-                    if (lockInIndex === lockInTarget.length) initGame();
-                } else {
-                    lockInIndex = 0; updateLockInUI(); 
-                }
-                return;
-            }
-
-            if (gameState !== 'PLAYING') return;
-
-            stats.totalKeystrokes++;
-            const expectedChar = currentWord[typedText.length];
-            
-            if (key === expectedChar) {
-                stats.correctKeystrokes++;
-                typedText += key; renderWord();
-                
-                if (typedText.length < currentWord.length) {
-                    comboTimer = maxComboTime; comboBarContainer.style.display = 'block';
-                } else {
-                    jump(); wordDisplay.innerHTML = ""; 
-                }
+            if (player.isJumping) {
+                player.rotation += 7.4 * delta;
             } else {
-                stats.errors++; failWord(); 
-            }
-        });
-
-        function update() {
-            if (gameState !== 'PLAYING') return;
-            frames++;
-            
-            if (typedText.length > 0 && typedText.length < currentWord.length) {
-                comboTimer--;
-                comboBar.style.width = (comboTimer / maxComboTime) * 100 + "%";
-                if (comboTimer <= 0) { stats.errors++; failWord(); }
+                const snapAngle = Math.PI / 2;
+                player.rotation = Math.round(player.rotation / snapAngle) * snapAngle;
             }
 
-            backgroundOffset -= gameSpeed * 0.5; mountainOffset -= gameSpeed * 0.15; 
-            if (backgroundOffset <= -80) backgroundOffset = 0;
-            if (mountainOffset <= -800) mountainOffset = 0;
+            if (player.y >= CONFIG.groundY - player.height) {
+                player.y = CONFIG.groundY - player.height;
+                player.vy = 0;
+                player.isJumping = false;
+            }
 
-            stars.forEach(s => {
-                s.x -= s.speed;
-                if(s.x < 0) { s.x = canvas.width; s.y = Math.random() * (baseGroundY - 100); }
+            player.trail.push({
+                x: player.x + player.width / 2,
+                y: player.y + player.height / 2,
+                life: 0.25
             });
+            for (const p of player.trail) p.life -= delta;
+            player.trail = player.trail.filter(p => p.life > 0);
 
-            player.dy += player.gravity; player.y += player.dy;
+            if (obstacle.active) {
+                obstacle.x -= state.speed * delta;
 
-            if (player.isJumping || player.dy > 1) {
-                player.rotation += 0.15; 
+                const playerLeft = player.x + 4;
+                const playerRight = player.x + player.width - 6;
+                const playerTop = player.y + 2;
+                const playerBottom = player.y + player.height - 2;
+
+                const obstacleLeft = obstacle.x + 6;
+                const obstacleRight = obstacle.x + obstacle.width - 6;
+                const obstacleTop = obstacle.y + 6;
+                const obstacleBottom = obstacle.y + obstacle.height;
+
+                const hit = playerLeft < obstacleRight &&
+                    playerRight > obstacleLeft &&
+                    playerTop < obstacleBottom &&
+                    playerBottom > obstacleTop;
+
+                if (hit) {
+                    gameOver('Stachel berührt! Zu spät getippt.');
+                    return;
+                }
+
+                if (obstacle.x + obstacle.width < player.x && !obstacle.passed) {
+                    obstacle.passed = true;
+                    state.score += 10;
+                    state.combo += 1;
+                    state.speed += CONFIG.speedGainPerPass;
+                    updateLevel();
+                    queueNextObstacle();
+                }
+
+                if (obstacle.x + obstacle.width < -80) {
+                    obstacle.active = false;
+                }
             } else {
-                player.rotation = Math.round(player.rotation / (Math.PI/2)) * (Math.PI/2);
-            }
-
-            player.trail.push({x: player.x, y: player.y, rot: player.rotation, life: 1});
-            if (player.trail.length > 8) player.trail.shift();
-
-            let currentFloorY = baseGroundY; let onLava = false;
-
-            for (let i = 0; i < obstacles.length; i++) {
-                let obs = obstacles[i];
-                obs.x -= gameSpeed;
-
-                if (obs.type === 'spike' || obs.type === 'double_spike') {
-                    if (player.x < obs.x + obs.width - 12 && player.x + player.width - 12 > obs.x &&
-                        player.y < obs.y + obs.height && player.y + player.height > obs.y + 15) {
-                        gameOver("IMPALED BY SPIKES");
-                    }
-                } 
-                else if (obs.type === 'laser_wall') {
-                    if (player.x < obs.x + obs.width - 8 && player.x + player.width - 8 > obs.x &&
-                        player.y < obs.y + obs.height && player.y + player.height > obs.y + 10) {
-                        gameOver("ZAPPED BY LASER");
-                    }
+                state.nextSpawnTimer -= delta;
+                if (state.nextSpawnTimer <= 0) {
+                    spawnObstacle();
                 }
-                else if (obs.type === 'platform_lava') {
-                    if (player.x + player.width > obs.x + 10 && player.x < obs.x + obs.width - 10) onLava = true; 
-                    
-                    if (player.dy >= 0 && player.y + player.height >= obs.y && player.y + player.height <= obs.y + 25 &&
-                        player.x + player.width > obs.x && player.x < obs.x + obs.width) {
-                        currentFloorY = obs.y; player.y = currentFloorY - player.height; player.dy = 0;
-                        if(player.isJumping) { player.isJumping = false; createParticles(player.x + player.width/2, player.y + player.height, "var(--neon-purple)", 10); }
-                        onLava = false; 
-                    } 
-                    else if (player.x + player.width > obs.x + 8 && player.x < obs.x + obs.width &&
-                             player.y + player.height > obs.y + 8 && player.y < obs.y + obs.height) {
-                        gameOver("CRASHED INTO PLATFORM");
-                    }
-                }
-
-                if (obs.x + obs.width < player.x && !obs.passed) {
-                    obs.passed = true; score += 10; gameSpeed += 0.02; 
-                    let currentSpeedMult = gameSpeed / baseSpeed;
-                    if (currentSpeedMult > stats.maxSpeed) stats.maxSpeed = currentSpeedMult;
-                    addFloatingText("+10", player.x, player.y - 40, "var(--neon-pink)");
-                }
-            }
-
-            if (onLava && player.y >= baseGroundY - player.height - 5) gameOver("INCINERATED IN LAVA");
-
-            if (player.y >= baseGroundY - player.height && currentFloorY === baseGroundY && !onLava) {
-                player.y = baseGroundY - player.height; player.dy = 0;
-                if(player.isJumping) { player.isJumping = false; createParticles(player.x + player.width/2, player.y + player.height, "var(--neon-cyan)", 10); }
-            }
-
-            if (obstacles.length > 0 && obstacles[0].x + obstacles[0].width < -150) {
-                obstacles.shift(); spawnObstacle();
-            }
-
-            for (let i = particles.length - 1; i >= 0; i--) {
-                particles[i].x += particles[i].vx; particles[i].y += particles[i].vy; 
-                particles[i].vy += 0.5; particles[i].life -= 0.03;
-                if (particles[i].life <= 0) particles.splice(i, 1);
-            }
-            for (let i = 0; i < player.trail.length; i++) player.trail[i].life -= 0.12;
-            for (let i = floatingTexts.length - 1; i >= 0; i--) {
-                floatingTexts[i].y -= 1; floatingTexts[i].life -= 0.02;
-                if (floatingTexts[i].life <= 0) floatingTexts.splice(i, 1);
             }
         }
 
-        function drawMountains() {
-            ctx.fillStyle = "#1a0033"; ctx.beginPath(); ctx.moveTo(0, baseGroundY);
-            for(let i = 0; i < 20; i++) ctx.lineTo((i * 100) + mountainOffset, baseGroundY - 80 - Math.abs(Math.sin(i * 45) * 60));
-            ctx.lineTo(canvas.width * 2, baseGroundY); ctx.fill();
-            ctx.strokeStyle = "var(--neon-purple)"; ctx.lineWidth = 3; ctx.shadowBlur = 15; ctx.shadowColor = "var(--neon-purple)";
-            ctx.stroke(); ctx.shadowBlur = 0;
-        }
+        function drawBackground() {
+            ctx.clearRect(0, 0, CONFIG.width, CONFIG.height);
 
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const sky = ctx.createLinearGradient(0, 0, 0, CONFIG.height);
+            sky.addColorStop(0, '#1f2833');
+            sky.addColorStop(1, '#0b0c10');
+            ctx.fillStyle = sky;
+            ctx.fillRect(0, 0, CONFIG.width, CONFIG.height);
 
-            ctx.fillStyle = "#fff";
-            stars.forEach(s => { ctx.globalAlpha = Math.random() * 0.5 + 0.5; ctx.fillRect(s.x, s.y, s.size, s.size); });
-            ctx.globalAlpha = 1;
-
-            // Sonne (Größer & Heller)
-            ctx.fillStyle = "var(--neon-pink)"; ctx.shadowBlur = 80; ctx.shadowColor = "var(--neon-pink)";
-            ctx.beginPath(); ctx.arc(400, 250, 160, Math.PI, 0); ctx.fill(); ctx.shadowBlur = 0;
-            ctx.fillStyle = "var(--bg-top)";
-            for(let i=0; i<8; i++) ctx.fillRect(200, 200 - (i*16), 400, i*4);
-
-            drawMountains();
-
-            ctx.strokeStyle = "rgba(0, 229, 255, 0.4)"; ctx.lineWidth = 2; ctx.shadowBlur = 8; ctx.shadowColor = "var(--neon-cyan)";
-            for (let i = -100; i < canvas.width + 100; i += 60) {
-                ctx.beginPath(); ctx.moveTo(i + backgroundOffset, baseGroundY);
-                ctx.lineTo((i - 400) * 2 + 400, canvas.height); ctx.stroke();
+            ctx.strokeStyle = 'rgba(102, 252, 241, 0.10)';
+            ctx.lineWidth = 1;
+            for (let i = -40; i < CONFIG.width + 40; i += 40) {
+                ctx.beginPath();
+                ctx.moveTo(i + state.backgroundOffset, 0);
+                ctx.lineTo(i + state.backgroundOffset, CONFIG.groundY);
+                ctx.stroke();
             }
-            
-            ctx.strokeStyle = "var(--neon-cyan)"; ctx.lineWidth = 5; ctx.shadowBlur = 20;
-            ctx.beginPath(); ctx.moveTo(0, baseGroundY); ctx.lineTo(canvas.width, baseGroundY); ctx.stroke();
+
+            ctx.fillStyle = '#121212';
+            ctx.fillRect(0, CONFIG.groundY, CONFIG.width, CONFIG.height - CONFIG.groundY);
+
+            ctx.shadowBlur = 12;
+            ctx.shadowColor = '#66fcf1';
+            ctx.strokeStyle = '#66fcf1';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(0, CONFIG.groundY);
+            ctx.lineTo(CONFIG.width, CONFIG.groundY);
+            ctx.stroke();
             ctx.shadowBlur = 0;
+        }
 
-            obstacles.forEach(obs => {
-                if (obs.type === 'spike' || obs.type === 'double_spike') {
-                    ctx.shadowBlur = 25; ctx.shadowColor = "var(--neon-pink)"; ctx.fillStyle = "var(--neon-pink)";
-                    for(let i = 0; i < (obs.type === 'double_spike' ? 2 : 1); i++) {
-                        let offsetX = obs.x + (i * 40);
-                        ctx.beginPath(); ctx.moveTo(offsetX + 20, obs.y);
-                        ctx.lineTo(offsetX + 40, obs.y + obs.height); ctx.lineTo(offsetX, obs.y + obs.height);
-                        ctx.closePath(); ctx.fill();
-                        
-                        ctx.fillStyle = "#33001a"; ctx.shadowBlur = 0;
-                        ctx.beginPath(); ctx.moveTo(offsetX + 20, obs.y + 12);
-                        ctx.lineTo(offsetX + 32, obs.y + obs.height - 4); ctx.lineTo(offsetX + 8, obs.y + obs.height - 4);
-                        ctx.closePath(); ctx.fill(); ctx.fillStyle = "var(--neon-pink)"; 
-                    }
-                } 
-                else if (obs.type === 'laser_wall') {
-                    ctx.shadowBlur = 30; ctx.shadowColor = "var(--neon-cyan)"; ctx.fillStyle = "rgba(0, 229, 255, 0.85)";
-                    ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-                    ctx.fillStyle = "#fff"; ctx.fillRect(obs.x + 8, obs.y, 4, obs.height);
-                }
-                else if (obs.type === 'platform_lava') {
-                    let lavaWave = Math.sin(frames * 0.1) * 5; 
-                    ctx.fillStyle = "#ff3300"; ctx.shadowBlur = 30; ctx.shadowColor = "#ff0000";
-                    ctx.fillRect(obs.x, baseGroundY - 5 + lavaWave, obs.width, 25);
-                    ctx.fillStyle = var(--neon-yellow); ctx.fillRect(obs.x + 10, baseGroundY + lavaWave, obs.width - 20, 10);
-                    
-                    ctx.shadowBlur = 20; ctx.shadowColor = "var(--neon-purple)"; ctx.fillStyle = "var(--neon-purple)";
-                    ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-                    ctx.fillStyle = "#220033"; ctx.fillRect(obs.x + 3, obs.y + 3, obs.width - 6, obs.height - 6);
-                }
-                ctx.shadowBlur = 0;
-            });
-
-            if (gameState !== 'GAME_OVER') {
-                player.trail.forEach(t => {
-                    if (t.life > 0) {
-                        ctx.save(); ctx.translate(t.x + player.width/2, t.y + player.height/2); ctx.rotate(t.rot);
-                        ctx.fillStyle = `rgba(0, 229, 255, ${t.life * 0.4})`;
-                        ctx.fillRect(-player.width/2, -player.height/2, player.width, player.height); ctx.restore();
-                    }
-                });
-
-                ctx.save(); ctx.translate(player.x + player.width/2, player.y + player.height/2); ctx.rotate(player.rotation);
-                ctx.fillStyle = "var(--neon-cyan)"; ctx.shadowBlur = 30; ctx.shadowColor = "var(--neon-cyan)";
-                ctx.fillRect(-player.width/2, -player.height/2, player.width, player.height);
-                ctx.fillStyle = "#000"; ctx.fillRect(-12, -12, 24, 24); 
-                ctx.fillStyle = "var(--neon-pink)"; ctx.fillRect(-4, -4, 8, 8); 
+        function drawPlayer() {
+            for (const t of player.trail) {
+                ctx.save();
+                ctx.globalAlpha = t.life / 0.25 * 0.35;
+                ctx.fillStyle = '#66fcf1';
+                ctx.beginPath();
+                ctx.arc(t.x, t.y, 10 * (t.life / 0.25), 0, Math.PI * 2);
+                ctx.fill();
                 ctx.restore();
             }
 
-            particles.forEach(p => {
-                ctx.fillStyle = p.color; ctx.globalAlpha = p.life;
-                ctx.shadowBlur = 20; ctx.shadowColor = p.color;
-                ctx.fillRect(p.x, p.y, p.size, p.size);
-            });
-            
-            ctx.globalAlpha = 1; ctx.shadowBlur = 0;
-            
-            ctx.font = "28px VT323"; ctx.textAlign = "center";
-            floatingTexts.forEach(ft => {
-                ctx.fillStyle = ft.color; ctx.globalAlpha = ft.life;
-                ctx.shadowBlur = 15; ctx.shadowColor = ft.color;
-                ctx.fillText(ft.text, ft.x + 20, ft.y);
-            });
-            ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+            ctx.save();
+            ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
+            ctx.rotate(player.rotation);
+            ctx.fillStyle = '#66fcf1';
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#66fcf1';
+            ctx.fillRect(-player.width / 2, -player.height / 2, player.width, player.height);
+            ctx.fillStyle = '#0b0c10';
+            ctx.fillRect(-player.width / 4, -player.height / 4, player.width / 2, player.height / 2);
+            ctx.restore();
+            ctx.shadowBlur = 0;
+        }
+
+        function drawObstacle() {
+            if (!obstacle.active) return;
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#ff0055';
+            ctx.fillStyle = '#ff0055';
+            ctx.beginPath();
+            ctx.moveTo(obstacle.x + obstacle.width / 2, obstacle.y);
+            ctx.lineTo(obstacle.x + obstacle.width, obstacle.y + obstacle.height);
+            ctx.lineTo(obstacle.x, obstacle.y + obstacle.height);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = '#0b0c10';
+            ctx.beginPath();
+            ctx.moveTo(obstacle.x + obstacle.width / 2, obstacle.y + 10);
+            ctx.lineTo(obstacle.x + obstacle.width - 8, obstacle.y + obstacle.height - 5);
+            ctx.lineTo(obstacle.x + 8, obstacle.y + obstacle.height - 5);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function draw() {
+            drawBackground();
+            drawPlayer();
+            drawObstacle();
         }
 
         function updateUI() {
-            document.getElementById('scoreDisplay').innerText = "SCORE: " + score.toString().padStart(4, '0');
-            document.getElementById('speedDisplay').innerText = "SPD: " + (gameSpeed / baseSpeed).toFixed(1) + "x";
+            scoreDisplay.innerText = `SCORE: ${state.score}`;
+            levelDisplay.innerText = `LEVEL: ${state.level}`;
+            comboDisplay.innerText = `COMBO: ${state.combo}`;
+            updateAudioLabel();
         }
 
-        function gameLoop() {
-            update(); draw();
-            if (gameState === 'PLAYING' || particles.length > 0) {
-                if(gameState === 'PLAYING') updateUI();
-                requestAnimationFrame(gameLoop);
+        function gameLoop(timestamp) {
+            if (!state.gameActive) return;
+            if (!state.lastTime) state.lastTime = timestamp;
+            const delta = Math.min((timestamp - state.lastTime) / 1000, 0.03);
+            state.lastTime = timestamp;
+
+            update(delta);
+            draw();
+            updateUI();
+
+            state.animationId = requestAnimationFrame(gameLoop);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (!state.gameActive) return;
+            if (e.repeat) return;
+            if (["Shift", "Control", "Alt", "Meta", "Tab", "CapsLock"].includes(e.key)) return;
+
+            const expectedChar = state.currentWord[state.typedText.length];
+            const typedChar = e.key.toLowerCase();
+
+            if (!expectedChar) return;
+
+            if (typedChar === expectedChar) {
+                state.typedText += typedChar;
+                renderWord();
+
+                if (state.typedText === state.currentWord) {
+                    jump();
+                    wordDisplay.innerHTML = '';
+                }
+            } else {
+                state.typedText += typedChar;
+                renderWord(true);
+                state.combo = 0;
+                gameOver('Tippfehler!');
             }
-        }
+        });
 
-        draw(); 
+        startBtn.addEventListener('click', async () => {
+            await resumeAudio();
+            startMusic();
+            initGame();
+        });
+
+        audioBtn.addEventListener('click', async () => {
+            state.audioEnabled = !state.audioEnabled;
+            updateAudioLabel();
+            if (state.audioEnabled) {
+                await resumeAudio();
+                if (state.gameActive) startMusic();
+            } else {
+                stopMusic();
+            }
+        });
+
+        updateUI();
+        draw();
     </script>
 </body>
 </html>
