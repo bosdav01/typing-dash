@@ -3,45 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retro Type Dash - Ultimate Edition V2</title>
+    <title>Retro Type Dash - Neon Edition</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 
         :root {
-            --neon-pink: #ff0055;
-            --neon-cyan: #00ffff;
-            --neon-purple: #b026ff;
-            --bg-dark: #05010a;
+            --neon-pink: #ff007f;
+            --neon-cyan: #00e5ff;
+            --neon-purple: #d500f9;
+            --neon-yellow: #ffea00;
+            --bg-top: #3a005c;
+            --bg-bottom: #12002b;
         }
 
         body {
-            margin: 0; padding: 0; background-color: var(--bg-dark); color: #fff;
+            margin: 0; padding: 0; background-color: #0a0014; color: #fff;
             font-family: 'VT323', monospace; display: flex; flex-direction: column;
             align-items: center; justify-content: center; height: 100vh;
             overflow: hidden; user-select: none;
         }
 
-        /* CRT Scanlines & Flicker */
+        /* CRT Scanlines - Heller gemacht */
         body::after {
             content: ""; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            z-index: 100; background-size: 100% 2px, 3px 100%; pointer-events: none;
-            animation: flicker 0.15s infinite; opacity: 0.8;
-        }
-
-        @keyframes flicker {
-            0% { opacity: 0.8; } 50% { opacity: 0.85; } 100% { opacity: 0.8; }
+            background: linear-gradient(rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
+            z-index: 100; background-size: 100% 4px; pointer-events: none;
+            opacity: 0.6;
         }
 
         #gameWrapper {
-            position: relative; padding: 10px; background: #111; border-radius: 12px;
-            box-shadow: 0 0 50px rgba(0, 255, 255, 0.2), 0 0 100px rgba(255, 0, 85, 0.1);
+            position: relative; padding: 12px; background: #1a0033; border-radius: 12px;
+            box-shadow: 0 0 40px rgba(0, 229, 255, 0.4), 0 0 80px rgba(255, 0, 127, 0.3);
         }
 
         #gameContainer {
             position: relative; width: 800px; height: 450px;
-            background: linear-gradient(180deg, #110022 0%, #000000 100%);
+            background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
             border: 3px solid var(--neon-cyan); border-radius: 8px; overflow: hidden; z-index: 10;
         }
 
@@ -50,28 +47,29 @@
         #ui {
             position: absolute; top: 15px; left: 20px; right: 20px;
             display: flex; justify-content: space-between;
-            font-size: 36px; z-index: 10; color: var(--neon-purple); text-shadow: 0 0 10px var(--neon-purple);
+            font-size: 38px; z-index: 10; color: var(--neon-yellow); text-shadow: 0 0 15px var(--neon-yellow);
         }
 
         #wordDisplay {
             position: absolute; top: 80px; width: 100%; text-align: center;
-            font-size: 70px; letter-spacing: 12px; z-index: 10;
-            text-shadow: 0 5px 15px rgba(0,0,0,0.9); transition: transform 0.05s;
+            font-size: 75px; letter-spacing: 12px; z-index: 10;
+            text-shadow: 0 5px 20px rgba(0,0,0,0.9); transition: transform 0.05s;
         }
 
         #comboBarContainer {
-            position: absolute; top: 170px; left: 50%; transform: translateX(-50%);
-            width: 250px; height: 8px; background: rgba(0,0,0,0.6);
-            border: 1px solid var(--neon-cyan); border-radius: 4px; z-index: 10; display: none;
+            position: absolute; top: 175px; left: 50%; transform: translateX(-50%);
+            width: 250px; height: 10px; background: rgba(0,0,0,0.6);
+            border: 2px solid var(--neon-cyan); border-radius: 5px; z-index: 10; display: none;
+            box-shadow: 0 0 10px var(--neon-cyan);
         }
         #comboBar {
             width: 100%; height: 100%; background: var(--neon-cyan);
-            box-shadow: 0 0 10px var(--neon-cyan); transition: width 0.1s linear;
+            box-shadow: 0 0 15px var(--neon-cyan); transition: width 0.1s linear;
         }
 
         .typed { color: var(--neon-cyan); text-shadow: 0 0 20px var(--neon-cyan), 0 0 40px #fff; }
-        .untyped { color: #555; text-shadow: none; }
-        .error { color: var(--neon-pink); text-shadow: 0 0 20px var(--neon-pink); }
+        .untyped { color: #e0e0e0; text-shadow: 0 0 8px #fff; }
+        .error { color: var(--neon-pink); text-shadow: 0 0 25px var(--neon-pink); }
 
         @keyframes shake {
             0% { transform: translateX(0); color: var(--neon-pink); }
@@ -84,42 +82,42 @@
 
         #overlay {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(5, 1, 10, 0.95); display: flex; flex-direction: column;
+            background: rgba(18, 0, 43, 0.85); display: flex; flex-direction: column;
             align-items: center; justify-content: center; z-index: 50;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(4px);
         }
 
-        h1 { color: var(--neon-pink); font-size: 40px; text-shadow: 0 0 20px var(--neon-pink); margin-bottom: 5px; letter-spacing: 6px;}
-        .bigTitle { font-size: 70px; color: var(--neon-cyan); text-shadow: 0 0 25px var(--neon-cyan); margin-bottom: 5px; letter-spacing: 5px; text-align: center;}
+        h1 { color: var(--neon-pink); font-size: 45px; text-shadow: 0 0 25px var(--neon-pink); margin-bottom: 5px; letter-spacing: 6px;}
+        .bigTitle { font-size: 70px; color: var(--neon-cyan); text-shadow: 0 0 30px var(--neon-cyan); margin-bottom: 5px; letter-spacing: 5px; text-align: center;}
 
         #lockInDisplay {
-            font-size: 60px; letter-spacing: 18px; margin-top: 20px; color: #222;
-            background: rgba(0,0,0,0.8); padding: 15px 40px; border-radius: 10px; border: 2px solid var(--neon-purple);
-            box-shadow: inset 0 0 20px rgba(176, 38, 255, 0.2);
+            font-size: 65px; letter-spacing: 18px; margin-top: 20px; color: #444;
+            background: rgba(0,0,0,0.8); padding: 15px 40px; border-radius: 12px; border: 3px solid var(--neon-purple);
+            box-shadow: inset 0 0 30px rgba(213, 0, 249, 0.4), 0 0 20px rgba(213, 0, 249, 0.3);
         }
-        .lock-typed { color: var(--neon-cyan); text-shadow: 0 0 25px var(--neon-cyan); }
+        .lock-typed { color: var(--neon-cyan); text-shadow: 0 0 30px var(--neon-cyan); }
 
         button.bootBtn {
             padding: 15px 50px; font-size: 38px; font-family: 'VT323', monospace;
-            background: transparent; color: var(--neon-pink); border: 3px solid var(--neon-pink); border-radius: 5px;
-            cursor: pointer; transition: 0.3s; text-shadow: 0 0 10px var(--neon-pink); box-shadow: 0 0 20px rgba(255,0,85,0.4);
+            background: rgba(255, 0, 127, 0.1); color: var(--neon-pink); border: 3px solid var(--neon-pink); border-radius: 8px;
+            cursor: pointer; transition: 0.3s; text-shadow: 0 0 10px var(--neon-pink); box-shadow: 0 0 25px rgba(255, 0, 127, 0.5);
             margin-top: 30px; pointer-events: auto; text-transform: uppercase;
         }
-        button.bootBtn:hover { background: var(--neon-pink); color: #000; box-shadow: 0 0 40px var(--neon-pink); transform: scale(1.05); }
+        button.bootBtn:hover { background: var(--neon-pink); color: #000; box-shadow: 0 0 50px var(--neon-pink); transform: scale(1.05); }
 
-        /* Stats Screen Styles - Erweitert auf 6 Boxen */
+        /* Stats Screen Styles */
         .stats-grid {
-            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;
-            background: rgba(0,255,255,0.05); border: 1px solid var(--neon-cyan);
-            padding: 25px; border-radius: 8px; margin-top: 20px; width: 90%;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;
+            background: rgba(0, 229, 255, 0.1); border: 2px solid var(--neon-cyan);
+            padding: 20px; border-radius: 10px; margin-top: 15px; width: 90%;
+            box-shadow: 0 0 30px rgba(0, 229, 255, 0.2);
         }
-        .stat-box { text-align: center; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 5px; border: 1px solid #333;}
-        .stat-label { color: #888; font-size: 22px; text-transform: uppercase; }
-        .stat-value { color: #fff; font-size: 38px; text-shadow: 0 0 10px var(--neon-purple); }
-        .stat-value.bad { color: var(--neon-pink); text-shadow: 0 0 10px var(--neon-pink); }
+        .stat-box { text-align: center; background: rgba(0,0,0,0.6); padding: 10px; border-radius: 5px; border: 1px solid #444;}
+        .stat-label { color: #aaa; font-size: 24px; text-transform: uppercase; }
+        .stat-value { color: #fff; font-size: 40px; text-shadow: 0 0 15px var(--neon-yellow); }
+        .stat-value.bad { color: var(--neon-pink); text-shadow: 0 0 15px var(--neon-pink); }
         
-        .blinking-text { animation: blinker 1.5s linear infinite; color: var(--neon-cyan); font-size: 28px; margin-top: 30px; text-shadow: 0 0 10px var(--neon-cyan);}
+        .blinking-text { animation: blinker 1.5s linear infinite; color: #aaa; font-size: 24px; margin-top: 15px;}
         @keyframes blinker { 50% { opacity: 0; } }
 
     </style>
@@ -127,7 +125,7 @@
 <body>
 
     <h1>SYNTHWAVE TYPE DASH</h1>
-    <p style="color: var(--neon-cyan); margin-bottom: 20px; z-index: 10; font-size: 22px;">Ein Tippfehler oder langes Zögern bricht die Combo ab!</p>
+    <p style="color: var(--neon-cyan); margin-bottom: 20px; z-index: 10; font-size: 26px; text-shadow: 0 0 10px var(--neon-cyan);">Ein Tippfehler oder langes Zögern bricht die Combo ab!</p>
 
     <div id="gameWrapper">
         <div id="gameContainer">
@@ -142,148 +140,43 @@
             <div id="overlay">
                 <div id="bootScreen" style="text-align: center;">
                     <h2 class="bigTitle">SYSTEM READY</h2>
-                    <p style="color: #aaa; font-size: 24px;">Initialisiere Audio-Engine & Grafik-Prozessor...</p>
                     <button class="bootBtn" id="bootBtn">INITIATE SEQUENCE</button>
                 </div>
 
                 <div id="lockInScreen" style="display: none; text-align: center;">
                     <h2 class="bigTitle">TACTICAL LOCK-IN</h2>
-                    <p style="color: #ddd; font-size: 26px;">Kalibriere die Finger auf der Grundreihe:</p>
+                    <p style="color: #fff; font-size: 28px;">Tippe die Grundreihe (links nach rechts):</p>
                     <div id="lockInDisplay">ASDFGHJKLÖ</div>
                 </div>
 
                 <div id="deathScreen" style="display: none; text-align: center; width: 100%; display: flex; flex-direction: column; align-items: center;">
-                    <h2 class="bigTitle" style="color: var(--neon-pink); text-shadow: 0 0 25px var(--neon-pink); margin-top: 20px;">SIGNAL LOST</h2>
-                    <p id="deathReason" style="color: #fff; font-size: 32px; margin-top: 0;"></p>
+                    <h2 class="bigTitle" style="color: var(--neon-pink); text-shadow: 0 0 30px var(--neon-pink); margin-top: 10px;">SIGNAL LOST</h2>
+                    <p id="deathReason" style="color: #fff; font-size: 32px; margin-top: 0; text-shadow: 0 0 10px #fff;"></p>
                     
                     <div class="stats-grid">
-                        <div class="stat-box">
-                            <div class="stat-label">Total Score</div>
-                            <div class="stat-value" id="statScore">0</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-label">Accuracy</div>
-                            <div class="stat-value" id="statAcc">0%</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-label">Speed (KPM)</div>
-                            <div class="stat-value" id="statKpm">0</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-label">Words Cleared</div>
-                            <div class="stat-value" id="statWords">0</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-label">Errors Made</div>
-                            <div class="stat-value bad" id="statErrors">0</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-label">Top Speed</div>
-                            <div class="stat-value" id="statMaxSpd">1.0x</div>
-                        </div>
+                        <div class="stat-box"><div class="stat-label">Total Score</div><div class="stat-value" id="statScore">0</div></div>
+                        <div class="stat-box"><div class="stat-label">Accuracy</div><div class="stat-value" id="statAcc">0%</div></div>
+                        <div class="stat-box"><div class="stat-label">Speed (KPM)</div><div class="stat-value" id="statKpm">0</div></div>
+                        <div class="stat-box"><div class="stat-label">Words Cleared</div><div class="stat-value" id="statWords">0</div></div>
+                        <div class="stat-box"><div class="stat-label">Errors Made</div><div class="stat-value bad" id="statErrors">0</div></div>
+                        <div class="stat-box"><div class="stat-label">Top Speed</div><div class="stat-value" id="statMaxSpd">1.0x</div></div>
                     </div>
                     
-                    <div class="blinking-text" id="restartPrompt">> PRESS [ENTER] TO REBOOT <</div>
+                    <button class="bootBtn" id="restartBtn" style="margin-top: 15px; padding: 10px 40px;">REBOOT SYSTEM</button>
+                    <div class="blinking-text" id="restartPrompt">oder drücke [ENTER]</div>
                 </div>
             </div>
         </div>
     </div>
 
+    <audio id="bgMusic" loop preload="auto">
+        <source src="https://assets.mixkit.co/music/preview/mixkit-arcade-retro-background-219.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="crashSound" preload="auto">
+        <source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg">
+    </audio>
+
     <script>
-        // --- 1. Audio Engine (Eingebauter Synthesizer) ---
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        let audioMasterGain = audioCtx.createGain();
-        audioMasterGain.gain.value = 0.3; 
-        audioMasterGain.connect(audioCtx.destination);
-        
-        let isPlayingMusic = false;
-        let nextNoteTime = 0;
-        let current16thNote = 0;
-        const tempo = 125; 
-        const lookahead = 25.0; 
-        const scheduleAheadTime = 0.1; 
-        let timerID;
-
-        // Synthwave Bassline
-        const notes = [
-            41.20, 41.20, 41.20, 41.20, // E1
-            49.00, 49.00,               // G1
-            55.00, 55.00,               // A1
-            41.20, 41.20, 41.20, 41.20, // E1
-            65.41, 65.41,               // C2
-            55.00, 55.00                // A1
-        ];
-
-        function playKick(time) {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain); gain.connect(audioMasterGain);
-            osc.frequency.setValueAtTime(150, time);
-            osc.frequency.exponentialRampToValueAtTime(0.01, time + 0.5);
-            gain.gain.setValueAtTime(1, time);
-            gain.gain.exponentialRampToValueAtTime(0.01, time + 0.5);
-            osc.start(time); osc.stop(time + 0.5);
-        }
-
-        function playHiHat(time) {
-            const bufferSize = audioCtx.sampleRate * 0.1; 
-            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-            const data = buffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-            const noise = audioCtx.createBufferSource();
-            noise.buffer = buffer;
-            const filter = audioCtx.createBiquadFilter();
-            filter.type = 'highpass'; filter.frequency.value = 7000;
-            const gain = audioCtx.createGain();
-            gain.gain.setValueAtTime(0.3, time);
-            gain.gain.exponentialRampToValueAtTime(0.01, time + 0.1);
-            noise.connect(filter); filter.connect(gain); gain.connect(audioMasterGain);
-            noise.start(time);
-        }
-
-        function playBass(time, noteIndex) {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            const filter = audioCtx.createBiquadFilter();
-            osc.type = 'sawtooth';
-            osc.frequency.value = notes[noteIndex % 16];
-            filter.type = 'lowpass';
-            filter.frequency.setValueAtTime(400, time);
-            filter.frequency.exponentialRampToValueAtTime(100, time + 0.2);
-            gain.gain.setValueAtTime(0.6, time);
-            gain.gain.exponentialRampToValueAtTime(0.01, time + 0.2);
-            osc.connect(filter); filter.connect(gain); gain.connect(audioMasterGain);
-            osc.start(time); osc.stop(time + 0.2);
-        }
-
-        function scheduler() {
-            while (nextNoteTime < audioCtx.currentTime + scheduleAheadTime) {
-                if (current16thNote % 4 === 0) playKick(nextNoteTime);
-                if (current16thNote % 2 !== 0) playHiHat(nextNoteTime);
-                playBass(nextNoteTime, current16thNote);
-                
-                nextNoteTime += 0.25 * (60.0 / tempo); 
-                current16thNote++;
-                if (current16thNote === 16) current16thNote = 0;
-            }
-            timerID = window.setTimeout(scheduler, lookahead);
-        }
-
-        function startMusic() {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            if (!isPlayingMusic) {
-                isPlayingMusic = true;
-                nextNoteTime = audioCtx.currentTime + 0.1;
-                scheduler();
-            }
-        }
-
-        function stopMusic() {
-            isPlayingMusic = false;
-            window.clearTimeout(timerID);
-        }
-
-        // --- 2. Game Setup & Variablen ---
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const wordDisplay = document.getElementById('wordDisplay');
@@ -296,6 +189,11 @@
         const deathScreen = document.getElementById('deathScreen');
         const lockInDisplay = document.getElementById('lockInDisplay');
         
+        const bootBtn = document.getElementById('bootBtn');
+        const restartBtn = document.getElementById('restartBtn');
+        const bgMusic = document.getElementById('bgMusic');
+        const crashSound = document.getElementById('crashSound');
+
         // Stats Elements
         const statScore = document.getElementById('statScore');
         const statAcc = document.getElementById('statAcc');
@@ -313,28 +211,19 @@
         let lockInIndex = 0;
         let gameState = 'BOOT'; 
 
-        // Core Game State (Expliziter Reset-Fokus)
+        // Core Game State 
         let score = 0; 
-        const baseSpeed = 5.0; // Etwas langsamerer Einstieg für Fairness
+        const baseSpeed = 5.0; 
         let gameSpeed = baseSpeed; 
         
         let backgroundOffset = 0; let mountainOffset = 0; let frames = 0;
         let currentWord = ""; let typedText = ""; let lastObstacleType = '';
         
-        let stats = {
-            totalKeystrokes: 0,
-            correctKeystrokes: 0,
-            errors: 0,
-            wordsCleared: 0,
-            startTime: 0,
-            maxSpeed: 1.0
-        };
-        
-        let comboTimer = 0;
-        const maxComboTime = 100;
-
+        let stats = { totalKeystrokes: 0, correctKeystrokes: 0, errors: 0, wordsCleared: 0, startTime: 0, maxSpeed: 1.0 };
+        let comboTimer = 0; const maxComboTime = 100;
         const baseGroundY = 380;
 
+        // Spieler
         const player = {
             x: 120, y: baseGroundY - 40, width: 40, height: 40,
             dy: 0, jumpForce: -14.5, gravity: 0.8,
@@ -342,59 +231,53 @@
         };
 
         const obstacles = [];
-        let particles = [];
-        let floatingTexts = []; 
-        let stars = []; 
+        let particles = []; let floatingTexts = []; let stars = []; 
 
-        for(let i=0; i<50; i++) {
+        for(let i=0; i<60; i++) {
             stars.push({
                 x: Math.random() * canvas.width, y: Math.random() * (baseGroundY - 100),
-                size: Math.random() * 2, speed: Math.random() * 0.5 + 0.1
+                size: Math.random() * 2.5 + 0.5, speed: Math.random() * 0.8 + 0.2
             });
         }
 
-        // --- 3. UI & State Management ---
-        document.getElementById('bootBtn').addEventListener('click', () => {
-            startMusic();
+        // --- Buttons & Audio ---
+        bootBtn.addEventListener('click', () => {
+            bgMusic.volume = 0.4;
+            bgMusic.play().catch(e => console.log("Audio braucht Klick"));
             bootScreen.style.display = 'none';
-            deathScreen.style.display = 'none';
             lockInScreen.style.display = 'block';
             gameState = 'LOCK_IN';
             updateLockInUI();
+        });
+
+        restartBtn.addEventListener('click', () => {
+            deathScreen.style.display = 'none';
+            lockInScreen.style.display = 'block';
+            gameState = 'LOCK_IN';
+            lockInIndex = 0; updateLockInUI();
         });
 
         function updateLockInUI() {
             let html = "";
             for (let i = 0; i < lockInTarget.length; i++) {
                 if (i < lockInIndex) html += `<span class="lock-typed">${lockInTarget[i].toUpperCase()}</span>`;
-                else html += `<span style="color:#444;">${lockInTarget[i].toUpperCase()}</span>`;
+                else html += `<span style="color:#555;">${lockInTarget[i].toUpperCase()}</span>`;
             }
             lockInDisplay.innerHTML = html;
         }
 
         function initGame() {
-            // HARTES ZURÜCKSETZEN ALLER WERTE
-            score = 0; 
-            gameSpeed = baseSpeed; 
-            
-            player.y = baseGroundY - player.height; 
-            player.dy = 0; 
-            player.isJumping = false; 
-            player.rotation = 0; 
-            player.trail = [];
-            
-            obstacles.length = 0; 
-            particles = []; 
-            floatingTexts = []; 
-            frames = 0; 
-            lastObstacleType = '';
-            comboTimer = 0; 
-            comboBarContainer.style.display = 'none';
+            score = 0; gameSpeed = baseSpeed; 
+            player.y = baseGroundY - player.height; player.dy = 0; 
+            player.isJumping = false; player.rotation = 0; player.trail = [];
+            obstacles.length = 0; particles = []; floatingTexts = []; frames = 0; lastObstacleType = '';
+            comboTimer = 0; comboBarContainer.style.display = 'none';
             
             stats = { totalKeystrokes: 0, correctKeystrokes: 0, errors: 0, wordsCleared: 0, startTime: Date.now(), maxSpeed: 1.0 };
             
-            spawnObstacle();
-            updateUI();
+            bgMusic.play().catch(e=>{}); // Musik sicherstellen
+            
+            spawnObstacle(); updateUI();
             
             gameState = 'PLAYING';
             overlay.style.display = 'none';
@@ -405,9 +288,8 @@
         function createParticles(x, y, color, count = 20) {
             for (let i = 0; i < count; i++) {
                 particles.push({
-                    x: x, y: y,
-                    vx: (Math.random() - 0.5) * 15, vy: (Math.random() - 1) * 15,
-                    size: Math.random() * 5 + 2, life: 1, color: color
+                    x: x, y: y, vx: (Math.random() - 0.5) * 15, vy: (Math.random() - 1) * 15,
+                    size: Math.random() * 6 + 2, life: 1, color: color
                 });
             }
         }
@@ -431,8 +313,7 @@
             } else if (type === 'platform_lava') {
                 obs.y = baseGroundY - 120; obs.width = 180; obs.height = 20;
             } else if (type === 'laser_wall') {
-                // Laserwand fair und machbar (Höhe 45, Breite 25)
-                obs.y = baseGroundY - 45; obs.width = 25; obs.height = 45; 
+                obs.y = baseGroundY - 45; obs.width = 20; obs.height = 45; 
             }
 
             lastObstacleType = type;
@@ -441,8 +322,7 @@
             let level = score < 150 ? 1 : (score < 400 ? 2 : 3);
             let wordList = level === 1 ? wordsLevel1 : (level === 2 ? wordsLevel2 : wordsLevel3);
             currentWord = wordList[Math.floor(Math.random() * wordList.length)];
-            typedText = "";
-            renderWord();
+            typedText = ""; renderWord();
         }
 
         function renderWord(isError = false) {
@@ -458,8 +338,7 @@
         function failWord() {
             typedText = ""; comboTimer = 0; comboBarContainer.style.display = 'none';
             renderWord(true); 
-            wordDisplay.classList.remove('shake-active');
-            void wordDisplay.offsetWidth; 
+            wordDisplay.classList.remove('shake-active'); void wordDisplay.offsetWidth; 
             wordDisplay.classList.add('shake-active');
         }
 
@@ -491,14 +370,9 @@
             comboBarContainer.style.display = 'none';
             createParticles(player.x + player.width/2, player.y + player.height/2, "var(--neon-pink)", 60);
             
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.frequency.setValueAtTime(100, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + 1);
-            gain.gain.setValueAtTime(1, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1);
-            osc.connect(gain); gain.connect(audioMasterGain);
-            osc.start(); osc.stop(audioCtx.currentTime + 1);
+            bgMusic.pause();
+            crashSound.volume = 0.5;
+            crashSound.play().catch(e=>{});
 
             calculateStats();
 
@@ -508,20 +382,14 @@
                 lockInScreen.style.display = 'none';
                 document.getElementById('deathReason').innerText = reason;
                 deathScreen.style.display = 'flex';
-                
-                lockInIndex = 0; updateLockInUI();
-            }, 1000); 
+            }, 800); 
         }
 
-        // --- 4. Input Handling ---
         document.addEventListener('keydown', (e) => {
             if (["Shift", "Control", "Alt", "CapsLock", "Tab"].includes(e.key)) return;
             
-            // QUICK RESTART MIT ENTER
             if (gameState === 'GAME_OVER' && e.key === 'Enter') {
-                deathScreen.style.display = 'none';
-                lockInScreen.style.display = 'block';
-                gameState = 'LOCK_IN';
+                restartBtn.click();
                 return;
             }
 
@@ -544,22 +412,18 @@
             
             if (key === expectedChar) {
                 stats.correctKeystrokes++;
-                typedText += key;
-                renderWord();
+                typedText += key; renderWord();
                 
                 if (typedText.length < currentWord.length) {
-                    comboTimer = maxComboTime; 
-                    comboBarContainer.style.display = 'block';
+                    comboTimer = maxComboTime; comboBarContainer.style.display = 'block';
                 } else {
                     jump(); wordDisplay.innerHTML = ""; 
                 }
             } else {
-                stats.errors++;
-                failWord(); 
+                stats.errors++; failWord(); 
             }
         });
 
-        // --- 5. Game Loop & Physics ---
         function update() {
             if (gameState !== 'PLAYING') return;
             frames++;
@@ -567,14 +431,10 @@
             if (typedText.length > 0 && typedText.length < currentWord.length) {
                 comboTimer--;
                 comboBar.style.width = (comboTimer / maxComboTime) * 100 + "%";
-                if (comboTimer <= 0) {
-                    stats.errors++; // Zögern zählt als Fehler
-                    failWord(); 
-                }
+                if (comboTimer <= 0) { stats.errors++; failWord(); }
             }
 
-            backgroundOffset -= gameSpeed * 0.5;
-            mountainOffset -= gameSpeed * 0.15; 
+            backgroundOffset -= gameSpeed * 0.5; mountainOffset -= gameSpeed * 0.15; 
             if (backgroundOffset <= -80) backgroundOffset = 0;
             if (mountainOffset <= -800) mountainOffset = 0;
 
@@ -585,7 +445,6 @@
 
             player.dy += player.gravity; player.y += player.dy;
 
-            // PHYSIK: Auf dem Boden starr, in der Luft drehen
             if (player.isJumping || player.dy > 1) {
                 player.rotation += 0.15; 
             } else {
@@ -595,14 +454,12 @@
             player.trail.push({x: player.x, y: player.y, rot: player.rotation, life: 1});
             if (player.trail.length > 8) player.trail.shift();
 
-            let currentFloorY = baseGroundY;
-            let onLava = false;
+            let currentFloorY = baseGroundY; let onLava = false;
 
             for (let i = 0; i < obstacles.length; i++) {
                 let obs = obstacles[i];
                 obs.x -= gameSpeed;
 
-                // Hitboxen leicht verkleinert für Fairness
                 if (obs.type === 'spike' || obs.type === 'double_spike') {
                     if (player.x < obs.x + obs.width - 12 && player.x + player.width - 12 > obs.x &&
                         player.y < obs.y + obs.height && player.y + player.height > obs.y + 15) {
@@ -631,12 +488,9 @@
                 }
 
                 if (obs.x + obs.width < player.x && !obs.passed) {
-                    obs.passed = true; score += 10; 
-                    // Sanftere Beschleunigung
-                    gameSpeed += 0.02; 
+                    obs.passed = true; score += 10; gameSpeed += 0.02; 
                     let currentSpeedMult = gameSpeed / baseSpeed;
                     if (currentSpeedMult > stats.maxSpeed) stats.maxSpeed = currentSpeedMult;
-
                     addFloatingText("+10", player.x, player.y - 40, "var(--neon-pink)");
                 }
             }
@@ -652,11 +506,9 @@
                 obstacles.shift(); spawnObstacle();
             }
 
-            // Update Effects
             for (let i = particles.length - 1; i >= 0; i--) {
                 particles[i].x += particles[i].vx; particles[i].y += particles[i].vy; 
-                particles[i].vy += 0.5; 
-                particles[i].life -= 0.03;
+                particles[i].vy += 0.5; particles[i].life -= 0.03;
                 if (particles[i].life <= 0) particles.splice(i, 1);
             }
             for (let i = 0; i < player.trail.length; i++) player.trail[i].life -= 0.12;
@@ -666,72 +518,68 @@
             }
         }
 
-        // --- 6. Rendering ---
         function drawMountains() {
-            ctx.fillStyle = "#050011"; ctx.beginPath(); ctx.moveTo(0, baseGroundY);
+            ctx.fillStyle = "#1a0033"; ctx.beginPath(); ctx.moveTo(0, baseGroundY);
             for(let i = 0; i < 20; i++) ctx.lineTo((i * 100) + mountainOffset, baseGroundY - 80 - Math.abs(Math.sin(i * 45) * 60));
             ctx.lineTo(canvas.width * 2, baseGroundY); ctx.fill();
-            ctx.strokeStyle = "var(--neon-purple)"; ctx.lineWidth = 2; ctx.shadowBlur = 10; ctx.shadowColor = "var(--neon-purple)";
+            ctx.strokeStyle = "var(--neon-purple)"; ctx.lineWidth = 3; ctx.shadowBlur = 15; ctx.shadowColor = "var(--neon-purple)";
             ctx.stroke(); ctx.shadowBlur = 0;
         }
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Sterne
             ctx.fillStyle = "#fff";
             stars.forEach(s => { ctx.globalAlpha = Math.random() * 0.5 + 0.5; ctx.fillRect(s.x, s.y, s.size, s.size); });
             ctx.globalAlpha = 1;
 
-            // Sonne
-            ctx.fillStyle = "var(--neon-pink)"; ctx.shadowBlur = 60; ctx.shadowColor = "var(--neon-pink)";
-            ctx.beginPath(); ctx.arc(400, 250, 140, Math.PI, 0); ctx.fill(); ctx.shadowBlur = 0;
-            ctx.fillStyle = "#110022";
-            for(let i=0; i<7; i++) ctx.fillRect(200, 210 - (i*16), 400, i*3.5);
+            // Sonne (Größer & Heller)
+            ctx.fillStyle = "var(--neon-pink)"; ctx.shadowBlur = 80; ctx.shadowColor = "var(--neon-pink)";
+            ctx.beginPath(); ctx.arc(400, 250, 160, Math.PI, 0); ctx.fill(); ctx.shadowBlur = 0;
+            ctx.fillStyle = "var(--bg-top)";
+            for(let i=0; i<8; i++) ctx.fillRect(200, 200 - (i*16), 400, i*4);
 
             drawMountains();
 
-            // Grid
-            ctx.strokeStyle = "rgba(0, 255, 255, 0.3)"; ctx.lineWidth = 2; ctx.shadowBlur = 5; ctx.shadowColor = "var(--neon-cyan)";
+            ctx.strokeStyle = "rgba(0, 229, 255, 0.4)"; ctx.lineWidth = 2; ctx.shadowBlur = 8; ctx.shadowColor = "var(--neon-cyan)";
             for (let i = -100; i < canvas.width + 100; i += 60) {
                 ctx.beginPath(); ctx.moveTo(i + backgroundOffset, baseGroundY);
                 ctx.lineTo((i - 400) * 2 + 400, canvas.height); ctx.stroke();
             }
             
-            // Bodenlinie
-            ctx.strokeStyle = "var(--neon-cyan)"; ctx.lineWidth = 4; ctx.shadowBlur = 15;
+            ctx.strokeStyle = "var(--neon-cyan)"; ctx.lineWidth = 5; ctx.shadowBlur = 20;
             ctx.beginPath(); ctx.moveTo(0, baseGroundY); ctx.lineTo(canvas.width, baseGroundY); ctx.stroke();
             ctx.shadowBlur = 0;
 
             obstacles.forEach(obs => {
                 if (obs.type === 'spike' || obs.type === 'double_spike') {
-                    ctx.shadowBlur = 20; ctx.shadowColor = "var(--neon-pink)"; ctx.fillStyle = "var(--neon-pink)";
+                    ctx.shadowBlur = 25; ctx.shadowColor = "var(--neon-pink)"; ctx.fillStyle = "var(--neon-pink)";
                     for(let i = 0; i < (obs.type === 'double_spike' ? 2 : 1); i++) {
                         let offsetX = obs.x + (i * 40);
                         ctx.beginPath(); ctx.moveTo(offsetX + 20, obs.y);
                         ctx.lineTo(offsetX + 40, obs.y + obs.height); ctx.lineTo(offsetX, obs.y + obs.height);
                         ctx.closePath(); ctx.fill();
                         
-                        ctx.fillStyle = "#220011"; ctx.shadowBlur = 0;
+                        ctx.fillStyle = "#33001a"; ctx.shadowBlur = 0;
                         ctx.beginPath(); ctx.moveTo(offsetX + 20, obs.y + 12);
                         ctx.lineTo(offsetX + 32, obs.y + obs.height - 4); ctx.lineTo(offsetX + 8, obs.y + obs.height - 4);
                         ctx.closePath(); ctx.fill(); ctx.fillStyle = "var(--neon-pink)"; 
                     }
                 } 
                 else if (obs.type === 'laser_wall') {
-                    ctx.shadowBlur = 25; ctx.shadowColor = "var(--neon-cyan)"; ctx.fillStyle = "rgba(0, 255, 255, 0.8)";
+                    ctx.shadowBlur = 30; ctx.shadowColor = "var(--neon-cyan)"; ctx.fillStyle = "rgba(0, 229, 255, 0.85)";
                     ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
                     ctx.fillStyle = "#fff"; ctx.fillRect(obs.x + 8, obs.y, 4, obs.height);
                 }
                 else if (obs.type === 'platform_lava') {
                     let lavaWave = Math.sin(frames * 0.1) * 5; 
-                    ctx.fillStyle = "#ff3300"; ctx.shadowBlur = 25; ctx.shadowColor = "#ff0000";
+                    ctx.fillStyle = "#ff3300"; ctx.shadowBlur = 30; ctx.shadowColor = "#ff0000";
                     ctx.fillRect(obs.x, baseGroundY - 5 + lavaWave, obs.width, 25);
-                    ctx.fillStyle = "#ffaa00"; ctx.fillRect(obs.x + 10, baseGroundY + lavaWave, obs.width - 20, 10);
+                    ctx.fillStyle = var(--neon-yellow); ctx.fillRect(obs.x + 10, baseGroundY + lavaWave, obs.width - 20, 10);
                     
-                    ctx.shadowBlur = 15; ctx.shadowColor = "var(--neon-purple)"; ctx.fillStyle = "var(--neon-purple)";
+                    ctx.shadowBlur = 20; ctx.shadowColor = "var(--neon-purple)"; ctx.fillStyle = "var(--neon-purple)";
                     ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-                    ctx.fillStyle = "#110011"; ctx.fillRect(obs.x + 3, obs.y + 3, obs.width - 6, obs.height - 6);
+                    ctx.fillStyle = "#220033"; ctx.fillRect(obs.x + 3, obs.y + 3, obs.width - 6, obs.height - 6);
                 }
                 ctx.shadowBlur = 0;
             });
@@ -740,13 +588,13 @@
                 player.trail.forEach(t => {
                     if (t.life > 0) {
                         ctx.save(); ctx.translate(t.x + player.width/2, t.y + player.height/2); ctx.rotate(t.rot);
-                        ctx.fillStyle = `rgba(0, 255, 255, ${t.life * 0.3})`;
+                        ctx.fillStyle = `rgba(0, 229, 255, ${t.life * 0.4})`;
                         ctx.fillRect(-player.width/2, -player.height/2, player.width, player.height); ctx.restore();
                     }
                 });
 
                 ctx.save(); ctx.translate(player.x + player.width/2, player.y + player.height/2); ctx.rotate(player.rotation);
-                ctx.fillStyle = "var(--neon-cyan)"; ctx.shadowBlur = 25; ctx.shadowColor = "var(--neon-cyan)";
+                ctx.fillStyle = "var(--neon-cyan)"; ctx.shadowBlur = 30; ctx.shadowColor = "var(--neon-cyan)";
                 ctx.fillRect(-player.width/2, -player.height/2, player.width, player.height);
                 ctx.fillStyle = "#000"; ctx.fillRect(-12, -12, 24, 24); 
                 ctx.fillStyle = "var(--neon-pink)"; ctx.fillRect(-4, -4, 8, 8); 
@@ -755,16 +603,16 @@
 
             particles.forEach(p => {
                 ctx.fillStyle = p.color; ctx.globalAlpha = p.life;
-                ctx.shadowBlur = 15; ctx.shadowColor = p.color;
+                ctx.shadowBlur = 20; ctx.shadowColor = p.color;
                 ctx.fillRect(p.x, p.y, p.size, p.size);
             });
             
             ctx.globalAlpha = 1; ctx.shadowBlur = 0;
             
-            ctx.font = "24px VT323"; ctx.textAlign = "center";
+            ctx.font = "28px VT323"; ctx.textAlign = "center";
             floatingTexts.forEach(ft => {
                 ctx.fillStyle = ft.color; ctx.globalAlpha = ft.life;
-                ctx.shadowBlur = 10; ctx.shadowColor = ft.color;
+                ctx.shadowBlur = 15; ctx.shadowColor = ft.color;
                 ctx.fillText(ft.text, ft.x + 20, ft.y);
             });
             ctx.globalAlpha = 1; ctx.shadowBlur = 0;
