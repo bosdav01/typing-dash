@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retro Type Dash - Ultimate Flow Edition</title>
+    <title>Retro Type Dash - Manual Jump Edition</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 
         :root {
             --neon-pink: #ff007f;
             --neon-cyan: #00e5ff;
-            --neon-purple: #9d00ff;
+            --neon-purple: #b026ff;
+            --neon-yellow: #ffea00;
             --neon-green: #39ff14;
             --bg-top: #1a002a;
             --bg-bottom: #050011;
@@ -23,15 +24,17 @@
             overflow: hidden; user-select: none;
         }
 
+        /* CRT Scanlines & Screen Glare */
         body::after {
             content: ""; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.2) 50%);
-            z-index: 100; background-size: 100% 4px; pointer-events: none; opacity: 0.7;
+            background: linear-gradient(rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                        radial-gradient(circle at center, transparent 50%, rgba(0,0,0,0.6) 100%);
+            z-index: 100; background-size: 100% 4px, 100% 100%; pointer-events: none; opacity: 0.8;
         }
 
         #gameWrapper {
             position: relative; padding: 12px; background: #110022; border-radius: 12px;
-            box-shadow: 0 0 50px rgba(0, 229, 255, 0.3), 0 0 80px rgba(255, 0, 127, 0.2);
+            box-shadow: 0 0 60px rgba(0, 229, 255, 0.3), 0 0 90px rgba(255, 0, 127, 0.2);
         }
 
         #gameContainer {
@@ -48,6 +51,7 @@
             font-size: 38px; z-index: 10; color: var(--neon-cyan); text-shadow: 0 0 15px var(--neon-cyan);
         }
 
+        /* Das Wort-Display zentriert */
         #wordDisplay {
             position: absolute; top: 80px; width: 100%; text-align: center;
             font-size: 75px; letter-spacing: 12px; z-index: 10;
@@ -55,9 +59,8 @@
         }
 
         .typed { color: var(--neon-cyan); text-shadow: 0 0 20px var(--neon-cyan), 0 0 40px #fff; }
-        .untyped { color: #888; text-shadow: none; }
+        .untyped { color: #666; text-shadow: none; }
         .error { color: var(--neon-pink); text-shadow: 0 0 25px var(--neon-pink); }
-        .locked { color: var(--neon-green); text-shadow: 0 0 30px var(--neon-green); }
 
         @keyframes shake {
             0% { transform: translateX(0); color: var(--neon-pink); }
@@ -81,7 +84,7 @@
         #lockInDisplay {
             font-size: 65px; letter-spacing: 18px; margin-top: 20px; color: #444;
             background: rgba(0,0,0,0.8); padding: 15px 40px; border-radius: 12px; border: 3px solid var(--neon-purple);
-            box-shadow: inset 0 0 30px rgba(157, 0, 255, 0.4);
+            box-shadow: inset 0 0 30px rgba(176, 38, 255, 0.4);
         }
         .lock-typed { color: var(--neon-cyan); text-shadow: 0 0 30px var(--neon-cyan); }
 
@@ -113,7 +116,7 @@
 <body>
 
     <h1>SYNTHWAVE TYPE DASH</h1>
-    <p style="color: var(--neon-cyan); margin-bottom: 20px; z-index: 10; font-size: 24px; text-shadow: 0 0 10px var(--neon-cyan);">Fehler sind okay! Tippe das Wort, um den perfekten Sprung zu programmieren.</p>
+    <p style="color: var(--neon-cyan); margin-bottom: 20px; z-index: 10; font-size: 24px; text-shadow: 0 0 10px var(--neon-cyan);">Tippfehler setzen das Wort zurück. Der letzte Buchstabe löst den Sprung aus!</p>
 
     <div id="gameWrapper">
         <div id="gameContainer">
@@ -121,6 +124,7 @@
                 <span id="scoreDisplay">SCORE: 0000</span>
                 <span id="speedDisplay">SPD: 1.0</span>
             </div>
+            
             <div id="wordDisplay"></div>
             <canvas id="gameCanvas" width="800" height="450"></canvas>
             
@@ -144,8 +148,8 @@
                         <div class="stat-box"><div class="stat-label">Total Score</div><div class="stat-value" id="statScore">0</div></div>
                         <div class="stat-box"><div class="stat-label">Accuracy</div><div class="stat-value" id="statAcc">0%</div></div>
                         <div class="stat-box"><div class="stat-label">Speed (KPM)</div><div class="stat-value" id="statKpm">0</div></div>
-                        <div class="stat-box"><div class="stat-label">Words Typed</div><div class="stat-value" id="statWords">0</div></div>
-                        <div class="stat-box"><div class="stat-label">Errors</div><div class="stat-value bad" id="statErrors">0</div></div>
+                        <div class="stat-box"><div class="stat-label">Jumps Executed</div><div class="stat-value" id="statWords">0</div></div>
+                        <div class="stat-box"><div class="stat-label">Typos</div><div class="stat-value bad" id="statErrors">0</div></div>
                         <div class="stat-box"><div class="stat-label">Top Speed</div><div class="stat-value" id="statMaxSpd">1.0x</div></div>
                     </div>
                     
@@ -175,7 +179,6 @@
         const restartBtn = document.getElementById('restartBtn');
         const bgMusic = document.getElementById('bgMusic');
 
-        // Stats Elements
         const statScore = document.getElementById('statScore');
         const statAcc = document.getElementById('statAcc');
         const statWords = document.getElementById('statWords');
@@ -194,13 +197,12 @@
 
         // Core Game State 
         let score = 0; 
-        const baseSpeed = 4.5; // Ruhigerer Start für den Einstieg
+        const baseSpeed = 4.8; 
         let gameSpeed = baseSpeed; 
         
-        let backgroundOffset = 0; let mountainOffset = 0; let frames = 0;
+        let backgroundOffset = 0; let mountainOffset = 0; let cityOffset = 0; let frames = 0;
         
-        // Das Hindernis, für das wir aktuell tippen
-        let targetObstacle = null; 
+        // Wort Management
         let typedText = ""; 
         let currentWord = "";
         
@@ -219,12 +221,12 @@
 
         for(let i=0; i<60; i++) {
             stars.push({
-                x: Math.random() * canvas.width, y: Math.random() * (baseGroundY - 100),
+                x: Math.random() * canvas.width, y: Math.random() * (baseGroundY - 150),
                 size: Math.random() * 2.5 + 0.5, speed: Math.random() * 0.8 + 0.2
             });
         }
 
-        // --- UI & Sound Setup ---
+        // --- UI & Sound ---
         bootBtn.addEventListener('click', () => {
             bgMusic.volume = 0.5;
             bgMusic.play().catch(e => console.log("Audio blockiert"));
@@ -250,20 +252,28 @@
             lockInDisplay.innerHTML = html;
         }
 
+        function assignNewWord() {
+            let level = score < 200 ? 1 : (score < 500 ? 2 : 3);
+            let wordList = level === 1 ? wordsLevel1 : (level === 2 ? wordsLevel2 : wordsLevel3);
+            currentWord = wordList[Math.floor(Math.random() * wordList.length)];
+            typedText = "";
+            renderWord();
+        }
+
         function initGame() {
-            // HARTES ZURÜCKSETZEN ALLER WERTE
             score = 0; gameSpeed = baseSpeed; 
             player.y = baseGroundY - player.height; player.dy = 0; 
             player.isJumping = false; player.rotation = 0; player.trail = [];
             
             obstacles.length = 0; particles = []; floatingTexts = []; frames = 0; 
-            targetObstacle = null; typedText = ""; currentWord = "";
             
             stats = { totalKeystrokes: 0, correctKeystrokes: 0, errors: 0, wordsCleared: 0, startTime: Date.now(), maxSpeed: 1.0 };
             
             bgMusic.play().catch(e=>{}); 
             
-            spawnObstacle(); updateUI();
+            assignNewWord(); // Initiales Wort laden
+            spawnObstacle(); 
+            updateUI();
             
             gameState = 'PLAYING';
             overlay.style.display = 'none';
@@ -285,54 +295,36 @@
         }
 
         function spawnObstacle() {
-            let obs = { x: canvas.width, passed: false, cleared: false };
-            let types = ['spike', 'double_spike', 'triple_spike', 'platform_lava', 'laser_wall', 'acid_pool'];
+            let obs = { x: canvas.width, passed: false };
+            let types = ['spike', 'double_spike', 'triple_spike', 'laser_wall', 'acid_pool', 'sawblade', 'plasma_gate'];
             
-            // Verhindern, dass zu schwere Dinge direkt am Anfang kommen
-            if (score < 50) types = ['spike', 'laser_wall'];
+            if (score < 100) types = ['spike', 'laser_wall'];
+            else if (score < 250) types = ['spike', 'double_spike', 'laser_wall', 'acid_pool'];
+            else if (score < 400) types = ['spike', 'double_spike', 'sawblade', 'acid_pool'];
             
             let type = types[Math.floor(Math.random() * types.length)];
-
             obs.type = type;
+
             if (type === 'spike') {
                 obs.y = baseGroundY - 40; obs.width = 40; obs.height = 40;
             } else if (type === 'double_spike') {
                 obs.y = baseGroundY - 40; obs.width = 80; obs.height = 40;
             } else if (type === 'triple_spike') {
                 obs.y = baseGroundY - 40; obs.width = 120; obs.height = 40;
-            } else if (type === 'platform_lava') {
-                obs.y = baseGroundY - 120; obs.width = 150; obs.height = 20;
             } else if (type === 'laser_wall') {
-                obs.y = baseGroundY - 45; obs.width = 20; obs.height = 45; // Fair & Überspringbar
+                obs.y = baseGroundY - 50; obs.width = 20; obs.height = 50; 
             } else if (type === 'acid_pool') {
-                obs.y = baseGroundY - 10; obs.width = 160; obs.height = 10; // Nur ein Pool auf dem Boden
+                obs.y = baseGroundY - 15; obs.width = 140; obs.height = 15; 
+            } else if (type === 'sawblade') {
+                obs.y = baseGroundY - 50; obs.width = 50; obs.height = 50; // Rotierende Säge
+            } else if (type === 'plasma_gate') {
+                obs.y = baseGroundY - 90; obs.width = 30; obs.height = 90; // Hohes Tor
             }
 
             obstacles.push(obs);
-            
-            // Wenn wir kein aktuelles Ziel haben, machen wir dieses zum Ziel
-            if (!targetObstacle) {
-                assignNewTarget(obs);
-            }
-        }
-
-        function assignNewTarget(obs) {
-            targetObstacle = obs;
-            typedText = "";
-            let level = score < 150 ? 1 : (score < 400 ? 2 : 3);
-            let wordList = level === 1 ? wordsLevel1 : (level === 2 ? wordsLevel2 : wordsLevel3);
-            currentWord = wordList[Math.floor(Math.random() * wordList.length)];
-            renderWord();
         }
 
         function renderWord(isError = false) {
-            if (!targetObstacle) return;
-            
-            if (targetObstacle.cleared) {
-                wordDisplay.innerHTML = `<span class="locked">[ ${currentWord.toUpperCase()} ]</span>`;
-                return;
-            }
-
             let html = "";
             for (let i = 0; i < currentWord.length; i++) {
                 if (i < typedText.length) html += `<span class="typed">${currentWord[i]}</span>`;
@@ -342,15 +334,15 @@
             wordDisplay.innerHTML = html;
         }
 
-        function failLetter() {
-            // Wort wird NICHT gelöscht! Nur kurzes visuelles Feedback.
+        function failWordReset() {
+            typedText = ""; // KOMPLETTER RESET DES WORTES!
             renderWord(true); 
             wordDisplay.classList.remove('shake-active'); 
             void wordDisplay.offsetWidth; 
             wordDisplay.classList.add('shake-active');
         }
 
-        function triggerAutoJump() {
+        function triggerJump() {
             if (!player.isJumping && player.dy === 0) { 
                 player.dy = player.jumpForce; player.isJumping = true;
                 createParticles(player.x + player.width/2, player.y + player.height, "var(--neon-cyan)", 15);
@@ -386,8 +378,9 @@
             }, 800); 
         }
 
+        // --- Tastatur-Eingaben ---
         document.addEventListener('keydown', (e) => {
-            if (["Shift", "Control", "Alt", "CapsLock", "Tab"].includes(e.key)) return;
+            if (["Shift", "Control", "Alt", "CapsLock", "Tab", "Escape"].includes(e.key)) return;
             
             // QUICK RESTART MIT ENTER
             if (gameState === 'GAME_OVER' && e.key === 'Enter') {
@@ -408,7 +401,6 @@
             }
 
             if (gameState !== 'PLAYING') return;
-            if (!targetObstacle || targetObstacle.cleared) return; // Nichts zu tippen gerade
 
             stats.totalKeystrokes++;
             const expectedChar = currentWord[typedText.length];
@@ -418,15 +410,16 @@
                 typedText += key; 
                 
                 if (typedText.length === currentWord.length) {
-                    // Wort fertig -> Auto-Jump Lock-in!
-                    targetObstacle.cleared = true;
+                    // Wort komplett -> DIREKTER SPRUNG!
                     stats.wordsCleared++;
-                    addFloatingText("LOCKED", player.x + 100, player.y - 50, "var(--neon-green)");
+                    triggerJump();
+                    assignNewWord(); // Sofort neues Wort laden
+                } else {
+                    renderWord();
                 }
-                renderWord();
             } else {
                 stats.errors++; 
-                failLetter(); 
+                failWordReset(); // Wort wird bei Fehler zurückgesetzt
             }
         });
 
@@ -434,25 +427,29 @@
             if (gameState !== 'PLAYING') return;
             frames++;
             
-            backgroundOffset -= gameSpeed * 0.5; mountainOffset -= gameSpeed * 0.15; 
+            backgroundOffset -= gameSpeed * 0.5; 
+            mountainOffset -= gameSpeed * 0.15; 
+            cityOffset -= gameSpeed * 0.05; // Langsame Parallax Stadt
+            
             if (backgroundOffset <= -80) backgroundOffset = 0;
             if (mountainOffset <= -800) mountainOffset = 0;
+            if (cityOffset <= -800) cityOffset = 0;
 
             stars.forEach(s => {
                 s.x -= s.speed;
-                if(s.x < 0) { s.x = canvas.width; s.y = Math.random() * (baseGroundY - 100); }
+                if(s.x < 0) { s.x = canvas.width; s.y = Math.random() * (baseGroundY - 150); }
             });
 
-            // Hindernis-Spawning (Hohe Frequenz)
+            // Hindernisse Spawnen (Zügige Frequenz)
             let lastObs = obstacles[obstacles.length - 1];
-            // Spawne neues Hindernis, wenn das alte 350px von rechts entfernt ist
-            if (!lastObs || canvas.width - lastObs.x > 350) {
+            let minDistance = 350 + (gameSpeed * 10); // Dynamischer Abstand
+            if (!lastObs || canvas.width - lastObs.x > minDistance) {
                 spawnObstacle();
             }
 
             player.dy += player.gravity; player.y += player.dy;
 
-            // PHYSIK: Auf dem Boden starr gleiten, in der Luft rotieren
+            // PHYSIK
             if (player.isJumping || player.dy > 1) {
                 player.rotation += 0.15; 
             } else {
@@ -462,85 +459,54 @@
             player.trail.push({x: player.x, y: player.y, rot: player.rotation, life: 1});
             if (player.trail.length > 8) player.trail.shift();
 
-            // --- Auto-Jump Trigger Logik ---
-            if (targetObstacle && targetObstacle.cleared && !targetObstacle.passed) {
-                // Berechne den perfekten Sprung-Moment basierend auf der Geschwindigkeit
-                let jumpTriggerDistance = 120 + (gameSpeed * 5); 
-                if (targetObstacle.type === 'platform_lava') jumpTriggerDistance += 40; // Für Plattform früher abspringen
-                
-                if (targetObstacle.x - (player.x + player.width) <= jumpTriggerDistance) {
-                    triggerAutoJump();
-                }
-            }
-
-            let currentFloorY = baseGroundY; 
-            let onLavaOrAcid = false;
-
             for (let i = 0; i < obstacles.length; i++) {
                 let obs = obstacles[i];
                 obs.x -= gameSpeed;
 
-                // Hitboxen (leicht verkleinert für Fairness)
+                // KOLLISIONSABFRAGE (Tod nur hier!)
+                let hitBoxMargin = 10; // Etwas Toleranz für den Spieler
+                
                 if (obs.type === 'spike' || obs.type === 'double_spike' || obs.type === 'triple_spike') {
-                    if (player.x < obs.x + obs.width - 15 && player.x + player.width - 15 > obs.x &&
+                    if (player.x < obs.x + obs.width - hitBoxMargin && player.x + player.width - hitBoxMargin > obs.x &&
                         player.y < obs.y + obs.height && player.y + player.height > obs.y + 15) {
                         gameOver("IMPALED BY SPIKES");
                     }
                 } 
-                else if (obs.type === 'laser_wall') {
+                else if (obs.type === 'laser_wall' || obs.type === 'plasma_gate') {
                     if (player.x < obs.x + obs.width - 5 && player.x + player.width - 5 > obs.x &&
                         player.y < obs.y + obs.height && player.y + player.height > obs.y + 10) {
                         gameOver("ZAPPED BY LASER");
                     }
                 }
-                else if (obs.type === 'acid_pool') {
-                    if (player.x + player.width > obs.x + 10 && player.x < obs.x + obs.width - 10) onLavaOrAcid = true;
+                else if (obs.type === 'sawblade') {
+                    // Cirkulare Kollisionstoleranz
+                    let cx = obs.x + obs.width/2; let cy = obs.y + obs.height/2;
+                    let px = player.x + player.width/2; let py = player.y + player.height/2;
+                    let dist = Math.sqrt(Math.pow(cx-px, 2) + Math.pow(cy-py, 2));
+                    if (dist < 35) gameOver("SHREDDED BY SAWBLADE");
                 }
-                else if (obs.type === 'platform_lava') {
-                    if (player.x + player.width > obs.x + 10 && player.x < obs.x + obs.width - 10) onLavaOrAcid = true; 
-                    
-                    if (player.dy >= 0 && player.y + player.height >= obs.y && player.y + player.height <= obs.y + 25 &&
-                        player.x + player.width > obs.x && player.x < obs.x + obs.width) {
-                        currentFloorY = obs.y; player.y = currentFloorY - player.height; player.dy = 0;
-                        if(player.isJumping) { player.isJumping = false; createParticles(player.x + player.width/2, player.y + player.height, "var(--neon-purple)", 10); }
-                        onLavaOrAcid = false; 
-                    } 
-                    else if (player.x + player.width > obs.x + 8 && player.x < obs.x + obs.width &&
-                             player.y + player.height > obs.y + 8 && player.y < obs.y + obs.height) {
-                        gameOver("CRASHED INTO PLATFORM");
+                else if (obs.type === 'acid_pool') {
+                    if (player.x + player.width > obs.x + 10 && player.x < obs.x + obs.width - 10 && player.y + player.height > obs.y) {
+                        gameOver("DISSOLVED IN ACID");
                     }
                 }
 
-                // Hindernis erfolgreich überwunden?
+                // Hindernis erfolgreich überwunden
                 if (obs.x + obs.width < player.x && !obs.passed) {
                     obs.passed = true; score += 10; 
-                    
-                    // Sanfte Beschleunigung
-                    gameSpeed += 0.03; 
+                    gameSpeed += 0.03; // Wird kontinuierlich schneller
                     let currentSpeedMult = gameSpeed / baseSpeed;
                     if (currentSpeedMult > stats.maxSpeed) stats.maxSpeed = currentSpeedMult;
                     addFloatingText("+10", player.x, player.y - 40, "var(--neon-pink)");
-
-                    // Wenn dies das Target war, weise das nächste zu!
-                    if (obs === targetObstacle) {
-                        let nextObs = obstacles.find(o => !o.passed && o !== obs);
-                        if (nextObs) assignNewTarget(nextObs);
-                        else targetObstacle = null;
-                    }
                 }
             }
 
-            if (onLavaOrAcid && player.y >= baseGroundY - player.height - 5) gameOver("FELL INTO HAZARD");
-
-            if (player.y >= baseGroundY - player.height && currentFloorY === baseGroundY && !onLavaOrAcid) {
+            if (player.y >= baseGroundY - player.height) {
                 player.y = baseGroundY - player.height; player.dy = 0;
                 if(player.isJumping) { player.isJumping = false; createParticles(player.x + player.width/2, player.y + player.height, "var(--neon-cyan)", 10); }
             }
 
-            // Cleanup
-            if (obstacles.length > 0 && obstacles[0].x + obstacles[0].width < -150) {
-                obstacles.shift();
-            }
+            if (obstacles.length > 0 && obstacles[0].x + obstacles[0].width < -150) obstacles.shift();
 
             // Update Effects
             for (let i = particles.length - 1; i >= 0; i--) {
@@ -552,6 +518,19 @@
             for (let i = floatingTexts.length - 1; i >= 0; i--) {
                 floatingTexts[i].y -= 1; floatingTexts[i].life -= 0.02;
                 if (floatingTexts[i].life <= 0) floatingTexts.splice(i, 1);
+            }
+        }
+
+        // --- Visuelle Kulissen ---
+        function drawCity() {
+            ctx.fillStyle = "#0c001f";
+            for(let i = 0; i < 20; i++) {
+                let h = 50 + Math.abs(Math.sin(i * 1.5) * 100);
+                ctx.fillRect((i * 80) + cityOffset, baseGroundY - h, 70, h);
+                // Fenster
+                ctx.fillStyle = "rgba(0, 229, 255, 0.2)";
+                if (i % 2 === 0) ctx.fillRect((i * 80) + cityOffset + 10, baseGroundY - h + 10, 20, 20);
+                ctx.fillStyle = "#0c001f";
             }
         }
 
@@ -570,15 +549,14 @@
             stars.forEach(s => { ctx.globalAlpha = Math.random() * 0.5 + 0.5; ctx.fillRect(s.x, s.y, s.size, s.size); });
             ctx.globalAlpha = 1;
 
-            // Sonne 
             ctx.fillStyle = "var(--neon-pink)"; ctx.shadowBlur = 80; ctx.shadowColor = "var(--neon-pink)";
             ctx.beginPath(); ctx.arc(400, 250, 160, Math.PI, 0); ctx.fill(); ctx.shadowBlur = 0;
             ctx.fillStyle = "var(--bg-top)";
             for(let i=0; i<8; i++) ctx.fillRect(200, 200 - (i*16), 400, i*4);
 
+            drawCity();
             drawMountains();
 
-            // Grid
             ctx.strokeStyle = "rgba(0, 229, 255, 0.4)"; ctx.lineWidth = 2; ctx.shadowBlur = 8; ctx.shadowColor = "var(--neon-cyan)";
             for (let i = -100; i < canvas.width + 100; i += 60) {
                 ctx.beginPath(); ctx.moveTo(i + backgroundOffset, baseGroundY);
@@ -590,13 +568,6 @@
             ctx.shadowBlur = 0;
 
             obstacles.forEach(obs => {
-                // Highlight für das Ziel-Hindernis
-                if (obs === targetObstacle) {
-                    ctx.shadowBlur = 30; ctx.shadowColor = "#fff";
-                    ctx.strokeStyle = "#fff"; ctx.lineWidth = 2;
-                    ctx.strokeRect(obs.x - 5, obs.y - 5, obs.width + 10, obs.height + 10);
-                }
-
                 if (obs.type === 'spike' || obs.type === 'double_spike' || obs.type === 'triple_spike') {
                     ctx.shadowBlur = 25; ctx.shadowColor = "var(--neon-pink)"; ctx.fillStyle = "var(--neon-pink)";
                     let count = obs.type === 'spike' ? 1 : (obs.type === 'double_spike' ? 2 : 3);
@@ -617,22 +588,35 @@
                     ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
                     ctx.fillStyle = "#fff"; ctx.fillRect(obs.x + 8, obs.y, 4, obs.height);
                 }
+                else if (obs.type === 'plasma_gate') {
+                    ctx.shadowBlur = 30; ctx.shadowColor = "var(--neon-yellow)"; ctx.fillStyle = "rgba(255, 234, 0, 0.5)";
+                    ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+                    ctx.strokeStyle = "var(--neon-yellow)"; ctx.lineWidth = 3; ctx.strokeRect(obs.x, obs.y, obs.width, obs.height);
+                    // Elektrischer Blitz animiert
+                    ctx.beginPath(); ctx.moveTo(obs.x + 15, obs.y);
+                    ctx.lineTo(obs.x + 5 + Math.random()*20, obs.y + 30);
+                    ctx.lineTo(obs.x + 5 + Math.random()*20, obs.y + 60);
+                    ctx.lineTo(obs.x + 15, obs.y + 90); ctx.strokeStyle = "#fff"; ctx.stroke();
+                }
+                else if (obs.type === 'sawblade') {
+                    ctx.save();
+                    ctx.translate(obs.x + obs.width/2, obs.y + obs.height/2);
+                    ctx.rotate(frames * 0.2); // Rotiert extrem schnell
+                    ctx.shadowBlur = 20; ctx.shadowColor = "var(--neon-pink)";
+                    ctx.fillStyle = "#333"; ctx.beginPath(); ctx.arc(0, 0, 25, 0, Math.PI*2); ctx.fill();
+                    ctx.strokeStyle = "var(--neon-pink)"; ctx.lineWidth = 4;
+                    // Sägezähne
+                    for(let i=0; i<8; i++) {
+                        ctx.rotate(Math.PI/4); ctx.beginPath(); ctx.moveTo(25, 0); ctx.lineTo(35, 5); ctx.lineTo(25, 10); ctx.stroke();
+                    }
+                    ctx.restore();
+                }
                 else if (obs.type === 'acid_pool') {
                     let wave = Math.sin(frames * 0.15) * 4;
                     ctx.shadowBlur = 25; ctx.shadowColor = "var(--neon-green)"; ctx.fillStyle = "var(--neon-green)";
                     ctx.fillRect(obs.x, obs.y + wave, obs.width, obs.height);
                     ctx.fillStyle = "#fff"; ctx.globalAlpha = 0.5;
                     ctx.fillRect(obs.x + 10, obs.y + wave + 2, obs.width - 20, 2); ctx.globalAlpha = 1;
-                }
-                else if (obs.type === 'platform_lava') {
-                    let lavaWave = Math.sin(frames * 0.1) * 5; 
-                    ctx.fillStyle = "#ff3300"; ctx.shadowBlur = 30; ctx.shadowColor = "#ff0000";
-                    ctx.fillRect(obs.x, baseGroundY - 5 + lavaWave, obs.width, 25);
-                    ctx.fillStyle = "#ffea00"; ctx.fillRect(obs.x + 10, baseGroundY + lavaWave, obs.width - 20, 10);
-                    
-                    ctx.shadowBlur = 20; ctx.shadowColor = "var(--neon-purple)"; ctx.fillStyle = "var(--neon-purple)";
-                    ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-                    ctx.fillStyle = "#220033"; ctx.fillRect(obs.x + 3, obs.y + 3, obs.width - 6, obs.height - 6);
                 }
                 ctx.shadowBlur = 0;
             });
@@ -646,7 +630,11 @@
                     }
                 });
 
-                ctx.save(); ctx.translate(player.x + player.width/2, player.y + player.height/2); ctx.rotate(player.rotation);
+                // Pulsieren zur Musik simulieren
+                let pulse = 1 + Math.sin(frames * 0.2) * 0.05;
+                
+                ctx.save(); ctx.translate(player.x + player.width/2, player.y + player.height/2); 
+                ctx.rotate(player.rotation); ctx.scale(pulse, pulse);
                 ctx.fillStyle = "var(--neon-cyan)"; ctx.shadowBlur = 30; ctx.shadowColor = "var(--neon-cyan)";
                 ctx.fillRect(-player.width/2, -player.height/2, player.width, player.height);
                 ctx.fillStyle = "#000"; ctx.fillRect(-12, -12, 24, 24); 
