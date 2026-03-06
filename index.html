@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Geometry Type Dash</title>
+    <title>Geometry Type Dash - Level 2</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap');
 
@@ -25,16 +25,14 @@
             position: relative;
             width: 800px;
             height: 450px;
-            background: linear-gradient(180deg, #1f2833 0%, #0b0c10 100%);
-            border: 4px solid #66fcf1;
+            background: linear-gradient(180deg, #121820 0%, #050608 100%);
+            border: 4px solid #bd93f9;
             border-radius: 10px;
-            box-shadow: 0 0 20px rgba(102, 252, 241, 0.4);
+            box-shadow: 0 0 30px rgba(189, 147, 249, 0.4);
             overflow: hidden;
         }
 
-        canvas {
-            display: block;
-        }
+        canvas { display: block; }
 
         #ui {
             position: absolute;
@@ -46,7 +44,7 @@
             font-size: 20px;
             font-weight: 700;
             z-index: 10;
-            color: #c5c6c7;
+            color: #f8f8f2;
             text-shadow: 0 0 5px rgba(255,255,255,0.5);
         }
 
@@ -60,16 +58,27 @@
             letter-spacing: 6px;
             z-index: 10;
             text-shadow: 0 0 10px rgba(0,0,0,0.8);
+            transition: transform 0.1s;
         }
 
-        .typed { color: #66fcf1; text-shadow: 0 0 15px #66fcf1; }
+        .typed { color: #50fa7b; text-shadow: 0 0 15px #50fa7b; }
         .untyped { color: #ffffff; }
-        .error { color: #ff0055; text-shadow: 0 0 15px #ff0055; }
+        .error { color: #ff5555; text-shadow: 0 0 15px #ff5555; }
+
+        /* Wackel-Animation bei Fehlern */
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-10px); }
+            100% { transform: translateX(0); }
+        }
+        .shake-active { animation: shake 0.2s; }
 
         #overlay {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(11, 12, 16, 0.85);
+            background: rgba(5, 6, 8, 0.85);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -78,60 +87,47 @@
         }
 
         h1 {
-            color: #66fcf1;
+            color: #bd93f9;
             text-transform: uppercase;
             letter-spacing: 3px;
-            text-shadow: 0 0 10px rgba(102, 252, 241, 0.5);
+            text-shadow: 0 0 15px rgba(189, 147, 249, 0.5);
             margin-bottom: 5px;
         }
 
         #overlayTitle {
-            font-size: 40px;
-            color: #ff0055;
-            text-shadow: 0 0 15px #ff0055;
+            font-size: 50px;
+            color: #ff5555;
+            text-shadow: 0 0 20px #ff5555;
             margin-bottom: 10px;
         }
 
         button {
-            padding: 12px 30px;
-            font-size: 22px;
+            padding: 15px 40px;
+            font-size: 24px;
             font-family: 'Orbitron', sans-serif;
             font-weight: 700;
-            background-color: transparent;
-            color: #66fcf1;
-            border: 3px solid #66fcf1;
+            background-color: #bd93f9;
+            color: #282a36;
+            border: none;
             border-radius: 5px;
             cursor: pointer;
             margin-top: 30px;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             text-transform: uppercase;
+            box-shadow: 0 0 15px #bd93f9;
         }
 
         button:hover {
-            background-color: #66fcf1;
-            color: #0b0c10;
-            box-shadow: 0 0 20px #66fcf1;
-        }
-        
-        .level-up {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 40px;
-            color: #fce81a;
-            text-shadow: 0 0 20px #fce81a;
-            opacity: 0;
-            z-index: 15;
-            pointer-events: none;
-            transition: opacity 0.5s;
+            transform: scale(1.05);
+            background-color: #ff79c6;
+            box-shadow: 0 0 25px #ff79c6;
         }
     </style>
 </head>
 <body>
 
     <h1>Geometry Type Dash</h1>
-    <p style="color: #c5c6c7; margin-bottom: 20px;">Tippe fehlerfrei, um zu springen. 1 Fehler = Game Over.</p>
+    <p style="color: #6272a4; margin-bottom: 20px;">Tippe das Wort. Fehler sind okay, aber kollidiere nicht!</p>
 
     <div id="gameContainer">
         <div id="ui">
@@ -139,77 +135,84 @@
             <span id="levelDisplay">LEVEL: 1</span>
         </div>
         <div id="wordDisplay"></div>
-        <div id="levelUpMsg" class="level-up">LEVEL UP!</div>
         <canvas id="gameCanvas" width="800" height="450"></canvas>
         
         <div id="overlay">
             <h2 id="overlayTitle">BEREIT?</h2>
-            <p id="overlayText" style="color: #c5c6c7; font-size: 18px;">Finger auf die Grundreihe (ASDF JKLÖ).</p>
+            <p id="overlayText" style="color: #f8f8f2; font-size: 18px;">Sound an! Finger auf ASDF JKLÖ.</p>
             <button id="startBtn">START DASH</button>
         </div>
     </div>
+
+    <audio id="bgMusic" loop preload="auto">
+        <source src="https://assets.mixkit.co/music/preview/mixkit-game-level-music-689.mp3" type="audio/mpeg">
+    </audio>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const wordDisplay = document.getElementById('wordDisplay');
         const scoreDisplay = document.getElementById('scoreDisplay');
-        const levelDisplay = document.getElementById('levelDisplay');
         const overlay = document.getElementById('overlay');
         const overlayTitle = document.getElementById('overlayTitle');
         const overlayText = document.getElementById('overlayText');
         const startBtn = document.getElementById('startBtn');
-        const levelUpMsg = document.getElementById('levelUpMsg');
+        const bgMusic = document.getElementById('bgMusic');
 
-        // Dynamischer Schwierigkeitsgrad
         const wordsLevel1 = ["a", "s", "d", "f", "g", "h", "j", "k", "l", "ö"];
         const wordsLevel2 = ["as", "df", "ja", "so", "da", "la", "al", "ha", "fl", "gl"];
-        const wordsLevel3 = ["das", "all", "hall", "kahl", "lass", "fall", "gas", "glas", "schlag", "fad", "lag"];
+        const wordsLevel3 = ["das", "all", "hall", "kahl", "lass", "fall", "gas", "glas", "schlag"];
 
         let gameActive = false;
         let score = 0;
         let level = 1;
-        let gameSpeed = 4.5;
-        let baseSpeed = 4.5;
+        let gameSpeed = 5;
         let backgroundOffset = 0;
-        
         let currentWord = "";
         let typedText = "";
         
-        const groundY = 380;
+        const baseGroundY = 380;
 
-        // Spieler (Neon Würfel)
         const player = {
             x: 120,
-            y: groundY - 40,
+            y: baseGroundY - 40,
             width: 40,
             height: 40,
             dy: 0,
-            jumpForce: -15,
+            jumpForce: -14,
             gravity: 0.8,
             isJumping: false,
             rotation: 0
         };
 
-        // Hindernis (Stachel / Spike)
+        // Hindernis kann Spike oder Plattform sein
         const obstacle = {
             x: 800,
-            y: groundY - 40,
+            y: baseGroundY - 40,
             width: 40,
             height: 40,
+            type: 'spike', // 'spike' oder 'platform'
             active: false,
-            passed: false // Verhindert mehrfaches Punkten pro Hindernis
+            passed: false
         };
+
+        let particles = [];
 
         function initGame() {
             score = 0;
             level = 1;
-            gameSpeed = baseSpeed;
-            player.y = groundY - player.height;
+            gameSpeed = 5;
+            player.y = baseGroundY - player.height;
             player.dy = 0;
             player.isJumping = false;
             player.rotation = 0;
+            particles = [];
             
+            // Musik starten
+            bgMusic.volume = 0.4;
+            bgMusic.currentTime = 0;
+            bgMusic.play().catch(e => console.log("Audio Play blocked by browser until interacted"));
+
             spawnObstacle();
             updateUI();
             
@@ -218,10 +221,17 @@
             gameLoop();
         }
 
-        function getWordForLevel() {
-            if (level === 1) return wordsLevel1[Math.floor(Math.random() * wordsLevel1.length)];
-            if (level === 2) return wordsLevel2[Math.floor(Math.random() * wordsLevel2.length)];
-            return wordsLevel3[Math.floor(Math.random() * wordsLevel3.length)];
+        function createParticles(x, y, color) {
+            for (let i = 0; i < 15; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 10,
+                    vy: (Math.random() - 1) * 10,
+                    size: Math.random() * 6 + 2,
+                    life: 1,
+                    color: color
+                });
+            }
         }
 
         function spawnObstacle() {
@@ -229,7 +239,22 @@
             obstacle.active = true;
             obstacle.passed = false;
             
-            currentWord = getWordForLevel();
+            // Zufällig entscheiden: 70% Spike, 30% schwebende Plattform
+            if (Math.random() < 0.3) {
+                obstacle.type = 'platform';
+                obstacle.width = 150;
+                obstacle.height = 20;
+                obstacle.y = baseGroundY - 90; // Höher in der Luft
+            } else {
+                obstacle.type = 'spike';
+                obstacle.width = 40;
+                obstacle.height = 40;
+                obstacle.y = baseGroundY - 40; // Auf dem Boden
+            }
+            
+            // Wortauswahl basierend auf Level
+            let wordList = level === 1 ? wordsLevel1 : (level === 2 ? wordsLevel2 : wordsLevel3);
+            currentWord = wordList[Math.floor(Math.random() * wordList.length)];
             typedText = "";
             renderWord();
         }
@@ -238,7 +263,9 @@
             let html = "";
             for (let i = 0; i < currentWord.length; i++) {
                 if (i < typedText.length) {
-                    html += `<span class="${isError && i === typedText.length - 1 ? 'error' : 'typed'}">${currentWord[i]}</span>`;
+                    html += `<span class="typed">${currentWord[i]}</span>`;
+                } else if (i === typedText.length && isError) {
+                    html += `<span class="error">${currentWord[i]}</span>`; // Roter Buchstabe bei Fehler
                 } else {
                     html += `<span class="untyped">${currentWord[i]}</span>`;
                 }
@@ -250,28 +277,22 @@
             if (!player.isJumping) {
                 player.dy = player.jumpForce;
                 player.isJumping = true;
+                createParticles(player.x + player.width/2, player.y + player.height, "#ff79c6");
             }
-        }
-
-        function triggerLevelUp() {
-            levelUpMsg.style.opacity = 1;
-            setTimeout(() => { levelUpMsg.style.opacity = 0; }, 1500);
         }
 
         function gameOver(reason) {
             gameActive = false;
+            bgMusic.pause(); // Musik stoppen
             overlay.style.display = 'flex';
-            overlayTitle.style.color = "#ff0055";
-            overlayTitle.style.textShadow = "0 0 15px #ff0055";
             overlayTitle.innerText = "CRASHED!";
             overlayText.innerText = reason + " | Score: " + score;
             startBtn.innerText = "RETRY";
         }
 
-        // Tastatur-Eingabe
         document.addEventListener('keydown', (e) => {
             if (!gameActive) return;
-            if (e.key === "Shift" || e.key === "Control" || e.key === "Alt") return;
+            if (["Shift", "Control", "Alt", "CapsLock"].includes(e.key)) return;
 
             const expectedChar = currentWord[typedText.length];
             const typedChar = e.key.toLowerCase();
@@ -280,153 +301,186 @@
                 typedText += typedChar;
                 renderWord();
 
-                // Wort komplett abgetippt -> Sprung auslösen!
                 if (typedText === currentWord) {
                     jump();
-                    wordDisplay.innerHTML = ""; // Wort ausblenden während Sprung
+                    wordDisplay.innerHTML = ""; 
                 }
             } else {
-                typedText += typedChar;
-                renderWord(true);
-                gameOver("Tippfehler!"); // Strikte Bestrafung laut Konzept
+                // FEHLER-TOLERANZ: Nur visuelles Feedback, kein Game Over!
+                renderWord(true); 
+                wordDisplay.classList.remove('shake-active');
+                void wordDisplay.offsetWidth; // Trigger reflow für CSS animation
+                wordDisplay.classList.add('shake-active');
             }
         });
 
         function update() {
-            // Hintergrund scrollen
-            backgroundOffset -= gameSpeed * 0.5;
+            backgroundOffset -= gameSpeed * 0.3;
             if (backgroundOffset <= -40) backgroundOffset = 0;
 
-            // Spieler Physik
             player.dy += player.gravity;
             player.y += player.dy;
 
-            // Rotation in der Luft (Geometry Dash Effekt)
             if (player.isJumping) {
                 player.rotation += 0.15;
             } else {
-                // Einrasten bei Landung
-                player.rotation = Math.round(player.rotation / (Math.PI/2)) * (Math.PI/2); 
+                player.rotation = Math.round(player.rotation / (Math.PI/2)) * (Math.PI/2);
             }
 
-            // Bodenkollision
-            if (player.y >= groundY - player.height) {
-                player.y = groundY - player.height;
-                player.dy = 0;
-                player.isJumping = false;
-            }
+            // Basis-Bodenkollision
+            let currentFloorY = baseGroundY;
 
-            // Hindernis bewegen
+            // Kollisionslogik
             if (obstacle.active) {
                 obstacle.x -= gameSpeed;
 
-                // Kollisionserkennung (AABB)
-                if (
-                    player.x < obstacle.x + obstacle.width - 10 && // Hitbox etwas kleiner machen
-                    player.x + player.width - 10 > obstacle.x &&
-                    player.y < obstacle.y + obstacle.height &&
-                    player.y + player.height > obstacle.y + 10
-                ) {
-                    gameOver("Stachel berührt! Zu spät getippt.");
+                if (obstacle.type === 'spike') {
+                    // Tödliche Kollision mit Stachel
+                    if (player.x < obstacle.x + obstacle.width - 8 && 
+                        player.x + player.width - 8 > obstacle.x &&
+                        player.y < obstacle.y + obstacle.height &&
+                        player.y + player.height > obstacle.y + 10) {
+                        gameOver("In den Stachel gefahren!");
+                    }
+                } else if (obstacle.type === 'platform') {
+                    // Kollision mit schwebender Plattform
+                    // 1. Von oben landen (erfolgreicher Sprung)
+                    if (player.dy > 0 && 
+                        player.y + player.height >= obstacle.y && 
+                        player.y + player.height <= obstacle.y + 20 &&
+                        player.x + player.width > obstacle.x && 
+                        player.x < obstacle.x + obstacle.width) {
+                            
+                        currentFloorY = obstacle.y; // Boden ist jetzt die Plattformhöhe
+                        player.y = currentFloorY - player.height;
+                        player.dy = 0;
+                        if(player.isJumping) {
+                            player.isJumping = false;
+                            createParticles(player.x + player.width/2, player.y + player.height, "#8be9fd");
+                        }
+                    } 
+                    // 2. Seitlich dagegen krachen (Crash)
+                    else if (player.x + player.width > obstacle.x + 5 && 
+                             player.x < obstacle.x + obstacle.width &&
+                             player.y + player.height > obstacle.y + 5) {
+                        gameOver("Gegen die Plattform gekracht!");
+                    }
                 }
 
-                // Hindernis erfolgreich überwunden
                 if (obstacle.x + obstacle.width < player.x && !obstacle.passed) {
                     obstacle.passed = true;
                     score += 10;
-                    gameSpeed += 0.15; // Progressiver Flow
-                    
-                    // Level System
-                    if (score === 50 && level === 1) { level = 2; triggerLevelUp(); }
-                    if (score === 150 && level === 2) { level = 3; triggerLevelUp(); }
+                    gameSpeed += 0.1;
+                    if (score === 50) level = 2;
+                    if (score === 150) level = 3;
                 }
 
-                // Neues Hindernis spawnen, wenn das alte aus dem Bild ist
-                if (obstacle.x + obstacle.width < -100) {
+                if (obstacle.x + obstacle.width < -50) {
                     obstacle.active = false;
                     spawnObstacle();
                 }
+            }
+
+            // Normaler Boden Fallback
+            if (player.y >= baseGroundY - player.height && currentFloorY === baseGroundY) {
+                player.y = baseGroundY - player.height;
+                player.dy = 0;
+                if(player.isJumping) {
+                    player.isJumping = false;
+                    createParticles(player.x + player.width/2, player.y + player.height, "#bd93f9");
+                }
+            }
+
+            // Partikel updaten
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.05;
+                if (p.life <= 0) particles.splice(i, 1);
             }
         }
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Raster-Hintergrund zeichnen (für Geschwindigkeitseffekt)
-            ctx.strokeStyle = "rgba(102, 252, 241, 0.1)";
-            ctx.lineWidth = 1;
+            // Raster
+            ctx.strokeStyle = "rgba(189, 147, 249, 0.15)";
+            ctx.lineWidth = 2;
             for (let i = 0; i < canvas.width; i += 40) {
                 ctx.beginPath();
                 ctx.moveTo(i + backgroundOffset, 0);
-                ctx.lineTo(i + backgroundOffset, groundY);
+                ctx.lineTo(i + backgroundOffset, baseGroundY);
                 ctx.stroke();
             }
 
-            // Boden zeichnen
-            ctx.fillStyle = "#121212";
-            ctx.fillRect(0, groundY, canvas.width, canvas.height - groundY);
-            
-            // Boden-Linie (Neon)
+            // Boden
+            ctx.fillStyle = "#191A21";
+            ctx.fillRect(0, baseGroundY, canvas.width, canvas.height - baseGroundY);
             ctx.shadowBlur = 10;
-            ctx.shadowColor = "#66fcf1";
-            ctx.strokeStyle = "#66fcf1";
+            ctx.shadowColor = "#bd93f9";
+            ctx.strokeStyle = "#bd93f9";
             ctx.lineWidth = 4;
             ctx.beginPath();
-            ctx.moveTo(0, groundY);
-            ctx.lineTo(canvas.width, groundY);
+            ctx.moveTo(0, baseGroundY);
+            ctx.lineTo(canvas.width, baseGroundY);
             ctx.stroke();
-            ctx.shadowBlur = 0; // Reset
+            ctx.shadowBlur = 0;
 
-            // Spieler zeichnen (mit Rotation)
+            // Hindernis (Spike oder Plattform)
+            if (obstacle.active) {
+                if (obstacle.type === 'spike') {
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = "#ff5555";
+                    ctx.fillStyle = "#ff5555";
+                    ctx.beginPath();
+                    ctx.moveTo(obstacle.x + obstacle.width / 2, obstacle.y);
+                    ctx.lineTo(obstacle.x + obstacle.width, obstacle.y + obstacle.height);
+                    ctx.lineTo(obstacle.x, obstacle.y + obstacle.height);
+                    ctx.closePath();
+                    ctx.fill();
+                } else {
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = "#8be9fd";
+                    ctx.fillStyle = "#8be9fd";
+                    ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+                    ctx.fillStyle = "#282a36";
+                    ctx.fillRect(obstacle.x + 2, obstacle.y + 2, obstacle.width - 4, obstacle.height - 4);
+                }
+            }
+            ctx.shadowBlur = 0;
+
+            // Partikel zeichnen
+            particles.forEach(p => {
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.life;
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+            });
+            ctx.globalAlpha = 1;
+
+            // Spieler zeichnen
             ctx.save();
             ctx.translate(player.x + player.width/2, player.y + player.height/2);
             ctx.rotate(player.rotation);
-            ctx.fillStyle = "#66fcf1";
+            ctx.fillStyle = "#50fa7b";
             ctx.shadowBlur = 15;
-            ctx.shadowColor = "#66fcf1";
+            ctx.shadowColor = "#50fa7b";
             ctx.fillRect(-player.width/2, -player.height/2, player.width, player.height);
-            // Kleines inneres Quadrat für mehr Details
-            ctx.fillStyle = "#0b0c10";
+            ctx.fillStyle = "#282a36";
             ctx.fillRect(-player.width/4, -player.height/4, player.width/2, player.height/2);
             ctx.restore();
-
-            // Hindernis zeichnen (Stachel / Dreieck)
-            if (obstacle.active) {
-                ctx.shadowBlur = 15;
-                ctx.shadowColor = "#ff0055";
-                ctx.fillStyle = "#ff0055";
-                ctx.beginPath();
-                ctx.moveTo(obstacle.x + obstacle.width / 2, obstacle.y); // Spitze
-                ctx.lineTo(obstacle.x + obstacle.width, obstacle.y + obstacle.height); // Unten rechts
-                ctx.lineTo(obstacle.x, obstacle.y + obstacle.height); // Unten links
-                ctx.closePath();
-                ctx.fill();
-                
-                // Inneres dunkles Dreieck
-                ctx.shadowBlur = 0;
-                ctx.fillStyle = "#0b0c10";
-                ctx.beginPath();
-                ctx.moveTo(obstacle.x + obstacle.width / 2, obstacle.y + 10);
-                ctx.lineTo(obstacle.x + obstacle.width - 8, obstacle.y + obstacle.height - 5);
-                ctx.lineTo(obstacle.x + 8, obstacle.y + obstacle.height - 5);
-                ctx.closePath();
-                ctx.fill();
-            }
-            ctx.shadowBlur = 0;
         }
 
         function updateUI() {
             scoreDisplay.innerText = "SCORE: " + score;
-            levelDisplay.innerText = "LEVEL: " + level;
+            document.getElementById('levelDisplay').innerText = "LEVEL: " + level;
         }
 
         function gameLoop() {
             if (!gameActive) return;
-            
             update();
             draw();
             updateUI();
-            
             requestAnimationFrame(gameLoop);
         }
 
