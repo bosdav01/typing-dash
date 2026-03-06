@@ -3,84 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retro Type Dash - Pro Edition</title>
+    <title>Retro Type Dash - Final Pro Edition</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 
         body {
-            margin: 0;
-            padding: 0;
-            background-color: #050505;
-            color: #fff;
+            margin: 0; padding: 0;
+            background-color: #050505; color: #fff;
             font-family: 'VT323', monospace;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            overflow: hidden;
-            user-select: none;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 100vh; overflow: hidden; user-select: none;
         }
 
-        /* Scanline CRT Effect */
+        /* CRT Scanlines */
         body::after {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; bottom: 0; right: 0;
+            content: ""; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
                         linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            z-index: 100;
-            background-size: 100% 2px, 3px 100%;
-            pointer-events: none;
-        }
-
-        /* Vignette für mehr Tiefe */
-        body::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: radial-gradient(circle, rgba(0,0,0,0) 50%, rgba(0,0,0,0.8) 100%);
-            z-index: 99;
-            pointer-events: none;
+            z-index: 100; background-size: 100% 2px, 3px 100%; pointer-events: none;
         }
 
         #gameContainer {
-            position: relative;
-            width: 800px;
-            height: 450px;
+            position: relative; width: 800px; height: 450px;
             background: linear-gradient(180deg, #1a001a 0%, #000000 100%);
-            border: 4px solid #0ff;
-            border-radius: 8px;
+            border: 4px solid #0ff; border-radius: 8px;
             box-shadow: 0 0 40px rgba(0, 255, 255, 0.5), inset 0 0 30px rgba(255, 0, 255, 0.3);
-            overflow: hidden;
-            z-index: 10;
+            overflow: hidden; z-index: 10;
         }
 
         canvas { display: block; }
 
         #ui {
-            position: absolute;
-            top: 15px;
-            left: 20px;
-            right: 20px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 32px;
-            z-index: 10;
-            color: #f0f;
-            text-shadow: 0 0 10px #f0f;
+            position: absolute; top: 15px; left: 20px; right: 20px;
+            display: flex; justify-content: space-between;
+            font-size: 32px; z-index: 10; color: #f0f; text-shadow: 0 0 10px #f0f;
         }
 
         #wordDisplay {
-            position: absolute;
-            top: 90px;
-            width: 100%;
-            text-align: center;
-            font-size: 65px;
-            letter-spacing: 10px;
-            z-index: 10;
-            text-shadow: 0 5px 15px rgba(0,0,0,0.9);
-            transition: transform 0.05s;
+            position: absolute; top: 90px; width: 100%; text-align: center;
+            font-size: 65px; letter-spacing: 10px; z-index: 10;
+            text-shadow: 0 5px 15px rgba(0,0,0,0.9); transition: transform 0.05s;
+        }
+
+        /* Combo Timer Bar UI */
+        #comboBarContainer {
+            position: absolute; top: 170px; left: 50%; transform: translateX(-50%);
+            width: 200px; height: 6px; background: rgba(255,255,255,0.1);
+            border-radius: 3px; z-index: 10; display: none;
+        }
+        #comboBar {
+            width: 100%; height: 100%; background: #0ff; border-radius: 3px;
+            box-shadow: 0 0 10px #0ff; transition: width 0.1s linear;
         }
 
         .typed { color: #0ff; text-shadow: 0 0 20px #0ff, 0 0 40px #0ff; }
@@ -97,50 +70,35 @@
         .shake-active { animation: shake 0.25s; }
 
         #overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.85);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 50;
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 50;
         }
 
-        h1 {
-            color: #f0f;
-            font-size: 45px;
-            text-shadow: 0 0 20px #f0f, 0 0 40px #f0f;
-            margin-bottom: 5px;
-            letter-spacing: 4px;
-        }
+        h1 { color: #f0f; font-size: 45px; text-shadow: 0 0 20px #f0f; margin-bottom: 5px; letter-spacing: 4px; z-index: 10;}
 
-        #overlayTitle {
-            font-size: 70px;
-            color: #0ff;
-            text-shadow: 0 0 25px #0ff;
-            margin-bottom: 10px;
-            letter-spacing: 5px;
-        }
+        .bigTitle { font-size: 70px; color: #0ff; text-shadow: 0 0 25px #0ff; margin-bottom: 10px; letter-spacing: 5px;}
 
         #lockInDisplay {
-            font-size: 55px;
-            letter-spacing: 15px;
-            margin-top: 25px;
-            color: #333;
-            background: rgba(0,0,0,0.5);
-            padding: 10px 30px;
-            border-radius: 10px;
-            border: 2px solid #222;
+            font-size: 55px; letter-spacing: 15px; margin-top: 25px; color: #333;
+            background: rgba(0,0,0,0.5); padding: 10px 30px; border-radius: 10px; border: 2px solid #222;
         }
         .lock-typed { color: #0ff; text-shadow: 0 0 25px #0ff; }
+
+        button.bootBtn {
+            padding: 15px 40px; font-size: 35px; font-family: 'VT323', monospace;
+            background: transparent; color: #f0f; border: 3px solid #f0f; border-radius: 5px;
+            cursor: pointer; transition: 0.3s; text-shadow: 0 0 10px #f0f; box-shadow: 0 0 15px rgba(255,0,255,0.4);
+            margin-top: 20px;
+        }
+        button.bootBtn:hover { background: #f0f; color: #000; box-shadow: 0 0 30px #f0f; }
 
     </style>
 </head>
 <body>
 
-    <h1 style="z-index: 10;">SYNTHWAVE TYPE DASH</h1>
-    <p style="color: #0ff; margin-bottom: 20px; z-index: 10; font-size: 22px; text-shadow: 0 0 10px #0ff;">Musik an! Weiche den Hindernissen aus.</p>
+    <h1>SYNTHWAVE TYPE DASH</h1>
+    <p style="color: #0ff; margin-bottom: 20px; z-index: 10; font-size: 24px; text-shadow: 0 0 10px #0ff;">Tippe flüssig! Zu langes Warten bricht das Wort ab.</p>
 
     <div id="gameContainer">
         <div id="ui">
@@ -148,12 +106,21 @@
             <span id="levelDisplay">SPEED: 1.0x</span>
         </div>
         <div id="wordDisplay"></div>
+        <div id="comboBarContainer"><div id="comboBar"></div></div>
         <canvas id="gameCanvas" width="800" height="450"></canvas>
         
         <div id="overlay">
-            <h2 id="overlayTitle">SYSTEM BOOT</h2>
-            <p style="color: #fff; font-size: 26px;">Aktiviere die Grundreihe (links nach rechts):</p>
-            <div id="lockInDisplay">ASDFGHJKLÖ</div>
+            <div id="bootScreen" style="text-align: center;">
+                <h2 class="bigTitle">SYSTEM OFFLINE</h2>
+                <button class="bootBtn" id="bootBtn">POWER ON (AUDIO)</button>
+            </div>
+
+            <div id="lockInScreen" style="display: none; text-align: center;">
+                <h2 class="bigTitle">SYSTEM BOOT</h2>
+                <p style="color: #fff; font-size: 26px;">Aktiviere die Grundreihe (links nach rechts):</p>
+                <div id="lockInDisplay">ASDFGHJKLÖ</div>
+            </div>
+
             <p id="deathMsg" style="color: #ff0055; font-size: 35px; margin-top: 25px; text-shadow: 0 0 15px #ff0055; display: none;"></p>
         </div>
     </div>
@@ -166,44 +133,59 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const wordDisplay = document.getElementById('wordDisplay');
+        const comboBarContainer = document.getElementById('comboBarContainer');
+        const comboBar = document.getElementById('comboBar');
         const overlay = document.getElementById('overlay');
-        const overlayTitle = document.getElementById('overlayTitle');
+        const bootScreen = document.getElementById('bootScreen');
+        const lockInScreen = document.getElementById('lockInScreen');
         const lockInDisplay = document.getElementById('lockInDisplay');
         const deathMsg = document.getElementById('deathMsg');
+        const bootBtn = document.getElementById('bootBtn');
         const bgMusic = document.getElementById('bgMusic');
 
-        // Wörter (Grundreihe)
         const wordsLevel1 = ["a", "s", "d", "f", "g", "h", "j", "k", "l", "ö"];
         const wordsLevel2 = ["as", "df", "gh", "jk", "lö", "sa", "fd", "hj", "kl", "da", "la", "ha"];
         const wordsLevel3 = ["das", "fad", "lass", "fall", "saal", "hall", "kahl", "als", "lag", "fass", "glas", "schlag"];
 
         const lockInTarget = "asdfghjklö";
         let lockInIndex = 0;
-        let gameState = 'LOCK_IN'; 
+        let gameState = 'BOOT'; // BOOT -> LOCK_IN -> PLAYING -> GAME_OVER
 
         let score = 0;
         let gameSpeed = 5.5;
         let baseSpeed = 5.5;
-        let backgroundOffset = 0;
-        let mountainOffset = 0;
-        let frames = 0;
+        let backgroundOffset = 0; let mountainOffset = 0; let frames = 0;
         
         let currentWord = "";
         let typedText = "";
         let lastObstacleType = '';
         
+        // Combo-Timer Variablen (Abfolge-Zwang)
+        let comboTimer = 0;
+        const maxComboTime = 90; // Frames (~1.5 Sekunden Zeit zwischen Buchstaben)
+
         const baseGroundY = 380;
 
         const player = {
             x: 120, y: baseGroundY - 40,
             width: 40, height: 40,
             dy: 0, jumpForce: -14.5, gravity: 0.8,
-            isJumping: false, rotation: 0,
-            trail: [] // Für den Leuchteffekt hinter dem Spieler
+            isJumping: false, trail: []
         };
 
         const obstacles = [];
         let particles = [];
+
+        // 1. Initiale Interaktion für Audio
+        bootBtn.addEventListener('click', () => {
+            bgMusic.volume = 0.4;
+            bgMusic.play().then(() => {
+                bootScreen.style.display = 'none';
+                lockInScreen.style.display = 'block';
+                gameState = 'LOCK_IN';
+                updateLockInUI();
+            }).catch(e => console.error("Audio blocked:", e));
+        });
 
         function updateLockInUI() {
             let html = "";
@@ -217,12 +199,10 @@
         function initGame() {
             score = 0; gameSpeed = baseSpeed;
             player.y = baseGroundY - player.height;
-            player.dy = 0; player.isJumping = false; player.rotation = 0; player.trail = [];
+            player.dy = 0; player.isJumping = false; player.trail = [];
             obstacles.length = 0; particles = []; frames = 0; lastObstacleType = '';
+            comboTimer = 0; comboBarContainer.style.display = 'none';
             
-            bgMusic.volume = 0.4;
-            bgMusic.play().catch(e => console.log("Audio braucht User-Klick"));
-
             spawnObstacle();
             updateUI();
             
@@ -236,33 +216,32 @@
             for (let i = 0; i < count; i++) {
                 particles.push({
                     x: x, y: y,
-                    vx: (Math.random() - 0.5) * 15,
-                    vy: (Math.random() - 1) * 15,
-                    size: Math.random() * 5 + 2,
-                    life: 1, color: color
+                    vx: (Math.random() - 0.5) * 15, vy: (Math.random() - 1) * 15,
+                    size: Math.random() * 5 + 2, life: 1, color: color
                 });
             }
         }
 
         function spawnObstacle() {
             let obs = { x: canvas.width, passed: false };
+            let types = ['spike', 'double_spike', 'platform_lava', 'laser_wall'];
             
             // Verhindern, dass immer das Gleiche kommt
-            let isSpike = Math.random() < 0.5;
-            if (lastObstacleType === 'spike' && Math.random() < 0.7) isSpike = false;
-            if (lastObstacleType === 'platform' && Math.random() < 0.7) isSpike = true;
+            let type = types[Math.floor(Math.random() * types.length)];
+            if (type === lastObstacleType) type = types[(types.indexOf(type) + 1) % types.length];
 
-            if (isSpike) {
-                obs.type = 'spike';
-                obs.y = baseGroundY - 40;
-                obs.width = 40; obs.height = 40;
-                lastObstacleType = 'spike';
-            } else {
-                obs.type = 'platform_lava';
-                obs.y = baseGroundY - 110; // Hoch in der Luft
-                obs.width = 180; obs.height = 20;
-                lastObstacleType = 'platform';
+            obs.type = type;
+            if (type === 'spike') {
+                obs.y = baseGroundY - 40; obs.width = 40; obs.height = 40;
+            } else if (type === 'double_spike') {
+                obs.y = baseGroundY - 40; obs.width = 80; obs.height = 40;
+            } else if (type === 'platform_lava') {
+                obs.y = baseGroundY - 110; obs.width = 180; obs.height = 20;
+            } else if (type === 'laser_wall') {
+                obs.y = baseGroundY - 120; obs.width = 30; obs.height = 120; // Hohe Wand
             }
+
+            lastObstacleType = type;
             obstacles.push(obs);
             
             let level = score < 100 ? 1 : (score < 250 ? 2 : 3);
@@ -282,30 +261,41 @@
             wordDisplay.innerHTML = html;
         }
 
+        function failWord() {
+            typedText = ""; // Wort zurücksetzen
+            comboTimer = 0;
+            comboBarContainer.style.display = 'none';
+            renderWord(true); 
+            wordDisplay.classList.remove('shake-active');
+            void wordDisplay.offsetWidth; 
+            wordDisplay.classList.add('shake-active');
+        }
+
         function jump() {
-            if (!player.isJumping && player.dy === 0) { // Darf nur springen, wenn er auf Boden/Plattform steht
+            if (!player.isJumping && player.dy === 0) { 
                 player.dy = player.jumpForce;
                 player.isJumping = true;
+                comboTimer = 0; // Timer ausblenden bei Sprung
+                comboBarContainer.style.display = 'none';
                 createParticles(player.x + player.width/2, player.y + player.height, "#0ff", 15);
             }
         }
 
         function gameOver(reason) {
             gameState = 'GAME_OVER';
-            bgMusic.pause();
+            comboBarContainer.style.display = 'none';
             createParticles(player.x + player.width/2, player.y + player.height/2, "#ff0055", 50);
             
             setTimeout(() => {
                 overlay.style.display = 'flex';
-                overlayTitle.innerText = "CRASH DETECTED";
-                overlayTitle.style.color = "#ff0055";
-                overlayTitle.style.textShadow = "0 0 20px #ff0055";
+                bootScreen.style.display = 'none';
+                lockInScreen.style.display = 'block';
+                document.querySelector('#lockInScreen h2').innerText = "CRASH DETECTED";
+                document.querySelector('#lockInScreen h2').style.color = "#ff0055";
                 deathMsg.innerText = reason;
                 deathMsg.style.display = 'block';
                 
-                lockInIndex = 0;
-                updateLockInUI();
-                gameState = 'LOCK_IN';
+                lockInIndex = 0; updateLockInUI(); gameState = 'LOCK_IN';
             }, 1200); 
         }
 
@@ -315,12 +305,10 @@
 
             if (gameState === 'LOCK_IN') {
                 if (key === lockInTarget[lockInIndex]) {
-                    lockInIndex++;
-                    updateLockInUI();
+                    lockInIndex++; updateLockInUI();
                     if (lockInIndex === lockInTarget.length) initGame();
                 } else {
-                    lockInIndex = 0; // Ritual muss fehlerfrei sein
-                    updateLockInUI();
+                    lockInIndex = 0; updateLockInUI();
                 }
                 return;
             }
@@ -331,15 +319,17 @@
             if (key === expectedChar) {
                 typedText += key;
                 renderWord();
-                if (typedText === currentWord) {
+                
+                // Combo Timer Logik
+                if (typedText.length < currentWord.length) {
+                    comboTimer = maxComboTime; // Timer resetten für nächsten Buchstaben
+                    comboBarContainer.style.display = 'block';
+                } else {
                     jump();
                     wordDisplay.innerHTML = ""; 
                 }
             } else {
-                renderWord(true); 
-                wordDisplay.classList.remove('shake-active');
-                void wordDisplay.offsetWidth; // Reset Animation
-                wordDisplay.classList.add('shake-active');
+                failWord(); // Fehler bricht sofort ab
             }
         });
 
@@ -347,229 +337,158 @@
             if (gameState !== 'PLAYING') return;
             frames++;
             
-            // Parallax Scrolling
+            // Combo Timer reduzieren
+            if (typedText.length > 0 && typedText.length < currentWord.length) {
+                comboTimer--;
+                comboBar.style.width = (comboTimer / maxComboTime) * 100 + "%";
+                if (comboTimer <= 0) {
+                    failWord(); // Zu lange gewartet!
+                }
+            }
+
             backgroundOffset -= gameSpeed * 0.5;
-            mountainOffset -= gameSpeed * 0.15; // Berge bewegen sich langsamer
+            mountainOffset -= gameSpeed * 0.15; 
             if (backgroundOffset <= -80) backgroundOffset = 0;
             if (mountainOffset <= -800) mountainOffset = 0;
 
-            // Player Physik
-            player.dy += player.gravity;
-            player.y += player.dy;
+            player.dy += player.gravity; player.y += player.dy;
 
-            // Rotation
-            if (player.isJumping || player.dy > 0) player.rotation += 0.18;
-            else player.rotation = Math.round(player.rotation / (Math.PI/2)) * (Math.PI/2);
-
-            // Trail speichern
-            player.trail.push({x: player.x, y: player.y, rot: player.rotation, life: 1});
-            if (player.trail.length > 10) player.trail.shift();
+            // Keine Rotation mehr! Würfel bleibt gerade.
+            player.trail.push({x: player.x, y: player.y, life: 1});
+            if (player.trail.length > 8) player.trail.shift();
 
             let currentFloorY = baseGroundY;
             let onLava = false;
 
-            // Hindernisse & Kollision
             for (let i = 0; i < obstacles.length; i++) {
                 let obs = obstacles[i];
                 obs.x -= gameSpeed;
 
-                if (obs.type === 'spike') {
-                    // Stachel Kollision (Dreieck Hitbox leicht verkleinert für Fairness)
+                if (obs.type === 'spike' || obs.type === 'double_spike') {
                     if (player.x < obs.x + obs.width - 12 && player.x + player.width - 12 > obs.x &&
                         player.y < obs.y + obs.height && player.y + player.height > obs.y + 15) {
                         gameOver("IMPALED!");
                     }
                 } 
-                else if (obs.type === 'platform_lava') {
-                    // Befindet sich Spieler über der Lava?
-                    if (player.x + player.width > obs.x + 10 && player.x < obs.x + obs.width - 10) {
-                        onLava = true; 
+                else if (obs.type === 'laser_wall') {
+                    if (player.x < obs.x + obs.width && player.x + player.width > obs.x &&
+                        player.y < obs.y + obs.height && player.y + player.height > obs.y) {
+                        gameOver("ZAPPED BY LASER!");
                     }
-
-                    // Landung auf der Plattform (von oben kommend)
+                }
+                else if (obs.type === 'platform_lava') {
+                    if (player.x + player.width > obs.x + 10 && player.x < obs.x + obs.width - 10) onLava = true; 
                     if (player.dy >= 0 && player.y + player.height >= obs.y && player.y + player.height <= obs.y + 25 &&
                         player.x + player.width > obs.x && player.x < obs.x + obs.width) {
-                        currentFloorY = obs.y;
-                        player.y = currentFloorY - player.height;
-                        player.dy = 0;
-                        if(player.isJumping) {
-                            player.isJumping = false;
-                            createParticles(player.x + player.width/2, player.y + player.height, "#f0f", 10);
-                        }
-                        onLava = false; // Sicher auf Plattform
+                        currentFloorY = obs.y; player.y = currentFloorY - player.height; player.dy = 0;
+                        if(player.isJumping) { player.isJumping = false; createParticles(player.x + player.width/2, player.y + player.height, "#f0f", 10); }
+                        onLava = false; 
                     } 
-                    // Frontaler Crash in die Plattform-Wand
                     else if (player.x + player.width > obs.x + 8 && player.x < obs.x + obs.width &&
                              player.y + player.height > obs.y + 8 && player.y < obs.y + obs.height) {
                         gameOver("CRASHED!");
                     }
                 }
 
-                // Punkte vergeben
                 if (obs.x + obs.width < player.x && !obs.passed) {
-                    obs.passed = true;
-                    score += 10;
-                    gameSpeed += 0.05; // Wird immer schneller
+                    obs.passed = true; score += 10; gameSpeed += 0.05; 
                 }
             }
 
-            // In Lava gefallen
-            if (onLava && player.y >= baseGroundY - player.height - 5) {
-                gameOver("MELTED IN LAVA!");
-            }
+            if (onLava && player.y >= baseGroundY - player.height - 5) gameOver("MELTED IN LAVA!");
 
-            // Normaler Boden Fallback
             if (player.y >= baseGroundY - player.height && currentFloorY === baseGroundY && !onLava) {
-                player.y = baseGroundY - player.height;
-                player.dy = 0;
-                if(player.isJumping) {
-                    player.isJumping = false;
-                    createParticles(player.x + player.width/2, player.y + player.height, "#0ff", 10);
-                }
+                player.y = baseGroundY - player.height; player.dy = 0;
+                if(player.isJumping) { player.isJumping = false; createParticles(player.x + player.width/2, player.y + player.height, "#0ff", 10); }
             }
 
-            // Array aufräumen
             if (obstacles.length > 0 && obstacles[0].x + obstacles[0].width < -150) {
-                obstacles.shift();
-                spawnObstacle();
+                obstacles.shift(); spawnObstacle();
             }
 
-            // Partikel & Trail updaten
             for (let i = particles.length - 1; i >= 0; i--) {
-                particles[i].x += particles[i].vx; 
-                particles[i].y += particles[i].vy; 
-                particles[i].life -= 0.03;
+                particles[i].x += particles[i].vx; particles[i].y += particles[i].vy; particles[i].life -= 0.03;
                 if (particles[i].life <= 0) particles.splice(i, 1);
             }
-            for (let i = 0; i < player.trail.length; i++) {
-                player.trail[i].life -= 0.1;
-            }
+            for (let i = 0; i < player.trail.length; i++) player.trail[i].life -= 0.12;
         }
 
-        // --- Zeichen-Funktionen (Visuals) ---
-
         function drawMountains() {
-            ctx.fillStyle = "#0a0011";
-            ctx.beginPath();
-            ctx.moveTo(0, baseGroundY);
-            // Generiere eine Berglandschaft, die sich mit mountainOffset verschiebt
-            for(let i = 0; i < 20; i++) {
-                ctx.lineTo((i * 100) + mountainOffset, baseGroundY - 80 - Math.abs(Math.sin(i * 45) * 60));
-            }
-            ctx.lineTo(canvas.width * 2, baseGroundY);
-            ctx.fill();
-            
-            // Berg-Neon-Kontur
-            ctx.strokeStyle = "#f0f";
-            ctx.lineWidth = 2;
-            ctx.shadowBlur = 10; ctx.shadowColor = "#f0f";
-            ctx.stroke();
-            ctx.shadowBlur = 0;
+            ctx.fillStyle = "#0a0011"; ctx.beginPath(); ctx.moveTo(0, baseGroundY);
+            for(let i = 0; i < 20; i++) ctx.lineTo((i * 100) + mountainOffset, baseGroundY - 80 - Math.abs(Math.sin(i * 45) * 60));
+            ctx.lineTo(canvas.width * 2, baseGroundY); ctx.fill();
+            ctx.strokeStyle = "#f0f"; ctx.lineWidth = 2; ctx.shadowBlur = 10; ctx.shadowColor = "#f0f";
+            ctx.stroke(); ctx.shadowBlur = 0;
         }
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Retro Sun Background
-            ctx.fillStyle = "#ff0055";
-            ctx.shadowBlur = 50; ctx.shadowColor = "#ff0055";
-            ctx.beginPath();
-            ctx.arc(400, 250, 140, Math.PI, 0);
-            ctx.fill();
-            ctx.shadowBlur = 0;
-            
-            // Sun Stripes (Retro Effekt)
+            ctx.fillStyle = "#ff0055"; ctx.shadowBlur = 50; ctx.shadowColor = "#ff0055";
+            ctx.beginPath(); ctx.arc(400, 250, 140, Math.PI, 0); ctx.fill(); ctx.shadowBlur = 0;
             ctx.fillStyle = "#1a001a";
-            for(let i=0; i<6; i++) {
-                ctx.fillRect(200, 210 - (i*18), 400, i*3.5);
-            }
+            for(let i=0; i<6; i++) ctx.fillRect(200, 210 - (i*18), 400, i*3.5);
 
             drawMountains();
 
-            // Neon Grid Floor (Perspektivisch)
-            ctx.strokeStyle = "rgba(0, 255, 255, 0.4)";
-            ctx.lineWidth = 2;
-            ctx.shadowBlur = 5; ctx.shadowColor = "#0ff";
+            ctx.strokeStyle = "rgba(0, 255, 255, 0.4)"; ctx.lineWidth = 2; ctx.shadowBlur = 5; ctx.shadowColor = "#0ff";
             for (let i = -100; i < canvas.width + 100; i += 60) {
-                ctx.beginPath();
-                ctx.moveTo(i + backgroundOffset, baseGroundY);
-                ctx.lineTo((i - 400) * 2 + 400, canvas.height); 
-                ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(i + backgroundOffset, baseGroundY);
+                ctx.lineTo((i - 400) * 2 + 400, canvas.height); ctx.stroke();
             }
             
-            // Bodenlinie
             ctx.strokeStyle = "#0ff"; ctx.lineWidth = 5; ctx.shadowBlur = 15;
             ctx.beginPath(); ctx.moveTo(0, baseGroundY); ctx.lineTo(canvas.width, baseGroundY); ctx.stroke();
             ctx.shadowBlur = 0;
 
-            // Hindernisse zeichnen
             obstacles.forEach(obs => {
-                if (obs.type === 'spike') {
-                    // Stachel zeichnen
-                    ctx.shadowBlur = 20; ctx.shadowColor = "#ff0055"; 
-                    ctx.fillStyle = "#ff0055";
-                    ctx.beginPath();
-                    ctx.moveTo(obs.x + obs.width / 2, obs.y);
-                    ctx.lineTo(obs.x + obs.width, obs.y + obs.height);
-                    ctx.lineTo(obs.x, obs.y + obs.height);
-                    ctx.closePath(); ctx.fill();
-                    
-                    // Inneres Dreieck
-                    ctx.fillStyle = "#220011"; ctx.shadowBlur = 0;
-                    ctx.beginPath();
-                    ctx.moveTo(obs.x + obs.width / 2, obs.y + 12);
-                    ctx.lineTo(obs.x + obs.width - 8, obs.y + obs.height - 4);
-                    ctx.lineTo(obs.x + 8, obs.y + obs.height - 4);
-                    ctx.closePath(); ctx.fill();
+                if (obs.type === 'spike' || obs.type === 'double_spike') {
+                    ctx.shadowBlur = 20; ctx.shadowColor = "#ff0055"; ctx.fillStyle = "#ff0055";
+                    for(let i = 0; i < (obs.type === 'double_spike' ? 2 : 1); i++) {
+                        let offsetX = obs.x + (i * 40);
+                        ctx.beginPath(); ctx.moveTo(offsetX + 20, obs.y);
+                        ctx.lineTo(offsetX + 40, obs.y + obs.height); ctx.lineTo(offsetX, obs.y + obs.height);
+                        ctx.closePath(); ctx.fill();
+                        
+                        ctx.fillStyle = "#220011"; ctx.shadowBlur = 0;
+                        ctx.beginPath(); ctx.moveTo(offsetX + 20, obs.y + 12);
+                        ctx.lineTo(offsetX + 32, obs.y + obs.height - 4); ctx.lineTo(offsetX + 8, obs.y + obs.height - 4);
+                        ctx.closePath(); ctx.fill(); ctx.fillStyle = "#ff0055"; // Reset für 2. Stachel
+                    }
                 } 
-                else if (obs.type === 'platform_lava') {
-                    // Animierte Lava auf dem Boden zeichnen
-                    let lavaWave = Math.sin(frames * 0.1) * 5; // Sinus-Welle für Blubbern
-                    ctx.fillStyle = "#ff3300";
-                    ctx.shadowBlur = 25; ctx.shadowColor = "#ff0000";
-                    ctx.fillRect(obs.x, baseGroundY - 5 + lavaWave, obs.width, 25);
-                    ctx.fillStyle = "#ffaa00"; // Hellerer Lava-Kern
-                    ctx.fillRect(obs.x + 10, baseGroundY + lavaWave, obs.width - 20, 10);
-                    
-                    // Schwebende Plattform zeichnen
-                    ctx.shadowBlur = 15; ctx.shadowColor = "#f0f";
-                    ctx.fillStyle = "#f0f";
+                else if (obs.type === 'laser_wall') {
+                    ctx.shadowBlur = 20; ctx.shadowColor = "#0ff"; ctx.fillStyle = "#0ff";
                     ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-                    ctx.fillStyle = "#110011";
-                    ctx.fillRect(obs.x + 4, obs.y + 4, obs.width - 8, obs.height - 8);
+                    ctx.fillStyle = "#fff"; ctx.fillRect(obs.x + 10, obs.y, 10, obs.height); // Heller Kern
+                }
+                else if (obs.type === 'platform_lava') {
+                    let lavaWave = Math.sin(frames * 0.1) * 5; 
+                    ctx.fillStyle = "#ff3300"; ctx.shadowBlur = 25; ctx.shadowColor = "#ff0000";
+                    ctx.fillRect(obs.x, baseGroundY - 5 + lavaWave, obs.width, 25);
+                    ctx.fillStyle = "#ffaa00"; ctx.fillRect(obs.x + 10, baseGroundY + lavaWave, obs.width - 20, 10);
+                    
+                    ctx.shadowBlur = 15; ctx.shadowColor = "#f0f"; ctx.fillStyle = "#f0f";
+                    ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+                    ctx.fillStyle = "#110011"; ctx.fillRect(obs.x + 4, obs.y + 4, obs.width - 8, obs.height - 8);
                 }
                 ctx.shadowBlur = 0;
             });
 
-            // Spieler Trail zeichnen
             if (gameState !== 'GAME_OVER') {
                 player.trail.forEach(t => {
                     if (t.life > 0) {
-                        ctx.save();
-                        ctx.translate(t.x + player.width/2, t.y + player.height/2);
-                        ctx.rotate(t.rot);
                         ctx.fillStyle = `rgba(0, 255, 255, ${t.life * 0.3})`;
-                        ctx.fillRect(-player.width/2, -player.height/2, player.width, player.height);
-                        ctx.restore();
+                        ctx.fillRect(t.x, t.y, player.width, player.height); // Keine Rotation
                     }
                 });
 
-                // Spieler selbst zeichnen
-                ctx.save();
-                ctx.translate(player.x + player.width/2, player.y + player.height/2);
-                ctx.rotate(player.rotation);
-                ctx.fillStyle = "#0ff";
-                ctx.shadowBlur = 25; ctx.shadowColor = "#0ff";
-                ctx.fillRect(-player.width/2, -player.height/2, player.width, player.height);
-                ctx.fillStyle = "#000";
-                ctx.fillRect(-player.width/4, -player.height/4, player.width/2, player.height/2);
-                ctx.restore();
+                ctx.fillStyle = "#0ff"; ctx.shadowBlur = 25; ctx.shadowColor = "#0ff";
+                ctx.fillRect(player.x, player.y, player.width, player.height);
+                ctx.fillStyle = "#000"; ctx.fillRect(player.x + 10, player.y + 10, 20, 20);
             }
 
-            // Partikel zeichnen
             particles.forEach(p => {
-                ctx.fillStyle = p.color;
-                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color; ctx.globalAlpha = p.life;
                 ctx.shadowBlur = 15; ctx.shadowColor = p.color;
                 ctx.fillRect(p.x, p.y, p.size, p.size);
             });
@@ -578,21 +497,17 @@
 
         function updateUI() {
             document.getElementById('scoreDisplay').innerText = "SCORE: " + score;
-            // Zeige den aktuellen Speed-Multiplikator an
             document.getElementById('levelDisplay').innerText = "SPEED: " + (gameSpeed / baseSpeed).toFixed(1) + "x";
         }
 
         function gameLoop() {
-            update();
-            draw();
+            update(); draw();
             if (gameState === 'PLAYING' || particles.length > 0) {
                 if(gameState === 'PLAYING') updateUI();
                 requestAnimationFrame(gameLoop);
             }
         }
 
-        // Initiales Setup
-        updateLockInUI();
         draw(); 
     </script>
 </body>
