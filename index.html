@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Geometry Type Dash - Level 2</title>
+    <title>Retro Type Dash - Synthwave Edition</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 
         body {
             margin: 0;
             padding: 0;
-            background-color: #0b0c10;
+            background-color: #050505;
             color: #fff;
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'VT323', monospace;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -21,56 +21,66 @@
             overflow: hidden;
         }
 
+        /* Scanline CRT Effect */
+        body::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
         #gameContainer {
             position: relative;
             width: 800px;
             height: 450px;
-            background: linear-gradient(180deg, #121820 0%, #050608 100%);
-            border: 4px solid #bd93f9;
+            background: linear-gradient(180deg, #200122 0%, #000000 100%);
+            border: 4px solid #f0f;
             border-radius: 10px;
-            box-shadow: 0 0 30px rgba(189, 147, 249, 0.4);
+            box-shadow: 0 0 30px #f0f, inset 0 0 20px #0ff;
             overflow: hidden;
+            z-index: 10;
         }
 
         canvas { display: block; }
 
         #ui {
             position: absolute;
-            top: 20px;
+            top: 15px;
             left: 20px;
             right: 20px;
             display: flex;
             justify-content: space-between;
-            font-size: 20px;
-            font-weight: 700;
+            font-size: 28px;
             z-index: 10;
-            color: #f8f8f2;
-            text-shadow: 0 0 5px rgba(255,255,255,0.5);
+            color: #0ff;
+            text-shadow: 0 0 10px #0ff;
         }
 
         #wordDisplay {
             position: absolute;
-            top: 120px;
+            top: 100px;
             width: 100%;
             text-align: center;
-            font-size: 50px;
-            font-weight: 900;
-            letter-spacing: 6px;
+            font-size: 60px;
+            letter-spacing: 8px;
             z-index: 10;
-            text-shadow: 0 0 10px rgba(0,0,0,0.8);
+            text-shadow: 0 0 15px rgba(0,0,0,0.8);
             transition: transform 0.1s;
         }
 
-        .typed { color: #50fa7b; text-shadow: 0 0 15px #50fa7b; }
-        .untyped { color: #ffffff; }
-        .error { color: #ff5555; text-shadow: 0 0 15px #ff5555; }
+        .typed { color: #f0f; text-shadow: 0 0 20px #f0f; }
+        .untyped { color: #fff; text-shadow: 0 0 10px #fff; }
+        .error { color: #ff0000; text-shadow: 0 0 20px #ff0000; }
 
-        /* Wackel-Animation bei Fehlern */
         @keyframes shake {
             0% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            50% { transform: translateX(10px); }
-            75% { transform: translateX(-10px); }
+            25% { transform: translateX(-15px); }
+            50% { transform: translateX(15px); }
+            75% { transform: translateX(-15px); }
             100% { transform: translateX(0); }
         }
         .shake-active { animation: shake 0.2s; }
@@ -78,7 +88,7 @@
         #overlay {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(5, 6, 8, 0.85);
+            background: rgba(0, 0, 0, 0.9);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -87,47 +97,34 @@
         }
 
         h1 {
-            color: #bd93f9;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            text-shadow: 0 0 15px rgba(189, 147, 249, 0.5);
+            color: #f0f;
+            font-size: 40px;
+            text-shadow: 0 0 20px #f0f, 0 0 40px #0ff;
             margin-bottom: 5px;
+            text-transform: uppercase;
         }
 
         #overlayTitle {
-            font-size: 50px;
-            color: #ff5555;
-            text-shadow: 0 0 20px #ff5555;
+            font-size: 60px;
+            color: #0ff;
+            text-shadow: 0 0 20px #0ff;
             margin-bottom: 10px;
         }
 
-        button {
-            padding: 15px 40px;
-            font-size: 24px;
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 700;
-            background-color: #bd93f9;
-            color: #282a36;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 30px;
-            transition: all 0.2s ease;
-            text-transform: uppercase;
-            box-shadow: 0 0 15px #bd93f9;
+        #lockInDisplay {
+            font-size: 50px;
+            letter-spacing: 15px;
+            margin-top: 20px;
+            color: #444;
         }
+        .lock-typed { color: #0ff; text-shadow: 0 0 20px #0ff; }
 
-        button:hover {
-            transform: scale(1.05);
-            background-color: #ff79c6;
-            box-shadow: 0 0 25px #ff79c6;
-        }
     </style>
 </head>
 <body>
 
-    <h1>Geometry Type Dash</h1>
-    <p style="color: #6272a4; margin-bottom: 20px;">Tippe das Wort. Fehler sind okay, aber kollidiere nicht!</p>
+    <h1 style="z-index: 10;">SYNTHWAVE TYPE DASH</h1>
+    <p style="color: #0ff; margin-bottom: 20px; z-index: 10; font-size: 20px;">Weiche Lava und Stacheln aus. Falsche Tasten wackeln nur.</p>
 
     <div id="gameContainer">
         <div id="ui">
@@ -138,32 +135,36 @@
         <canvas id="gameCanvas" width="800" height="450"></canvas>
         
         <div id="overlay">
-            <h2 id="overlayTitle">BEREIT?</h2>
-            <p id="overlayText" style="color: #f8f8f2; font-size: 18px;">Sound an! Finger auf ASDF JKLÖ.</p>
-            <button id="startBtn">START DASH</button>
+            <h2 id="overlayTitle">PLAYER LOCK-IN</h2>
+            <p id="overlayText" style="color: #fff; font-size: 24px;">Tippe die Grundreihe von links nach rechts, um zu starten:</p>
+            <div id="lockInDisplay">ASDFGHJKLÖ</div>
+            <p id="deathMsg" style="color: #ff0000; font-size: 30px; margin-top: 20px; text-shadow: 0 0 10px #ff0000; display: none;"></p>
         </div>
     </div>
 
     <audio id="bgMusic" loop preload="auto">
-        <source src="https://assets.mixkit.co/music/preview/mixkit-game-level-music-689.mp3" type="audio/mpeg">
+        <source src="https://assets.mixkit.co/music/preview/mixkit-synthwave-arcade-fast-136.mp3" type="audio/mpeg">
     </audio>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const wordDisplay = document.getElementById('wordDisplay');
-        const scoreDisplay = document.getElementById('scoreDisplay');
         const overlay = document.getElementById('overlay');
         const overlayTitle = document.getElementById('overlayTitle');
-        const overlayText = document.getElementById('overlayText');
-        const startBtn = document.getElementById('startBtn');
+        const lockInDisplay = document.getElementById('lockInDisplay');
+        const deathMsg = document.getElementById('deathMsg');
         const bgMusic = document.getElementById('bgMusic');
 
+        // Erweiterter Wortschatz (Nur Grundreihe)
         const wordsLevel1 = ["a", "s", "d", "f", "g", "h", "j", "k", "l", "ö"];
-        const wordsLevel2 = ["as", "df", "ja", "so", "da", "la", "al", "ha", "fl", "gl"];
-        const wordsLevel3 = ["das", "all", "hall", "kahl", "lass", "fall", "gas", "glas", "schlag"];
+        const wordsLevel2 = ["as", "df", "gh", "jk", "lö", "sa", "fd", "hj", "kl", "da", "la", "ha"];
+        const wordsLevel3 = ["das", "fad", "lass", "fall", "saal", "hall", "kahl", "als", "lag", "fass", "glas", "schlag"];
 
-        let gameActive = false;
+        const lockInTarget = "asdfghjklö";
+        let lockInIndex = 0;
+        let gameState = 'LOCK_IN'; // 'LOCK_IN', 'PLAYING', 'GAME_OVER'
+
         let score = 0;
         let level = 1;
         let gameSpeed = 5;
@@ -174,85 +175,72 @@
         const baseGroundY = 380;
 
         const player = {
-            x: 120,
-            y: baseGroundY - 40,
-            width: 40,
-            height: 40,
-            dy: 0,
-            jumpForce: -14,
-            gravity: 0.8,
-            isJumping: false,
-            rotation: 0
+            x: 100, y: baseGroundY - 40,
+            width: 40, height: 40,
+            dy: 0, jumpForce: -14, gravity: 0.8,
+            isJumping: false, rotation: 0
         };
 
-        // Hindernis kann Spike oder Plattform sein
-        const obstacle = {
-            x: 800,
-            y: baseGroundY - 40,
-            width: 40,
-            height: 40,
-            type: 'spike', // 'spike' oder 'platform'
-            active: false,
-            passed: false
-        };
-
+        const obstacles = [];
         let particles = [];
+        let frames = 0;
+
+        function updateLockInUI() {
+            let html = "";
+            for (let i = 0; i < lockInTarget.length; i++) {
+                if (i < lockInIndex) html += `<span class="lock-typed">${lockInTarget[i].toUpperCase()}</span>`;
+                else html += `<span>${lockInTarget[i].toUpperCase()}</span>`;
+            }
+            lockInDisplay.innerHTML = html;
+        }
 
         function initGame() {
-            score = 0;
-            level = 1;
-            gameSpeed = 5;
+            score = 0; level = 1; gameSpeed = 5;
             player.y = baseGroundY - player.height;
-            player.dy = 0;
-            player.isJumping = false;
-            player.rotation = 0;
-            particles = [];
+            player.dy = 0; player.isJumping = false; player.rotation = 0;
+            obstacles.length = 0; particles = []; frames = 0;
             
-            // Musik starten
-            bgMusic.volume = 0.4;
-            bgMusic.currentTime = 0;
-            bgMusic.play().catch(e => console.log("Audio Play blocked by browser until interacted"));
+            bgMusic.volume = 0.3;
+            bgMusic.play().catch(e => console.log("Audio needs user interaction"));
 
             spawnObstacle();
             updateUI();
             
-            gameActive = true;
+            gameState = 'PLAYING';
             overlay.style.display = 'none';
+            deathMsg.style.display = 'none';
             gameLoop();
         }
 
-        function createParticles(x, y, color) {
-            for (let i = 0; i < 15; i++) {
+        function createParticles(x, y, color, count = 15) {
+            for (let i = 0; i < count; i++) {
                 particles.push({
                     x: x, y: y,
-                    vx: (Math.random() - 0.5) * 10,
-                    vy: (Math.random() - 1) * 10,
+                    vx: (Math.random() - 0.5) * 12,
+                    vy: (Math.random() - 1) * 12,
                     size: Math.random() * 6 + 2,
-                    life: 1,
-                    color: color
+                    life: 1, color: color
                 });
             }
         }
 
         function spawnObstacle() {
-            obstacle.x = canvas.width;
-            obstacle.active = true;
-            obstacle.passed = false;
-            
-            // Zufällig entscheiden: 70% Spike, 30% schwebende Plattform
-            if (Math.random() < 0.3) {
-                obstacle.type = 'platform';
-                obstacle.width = 150;
-                obstacle.height = 20;
-                obstacle.y = baseGroundY - 90; // Höher in der Luft
+            let type = Math.random();
+            let obs = { x: canvas.width, passed: false };
+
+            if (type < 0.4) {
+                // Nur Stachel
+                obs.type = 'spike';
+                obs.y = baseGroundY - 40;
+                obs.width = 40; obs.height = 40;
             } else {
-                obstacle.type = 'spike';
-                obstacle.width = 40;
-                obstacle.height = 40;
-                obstacle.y = baseGroundY - 40; // Auf dem Boden
+                // Plattform MIT Lava darunter! (Man MUSS springen)
+                obs.type = 'platform_lava';
+                obs.y = baseGroundY - 100; // Hoch in der Luft
+                obs.width = 200; obs.height = 20;
             }
+            obstacles.push(obs);
             
-            // Wortauswahl basierend auf Level
             let wordList = level === 1 ? wordsLevel1 : (level === 2 ? wordsLevel2 : wordsLevel3);
             currentWord = wordList[Math.floor(Math.random() * wordList.length)];
             typedText = "";
@@ -262,13 +250,9 @@
         function renderWord(isError = false) {
             let html = "";
             for (let i = 0; i < currentWord.length; i++) {
-                if (i < typedText.length) {
-                    html += `<span class="typed">${currentWord[i]}</span>`;
-                } else if (i === typedText.length && isError) {
-                    html += `<span class="error">${currentWord[i]}</span>`; // Roter Buchstabe bei Fehler
-                } else {
-                    html += `<span class="untyped">${currentWord[i]}</span>`;
-                }
+                if (i < typedText.length) html += `<span class="typed">${currentWord[i]}</span>`;
+                else if (i === typedText.length && isError) html += `<span class="error">${currentWord[i]}</span>`;
+                else html += `<span class="untyped">${currentWord[i]}</span>`;
             }
             wordDisplay.innerHTML = html;
         }
@@ -277,126 +261,148 @@
             if (!player.isJumping) {
                 player.dy = player.jumpForce;
                 player.isJumping = true;
-                createParticles(player.x + player.width/2, player.y + player.height, "#ff79c6");
+                createParticles(player.x + player.width/2, player.y + player.height, "#0ff");
             }
         }
 
         function gameOver(reason) {
-            gameActive = false;
-            bgMusic.pause(); // Musik stoppen
-            overlay.style.display = 'flex';
-            overlayTitle.innerText = "CRASHED!";
-            overlayText.innerText = reason + " | Score: " + score;
-            startBtn.innerText = "RETRY";
+            gameState = 'GAME_OVER';
+            bgMusic.pause();
+            createParticles(player.x + player.width/2, player.y + player.height/2, "#ff0000", 40);
+            
+            setTimeout(() => {
+                overlay.style.display = 'flex';
+                overlayTitle.innerText = "SYSTEM FAILURE";
+                overlayTitle.style.color = "#ff0000";
+                overlayTitle.style.textShadow = "0 0 20px #ff0000";
+                deathMsg.innerText = reason;
+                deathMsg.style.display = 'block';
+                
+                // Reset Lock-in for retry
+                lockInIndex = 0;
+                updateLockInUI();
+                gameState = 'LOCK_IN';
+            }, 1000); // 1 Sekunde Verzögerung für die Explosion
         }
 
         document.addEventListener('keydown', (e) => {
-            if (!gameActive) return;
             if (["Shift", "Control", "Alt", "CapsLock"].includes(e.key)) return;
+            const key = e.key.toLowerCase();
+
+            if (gameState === 'LOCK_IN') {
+                if (key === lockInTarget[lockInIndex]) {
+                    lockInIndex++;
+                    updateLockInUI();
+                    if (lockInIndex === lockInTarget.length) initGame();
+                } else {
+                    lockInIndex = 0; // Fehler = Von vorne anfangen (Striktes Ritual)
+                    updateLockInUI();
+                }
+                return;
+            }
+
+            if (gameState !== 'PLAYING') return;
 
             const expectedChar = currentWord[typedText.length];
-            const typedChar = e.key.toLowerCase();
-
-            if (typedChar === expectedChar) {
-                typedText += typedChar;
+            if (key === expectedChar) {
+                typedText += key;
                 renderWord();
-
                 if (typedText === currentWord) {
                     jump();
                     wordDisplay.innerHTML = ""; 
                 }
             } else {
-                // FEHLER-TOLERANZ: Nur visuelles Feedback, kein Game Over!
                 renderWord(true); 
                 wordDisplay.classList.remove('shake-active');
-                void wordDisplay.offsetWidth; // Trigger reflow für CSS animation
+                void wordDisplay.offsetWidth; 
                 wordDisplay.classList.add('shake-active');
             }
         });
 
         function update() {
-            backgroundOffset -= gameSpeed * 0.3;
+            if (gameState !== 'PLAYING') return;
+            frames++;
+            backgroundOffset -= gameSpeed * 0.4;
             if (backgroundOffset <= -40) backgroundOffset = 0;
 
             player.dy += player.gravity;
             player.y += player.dy;
 
-            if (player.isJumping) {
-                player.rotation += 0.15;
-            } else {
-                player.rotation = Math.round(player.rotation / (Math.PI/2)) * (Math.PI/2);
-            }
+            if (player.isJumping) player.rotation += 0.15;
+            else player.rotation = Math.round(player.rotation / (Math.PI/2)) * (Math.PI/2);
 
-            // Basis-Bodenkollision
             let currentFloorY = baseGroundY;
+            let onLava = false;
 
-            // Kollisionslogik
-            if (obstacle.active) {
-                obstacle.x -= gameSpeed;
+            for (let i = 0; i < obstacles.length; i++) {
+                let obs = obstacles[i];
+                obs.x -= gameSpeed;
 
-                if (obstacle.type === 'spike') {
-                    // Tödliche Kollision mit Stachel
-                    if (player.x < obstacle.x + obstacle.width - 8 && 
-                        player.x + player.width - 8 > obstacle.x &&
-                        player.y < obstacle.y + obstacle.height &&
-                        player.y + player.height > obstacle.y + 10) {
-                        gameOver("In den Stachel gefahren!");
+                if (obs.type === 'spike') {
+                    if (player.x < obs.x + obs.width - 10 && player.x + player.width - 10 > obs.x &&
+                        player.y < obs.y + obs.height && player.y + player.height > obs.y + 10) {
+                        gameOver("IMPALED BY SPIKE!");
                     }
-                } else if (obstacle.type === 'platform') {
-                    // Kollision mit schwebender Plattform
-                    // 1. Von oben landen (erfolgreicher Sprung)
-                    if (player.dy > 0 && 
-                        player.y + player.height >= obstacle.y && 
-                        player.y + player.height <= obstacle.y + 20 &&
-                        player.x + player.width > obstacle.x && 
-                        player.x < obstacle.x + obstacle.width) {
-                            
-                        currentFloorY = obstacle.y; // Boden ist jetzt die Plattformhöhe
+                } 
+                else if (obs.type === 'platform_lava') {
+                    // Check Lava (Boden unter der Plattform)
+                    if (player.x + player.width/2 > obs.x && player.x + player.width/2 < obs.x + obs.width) {
+                        onLava = true; // Spieler ist in der X-Zone der Lava
+                    }
+
+                    // Check Plattform Landung
+                    if (player.dy > 0 && player.y + player.height >= obs.y && player.y + player.height <= obs.y + 25 &&
+                        player.x + player.width > obs.x && player.x < obs.x + obs.width) {
+                        currentFloorY = obs.y;
                         player.y = currentFloorY - player.height;
                         player.dy = 0;
                         if(player.isJumping) {
                             player.isJumping = false;
-                            createParticles(player.x + player.width/2, player.y + player.height, "#8be9fd");
+                            createParticles(player.x + player.width/2, player.y + player.height, "#f0f");
                         }
+                        onLava = false; // Sicher auf Plattform
                     } 
-                    // 2. Seitlich dagegen krachen (Crash)
-                    else if (player.x + player.width > obstacle.x + 5 && 
-                             player.x < obstacle.x + obstacle.width &&
-                             player.y + player.height > obstacle.y + 5) {
-                        gameOver("Gegen die Plattform gekracht!");
+                    // Gegen Plattform-Wand krachen
+                    else if (player.x + player.width > obs.x + 5 && player.x < obs.x + obs.width &&
+                             player.y + player.height > obs.y + 5 && player.y < obs.y + obs.height) {
+                        gameOver("CRASHED INTO PLATFORM!");
                     }
                 }
 
-                if (obstacle.x + obstacle.width < player.x && !obstacle.passed) {
-                    obstacle.passed = true;
+                if (obs.x + obs.width < player.x && !obs.passed) {
+                    obs.passed = true;
                     score += 10;
-                    gameSpeed += 0.1;
-                    if (score === 50) level = 2;
-                    if (score === 150) level = 3;
-                }
-
-                if (obstacle.x + obstacle.width < -50) {
-                    obstacle.active = false;
-                    spawnObstacle();
+                    gameSpeed += 0.05;
+                    if (score === 80) level = 2;
+                    if (score === 200) level = 3;
                 }
             }
 
-            // Normaler Boden Fallback
-            if (player.y >= baseGroundY - player.height && currentFloorY === baseGroundY) {
+            // Lava Tod
+            if (onLava && player.y >= baseGroundY - player.height - 5) {
+                gameOver("BURNED IN LAVA!");
+            }
+
+            // Normaler Boden
+            if (player.y >= baseGroundY - player.height && currentFloorY === baseGroundY && !onLava) {
                 player.y = baseGroundY - player.height;
                 player.dy = 0;
                 if(player.isJumping) {
                     player.isJumping = false;
-                    createParticles(player.x + player.width/2, player.y + player.height, "#bd93f9");
+                    createParticles(player.x + player.width/2, player.y + player.height, "#0ff");
                 }
+            }
+
+            // Array aufräumen
+            if (obstacles.length > 0 && obstacles[0].x + obstacles[0].width < -100) {
+                obstacles.shift();
+                spawnObstacle();
             }
 
             // Partikel updaten
             for (let i = particles.length - 1; i >= 0; i--) {
                 let p = particles[i];
-                p.x += p.vx;
-                p.y += p.vy;
-                p.life -= 0.05;
+                p.x += p.vx; p.y += p.vy; p.life -= 0.04;
                 if (p.life <= 0) particles.splice(i, 1);
             }
         }
@@ -404,87 +410,99 @@
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Raster
-            ctx.strokeStyle = "rgba(189, 147, 249, 0.15)";
+            // Retro Sun Background
+            ctx.fillStyle = "#ff0055";
+            ctx.beginPath();
+            ctx.arc(400, 250, 150, Math.PI, 0);
+            ctx.fill();
+            // Sun stripes
+            ctx.fillStyle = "#200122";
+            for(let i=0; i<5; i++) {
+                ctx.fillRect(200, 200 - (i*20), 400, i*3);
+            }
+
+            // Neon Grid Floor
+            ctx.strokeStyle = "#f0f";
             ctx.lineWidth = 2;
+            ctx.shadowBlur = 10; ctx.shadowColor = "#f0f";
             for (let i = 0; i < canvas.width; i += 40) {
                 ctx.beginPath();
-                ctx.moveTo(i + backgroundOffset, 0);
-                ctx.lineTo(i + backgroundOffset, baseGroundY);
+                ctx.moveTo(i + backgroundOffset, baseGroundY);
+                ctx.lineTo(i + backgroundOffset - 150, canvas.height); // Perspektive
                 ctx.stroke();
             }
-
-            // Boden
-            ctx.fillStyle = "#191A21";
-            ctx.fillRect(0, baseGroundY, canvas.width, canvas.height - baseGroundY);
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = "#bd93f9";
-            ctx.strokeStyle = "#bd93f9";
-            ctx.lineWidth = 4;
-            ctx.beginPath();
-            ctx.moveTo(0, baseGroundY);
-            ctx.lineTo(canvas.width, baseGroundY);
-            ctx.stroke();
+            
+            // Bodenlinie
+            ctx.strokeStyle = "#0ff"; ctx.shadowColor = "#0ff"; ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.moveTo(0, baseGroundY); ctx.lineTo(canvas.width, baseGroundY); ctx.stroke();
             ctx.shadowBlur = 0;
 
-            // Hindernis (Spike oder Plattform)
-            if (obstacle.active) {
-                if (obstacle.type === 'spike') {
-                    ctx.shadowBlur = 15;
-                    ctx.shadowColor = "#ff5555";
-                    ctx.fillStyle = "#ff5555";
+            // Hindernisse zeichnen
+            obstacles.forEach(obs => {
+                if (obs.type === 'spike') {
+                    ctx.shadowBlur = 15; ctx.shadowColor = "#ff0000"; ctx.fillStyle = "#ff0000";
                     ctx.beginPath();
-                    ctx.moveTo(obstacle.x + obstacle.width / 2, obstacle.y);
-                    ctx.lineTo(obstacle.x + obstacle.width, obstacle.y + obstacle.height);
-                    ctx.lineTo(obstacle.x, obstacle.y + obstacle.height);
-                    ctx.closePath();
-                    ctx.fill();
-                } else {
-                    ctx.shadowBlur = 15;
-                    ctx.shadowColor = "#8be9fd";
-                    ctx.fillStyle = "#8be9fd";
-                    ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-                    ctx.fillStyle = "#282a36";
-                    ctx.fillRect(obstacle.x + 2, obstacle.y + 2, obstacle.width - 4, obstacle.height - 4);
+                    ctx.moveTo(obs.x + obs.width / 2, obs.y);
+                    ctx.lineTo(obs.x + obs.width, obs.y + obs.height);
+                    ctx.lineTo(obs.x, obs.y + obs.height);
+                    ctx.closePath(); ctx.fill();
+                } 
+                else if (obs.type === 'platform_lava') {
+                    // Lava auf dem Boden zeichnen
+                    ctx.fillStyle = (frames % 20 < 10) ? "#ff3300" : "#ff0000"; // Animierte Lava
+                    ctx.shadowBlur = 20; ctx.shadowColor = "#ff0000";
+                    ctx.fillRect(obs.x, baseGroundY, obs.width, 20);
+                    
+                    // Schwebende Plattform zeichnen
+                    ctx.shadowBlur = 15; ctx.shadowColor = "#f0f";
+                    ctx.fillStyle = "#f0f";
+                    ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+                    ctx.fillStyle = "#111";
+                    ctx.fillRect(obs.x + 3, obs.y + 3, obs.width - 6, obs.height - 6);
                 }
-            }
-            ctx.shadowBlur = 0;
+                ctx.shadowBlur = 0;
+            });
 
-            // Partikel zeichnen
+            // Partikel
             particles.forEach(p => {
                 ctx.fillStyle = p.color;
                 ctx.globalAlpha = p.life;
+                ctx.shadowBlur = 10; ctx.shadowColor = p.color;
                 ctx.fillRect(p.x, p.y, p.size, p.size);
             });
-            ctx.globalAlpha = 1;
+            ctx.globalAlpha = 1; ctx.shadowBlur = 0;
 
             // Spieler zeichnen
-            ctx.save();
-            ctx.translate(player.x + player.width/2, player.y + player.height/2);
-            ctx.rotate(player.rotation);
-            ctx.fillStyle = "#50fa7b";
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = "#50fa7b";
-            ctx.fillRect(-player.width/2, -player.height/2, player.width, player.height);
-            ctx.fillStyle = "#282a36";
-            ctx.fillRect(-player.width/4, -player.height/4, player.width/2, player.height/2);
-            ctx.restore();
+            if (gameState !== 'GAME_OVER') {
+                ctx.save();
+                ctx.translate(player.x + player.width/2, player.y + player.height/2);
+                ctx.rotate(player.rotation);
+                ctx.fillStyle = "#0ff";
+                ctx.shadowBlur = 20; ctx.shadowColor = "#0ff";
+                ctx.fillRect(-player.width/2, -player.height/2, player.width, player.height);
+                ctx.fillStyle = "#000";
+                ctx.fillRect(-player.width/4, -player.height/4, player.width/2, player.height/2);
+                ctx.restore();
+            }
         }
 
         function updateUI() {
-            scoreDisplay.innerText = "SCORE: " + score;
+            document.getElementById('scoreDisplay').innerText = "SCORE: " + score;
             document.getElementById('levelDisplay').innerText = "LEVEL: " + level;
         }
 
         function gameLoop() {
-            if (!gameActive) return;
             update();
             draw();
-            updateUI();
-            requestAnimationFrame(gameLoop);
+            if (gameState === 'PLAYING' || particles.length > 0) {
+                if(gameState === 'PLAYING') updateUI();
+                requestAnimationFrame(gameLoop);
+            }
         }
 
-        startBtn.addEventListener('click', initGame);
+        // Startbildschirm initialisieren
+        updateLockInUI();
+        draw(); // Zeichnet Hintergrund 1x
     </script>
 </body>
 </html>
