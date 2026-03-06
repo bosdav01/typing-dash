@@ -3,32 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retro Type Dash - Final Pro Edition</title>
+    <title>Retro Type Dash - Ultimate Edition</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 
-        body {
-            margin: 0; padding: 0;
-            background-color: #050505; color: #fff;
-            font-family: 'VT323', monospace;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            height: 100vh; overflow: hidden; user-select: none;
+        :root {
+            --neon-pink: #ff0055;
+            --neon-cyan: #00ffff;
+            --neon-purple: #b026ff;
+            --bg-dark: #05010a;
         }
 
-        /* CRT Scanlines für den Retro-Look */
+        body {
+            margin: 0; padding: 0; background-color: var(--bg-dark); color: #fff;
+            font-family: 'VT323', monospace; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; height: 100vh;
+            overflow: hidden; user-select: none;
+        }
+
+        /* CRT Scanlines & Flicker */
         body::after {
             content: ""; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
                         linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
             z-index: 100; background-size: 100% 2px, 3px 100%; pointer-events: none;
+            animation: flicker 0.15s infinite; opacity: 0.8;
+        }
+
+        @keyframes flicker {
+            0% { opacity: 0.8; } 50% { opacity: 0.85; } 100% { opacity: 0.8; }
+        }
+
+        #gameWrapper {
+            position: relative; padding: 10px; background: #111; border-radius: 12px;
+            box-shadow: 0 0 50px rgba(0, 255, 255, 0.2), 0 0 100px rgba(255, 0, 85, 0.1);
         }
 
         #gameContainer {
             position: relative; width: 800px; height: 450px;
-            background: linear-gradient(180deg, #1a001a 0%, #000000 100%);
-            border: 4px solid #0ff; border-radius: 8px;
-            box-shadow: 0 0 40px rgba(0, 255, 255, 0.5), inset 0 0 30px rgba(255, 0, 255, 0.3);
-            overflow: hidden; z-index: 10;
+            background: linear-gradient(180deg, #110022 0%, #000000 100%);
+            border: 3px solid var(--neon-cyan); border-radius: 8px; overflow: hidden; z-index: 10;
         }
 
         canvas { display: block; }
@@ -36,32 +50,31 @@
         #ui {
             position: absolute; top: 15px; left: 20px; right: 20px;
             display: flex; justify-content: space-between;
-            font-size: 32px; z-index: 10; color: #f0f; text-shadow: 0 0 10px #f0f;
+            font-size: 36px; z-index: 10; color: var(--neon-purple); text-shadow: 0 0 10px var(--neon-purple);
         }
 
         #wordDisplay {
-            position: absolute; top: 90px; width: 100%; text-align: center;
-            font-size: 65px; letter-spacing: 10px; z-index: 10;
+            position: absolute; top: 80px; width: 100%; text-align: center;
+            font-size: 70px; letter-spacing: 12px; z-index: 10;
             text-shadow: 0 5px 15px rgba(0,0,0,0.9); transition: transform 0.05s;
         }
 
-        /* UI für den Tipp-Timer */
         #comboBarContainer {
             position: absolute; top: 170px; left: 50%; transform: translateX(-50%);
-            width: 200px; height: 6px; background: rgba(255,255,255,0.1);
-            border-radius: 3px; z-index: 10; display: none;
+            width: 250px; height: 8px; background: rgba(0,0,0,0.6);
+            border: 1px solid var(--neon-cyan); border-radius: 4px; z-index: 10; display: none;
         }
         #comboBar {
-            width: 100%; height: 100%; background: #0ff; border-radius: 3px;
-            box-shadow: 0 0 10px #0ff; transition: width 0.1s linear;
+            width: 100%; height: 100%; background: var(--neon-cyan);
+            box-shadow: 0 0 10px var(--neon-cyan); transition: width 0.1s linear;
         }
 
-        .typed { color: #0ff; text-shadow: 0 0 20px #0ff, 0 0 40px #0ff; }
-        .untyped { color: #e0e0e0; text-shadow: 0 0 5px #fff; }
-        .error { color: #ff0055; text-shadow: 0 0 20px #ff0055; }
+        .typed { color: var(--neon-cyan); text-shadow: 0 0 20px var(--neon-cyan), 0 0 40px #fff; }
+        .untyped { color: #555; text-shadow: none; }
+        .error { color: var(--neon-pink); text-shadow: 0 0 20px var(--neon-pink); }
 
         @keyframes shake {
-            0% { transform: translateX(0); color: #ff0055; }
+            0% { transform: translateX(0); color: var(--neon-pink); }
             25% { transform: translateX(-15px); }
             50% { transform: translateX(15px); }
             75% { transform: translateX(-15px); }
@@ -71,77 +84,220 @@
 
         #overlay {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.9);
-            display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 50;
+            background: rgba(5, 1, 10, 0.95); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 50;
+            backdrop-filter: blur(5px);
         }
 
-        h1 { color: #f0f; font-size: 45px; text-shadow: 0 0 20px #f0f; margin-bottom: 5px; letter-spacing: 4px; z-index: 10;}
-        .bigTitle { font-size: 70px; color: #0ff; text-shadow: 0 0 25px #0ff; margin-bottom: 10px; letter-spacing: 5px;}
+        h1 { color: var(--neon-pink); font-size: 40px; text-shadow: 0 0 20px var(--neon-pink); margin-bottom: 5px; letter-spacing: 6px;}
+        .bigTitle { font-size: 70px; color: var(--neon-cyan); text-shadow: 0 0 25px var(--neon-cyan); margin-bottom: 5px; letter-spacing: 5px; text-align: center;}
 
         #lockInDisplay {
-            font-size: 55px; letter-spacing: 15px; margin-top: 25px; color: #333;
-            background: rgba(0,0,0,0.5); padding: 10px 30px; border-radius: 10px; border: 2px solid #222;
+            font-size: 60px; letter-spacing: 18px; margin-top: 20px; color: #222;
+            background: rgba(0,0,0,0.8); padding: 15px 40px; border-radius: 10px; border: 2px solid var(--neon-purple);
+            box-shadow: inset 0 0 20px rgba(176, 38, 255, 0.2);
         }
-        .lock-typed { color: #0ff; text-shadow: 0 0 25px #0ff; }
+        .lock-typed { color: var(--neon-cyan); text-shadow: 0 0 25px var(--neon-cyan); }
 
         button.bootBtn {
-            padding: 15px 40px; font-size: 35px; font-family: 'VT323', monospace;
-            background: rgba(0,0,0,0.8); color: #f0f; border: 3px solid #f0f; border-radius: 5px;
-            cursor: pointer; transition: 0.3s; text-shadow: 0 0 10px #f0f; box-shadow: 0 0 15px rgba(255,0,255,0.4);
-            margin-top: 20px; pointer-events: auto;
+            padding: 15px 50px; font-size: 38px; font-family: 'VT323', monospace;
+            background: transparent; color: var(--neon-pink); border: 3px solid var(--neon-pink); border-radius: 5px;
+            cursor: pointer; transition: 0.3s; text-shadow: 0 0 10px var(--neon-pink); box-shadow: 0 0 20px rgba(255,0,85,0.4);
+            margin-top: 30px; pointer-events: auto; text-transform: uppercase;
         }
-        button.bootBtn:hover { background: #f0f; color: #000; box-shadow: 0 0 30px #f0f; }
+        button.bootBtn:hover { background: var(--neon-pink); color: #000; box-shadow: 0 0 40px var(--neon-pink); transform: scale(1.05); }
+
+        /* Stats Screen Styles */
+        .stats-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+            background: rgba(0,255,255,0.05); border: 1px solid var(--neon-cyan);
+            padding: 20px; border-radius: 8px; margin-top: 20px; width: 80%;
+        }
+        .stat-box { text-align: center; }
+        .stat-label { color: #888; font-size: 24px; text-transform: uppercase; }
+        .stat-value { color: #fff; font-size: 40px; text-shadow: 0 0 10px var(--neon-purple); }
+        .blinking-text { animation: blinker 1.5s linear infinite; color: var(--neon-cyan); font-size: 28px; margin-top: 30px; text-shadow: 0 0 10px var(--neon-cyan);}
+        @keyframes blinker { 50% { opacity: 0; } }
 
     </style>
 </head>
 <body>
 
     <h1>SYNTHWAVE TYPE DASH</h1>
-    <p style="color: #0ff; margin-bottom: 20px; z-index: 10; font-size: 24px; text-shadow: 0 0 10px #0ff;">Tippe flüssig! Zu langes Warten bricht die Combo ab.</p>
+    <p style="color: var(--neon-cyan); margin-bottom: 20px; z-index: 10; font-size: 22px;">Bleib im Flow. Ein Tippfehler oder Zögern resettet die Combo.</p>
 
-    <div id="gameContainer">
-        <div id="ui">
-            <span id="scoreDisplay">SCORE: 0</span>
-            <span id="levelDisplay">SPEED: 1.0x</span>
-        </div>
-        <div id="wordDisplay"></div>
-        <div id="comboBarContainer"><div id="comboBar"></div></div>
-        <canvas id="gameCanvas" width="800" height="450"></canvas>
-        
-        <div id="overlay">
-            <div id="bootScreen" style="text-align: center;">
-                <h2 class="bigTitle">SYSTEM OFFLINE</h2>
-                <button class="bootBtn" id="bootBtn">POWER ON (AUDIO & START)</button>
+    <div id="gameWrapper">
+        <div id="gameContainer">
+            <div id="ui">
+                <span id="scoreDisplay">SCORE: 0000</span>
+                <span id="speedDisplay">SPD: 1.0</span>
             </div>
+            <div id="wordDisplay"></div>
+            <div id="comboBarContainer"><div id="comboBar"></div></div>
+            <canvas id="gameCanvas" width="800" height="450"></canvas>
+            
+            <div id="overlay">
+                <div id="bootScreen" style="text-align: center;">
+                    <h2 class="bigTitle">SYSTEM READY</h2>
+                    <p style="color: #aaa; font-size: 24px;">Initialisiere Audio-Engine & Grafik-Prozessor...</p>
+                    <button class="bootBtn" id="bootBtn">INITIATE SEQUENCE</button>
+                </div>
 
-            <div id="lockInScreen" style="display: none; text-align: center;">
-                <h2 class="bigTitle">PLAYER LOCK-IN</h2>
-                <p style="color: #fff; font-size: 26px;">Aktiviere die Grundreihe (links nach rechts):</p>
-                <div id="lockInDisplay">ASDFGHJKLÖ</div>
+                <div id="lockInScreen" style="display: none; text-align: center;">
+                    <h2 class="bigTitle">TACTICAL LOCK-IN</h2>
+                    <p style="color: #ddd; font-size: 26px;">Kalibriere die Finger auf der Grundreihe:</p>
+                    <div id="lockInDisplay">ASDFGHJKLÖ</div>
+                </div>
+
+                <div id="deathScreen" style="display: none; text-align: center; width: 100%; display: flex; flex-direction: column; align-items: center;">
+                    <h2 class="bigTitle" style="color: var(--neon-pink); text-shadow: 0 0 25px var(--neon-pink);">SIGNAL LOST</h2>
+                    <p id="deathReason" style="color: #fff; font-size: 32px;"></p>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-label">Total Score</div>
+                            <div class="stat-value" id="statScore">0</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Accuracy</div>
+                            <div class="stat-value" id="statAcc">0%</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Words Cleared</div>
+                            <div class="stat-value" id="statWords">0</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Speed (KPM)</div>
+                            <div class="stat-value" id="statKpm">0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="blinking-text" id="restartPrompt">> PRESS [ENTER] TO REBOOT <</div>
+                </div>
             </div>
-
-            <p id="deathMsg" style="color: #ff0055; font-size: 35px; margin-top: 25px; text-shadow: 0 0 15px #ff0055; display: none;"></p>
         </div>
     </div>
 
-    <audio id="bgMusic" loop preload="auto">
-        <source src="https://assets.mixkit.co/music/preview/mixkit-synthwave-arcade-fast-136.mp3" type="audio/mpeg">
-    </audio>
-
     <script>
+        // --- 1. Audio Engine (Web Audio API Synthesizer) ---
+        // Generiert Musik in Echtzeit, komplett ohne externe Dateien!
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let audioMasterGain = audioCtx.createGain();
+        audioMasterGain.gain.value = 0.3; // Globale Lautstärke
+        audioMasterGain.connect(audioCtx.destination);
+        
+        let isPlayingMusic = false;
+        let nextNoteTime = 0;
+        let current16thNote = 0;
+        const tempo = 125; 
+        const lookahead = 25.0; 
+        const scheduleAheadTime = 0.1; 
+        let timerID;
+
+        // Bassline Noten (Frequenzen) für einen Synthwave-Vibe
+        const notes = [
+            41.20, 41.20, 41.20, 41.20, // E1
+            49.00, 49.00,               // G1
+            55.00, 55.00,               // A1
+            41.20, 41.20, 41.20, 41.20, // E1
+            65.41, 65.41,               // C2
+            55.00, 55.00                // A1
+        ];
+
+        function playKick(time) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioMasterGain);
+            osc.frequency.setValueAtTime(150, time);
+            osc.frequency.exponentialRampToValueAtTime(0.01, time + 0.5);
+            gain.gain.setValueAtTime(1, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + 0.5);
+            osc.start(time); osc.stop(time + 0.5);
+        }
+
+        function playHiHat(time) {
+            const bufferSize = audioCtx.sampleRate * 0.1; 
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'highpass'; filter.frequency.value = 7000;
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0.3, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + 0.1);
+            noise.connect(filter); filter.connect(gain); gain.connect(audioMasterGain);
+            noise.start(time);
+        }
+
+        function playBass(time, noteIndex) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            const filter = audioCtx.createBiquadFilter();
+            osc.type = 'sawtooth';
+            osc.frequency.value = notes[noteIndex % 16];
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(400, time);
+            filter.frequency.exponentialRampToValueAtTime(100, time + 0.2);
+            gain.gain.setValueAtTime(0.6, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + 0.2);
+            osc.connect(filter); filter.connect(gain); gain.connect(audioMasterGain);
+            osc.start(time); osc.stop(time + 0.2);
+        }
+
+        function scheduler() {
+            while (nextNoteTime < audioCtx.currentTime + scheduleAheadTime) {
+                // Kick auf jeden 4. Schlag (4-on-the-floor)
+                if (current16thNote % 4 === 0) playKick(nextNoteTime);
+                // Hi-Hat auf die Offbeats
+                if (current16thNote % 2 !== 0) playHiHat(nextNoteTime);
+                // Bassline durchgehend
+                playBass(nextNoteTime, current16thNote);
+                
+                nextNoteTime += 0.25 * (60.0 / tempo); // 16tel Note Dauer
+                current16thNote++;
+                if (current16thNote === 16) current16thNote = 0;
+            }
+            timerID = window.setTimeout(scheduler, lookahead);
+        }
+
+        function startMusic() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            if (!isPlayingMusic) {
+                isPlayingMusic = true;
+                nextNoteTime = audioCtx.currentTime + 0.1;
+                scheduler();
+            }
+        }
+
+        function stopMusic() {
+            isPlayingMusic = false;
+            window.clearTimeout(timerID);
+        }
+
+        // --- 2. Game Setup & Variablen ---
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const wordDisplay = document.getElementById('wordDisplay');
         const comboBarContainer = document.getElementById('comboBarContainer');
         const comboBar = document.getElementById('comboBar');
+        
+        // Screens
         const overlay = document.getElementById('overlay');
         const bootScreen = document.getElementById('bootScreen');
         const lockInScreen = document.getElementById('lockInScreen');
+        const deathScreen = document.getElementById('deathScreen');
         const lockInDisplay = document.getElementById('lockInDisplay');
-        const deathMsg = document.getElementById('deathMsg');
-        const bootBtn = document.getElementById('bootBtn');
-        const bgMusic = document.getElementById('bgMusic');
+        
+        // Stats Elements
+        const statScore = document.getElementById('statScore');
+        const statAcc = document.getElementById('statAcc');
+        const statWords = document.getElementById('statWords');
+        const statKpm = document.getElementById('statKpm');
+        const restartPrompt = document.getElementById('restartPrompt');
 
+        // Lexikon (Nur Grundreihe)
         const wordsLevel1 = ["a", "s", "d", "f", "g", "h", "j", "k", "l", "ö"];
         const wordsLevel2 = ["as", "df", "gh", "jk", "lö", "sa", "fd", "hj", "kl", "da", "la", "ha"];
         const wordsLevel3 = ["das", "fad", "lass", "fall", "saal", "hall", "kahl", "als", "lag", "fass", "glas", "schlag"];
@@ -150,36 +306,50 @@
         let lockInIndex = 0;
         let gameState = 'BOOT'; 
 
-        let score = 0;
-        let gameSpeed = 5.5;
-        let baseSpeed = 5.5;
+        // Core Game State
+        let score = 0; let gameSpeed = 5.5; let baseSpeed = 5.5;
         let backgroundOffset = 0; let mountainOffset = 0; let frames = 0;
+        let currentWord = ""; let typedText = ""; let lastObstacleType = '';
         
-        let currentWord = "";
-        let typedText = "";
-        let lastObstacleType = '';
+        // Stats Tracking
+        let stats = {
+            totalKeystrokes: 0,
+            correctKeystrokes: 0,
+            wordsCleared: 0,
+            startTime: 0,
+            endTime: 0
+        };
         
+        // Combo System
         let comboTimer = 0;
-        const maxComboTime = 90; // Frame-Zeitfenster für den nächsten Buchstaben (~1.5s)
+        const maxComboTime = 100;
 
         const baseGroundY = 380;
 
-        // Spieler-Objekt (Jetzt mit dynamischer Rotation)
         const player = {
-            x: 120, y: baseGroundY - 40,
-            width: 40, height: 40,
+            x: 120, y: baseGroundY - 40, width: 40, height: 40,
             dy: 0, jumpForce: -14.5, gravity: 0.8,
             isJumping: false, rotation: 0, trail: []
         };
 
         const obstacles = [];
         let particles = [];
+        let floatingTexts = []; // Für "+10" Popups
+        let stars = []; // Sternenhimmel
 
-        // 1. Audio Start & Wechsel zum Lock-In
-        bootBtn.addEventListener('click', () => {
-            bgMusic.volume = 0.4;
-            bgMusic.play().catch(e => console.log("Audio blockiert."));
+        // Initialisiere Sterne
+        for(let i=0; i<50; i++) {
+            stars.push({
+                x: Math.random() * canvas.width, y: Math.random() * (baseGroundY - 100),
+                size: Math.random() * 2, speed: Math.random() * 0.5 + 0.1
+            });
+        }
+
+        // --- 3. UI & State Management ---
+        document.getElementById('bootBtn').addEventListener('click', () => {
+            startMusic();
             bootScreen.style.display = 'none';
+            deathScreen.style.display = 'none';
             lockInScreen.style.display = 'block';
             gameState = 'LOCK_IN';
             updateLockInUI();
@@ -189,24 +359,27 @@
             let html = "";
             for (let i = 0; i < lockInTarget.length; i++) {
                 if (i < lockInIndex) html += `<span class="lock-typed">${lockInTarget[i].toUpperCase()}</span>`;
-                else html += `<span>${lockInTarget[i].toUpperCase()}</span>`;
+                else html += `<span style="color:#444;">${lockInTarget[i].toUpperCase()}</span>`;
             }
             lockInDisplay.innerHTML = html;
         }
 
         function initGame() {
             score = 0; gameSpeed = baseSpeed;
-            player.y = baseGroundY - player.height;
-            player.dy = 0; player.isJumping = false; player.rotation = 0; player.trail = [];
-            obstacles.length = 0; particles = []; frames = 0; lastObstacleType = '';
+            player.y = baseGroundY - player.height; player.dy = 0; 
+            player.isJumping = false; player.rotation = 0; player.trail = [];
+            obstacles.length = 0; particles = []; floatingTexts = []; frames = 0; lastObstacleType = '';
             comboTimer = 0; comboBarContainer.style.display = 'none';
+            
+            // Reset Stats
+            stats = { totalKeystrokes: 0, correctKeystrokes: 0, wordsCleared: 0, startTime: Date.now(), endTime: 0 };
             
             spawnObstacle();
             updateUI();
             
             gameState = 'PLAYING';
             overlay.style.display = 'none';
-            deathMsg.style.display = 'none';
+            deathScreen.style.display = 'none';
             gameLoop();
         }
 
@@ -218,6 +391,10 @@
                     size: Math.random() * 5 + 2, life: 1, color: color
                 });
             }
+        }
+
+        function addFloatingText(text, x, y, color) {
+            floatingTexts.push({ text: text, x: x, y: y, life: 1, color: color });
         }
 
         function spawnObstacle() {
@@ -233,15 +410,16 @@
             } else if (type === 'double_spike') {
                 obs.y = baseGroundY - 40; obs.width = 80; obs.height = 40;
             } else if (type === 'platform_lava') {
-                obs.y = baseGroundY - 110; obs.width = 180; obs.height = 20;
+                obs.y = baseGroundY - 120; obs.width = 180; obs.height = 20;
             } else if (type === 'laser_wall') {
-                obs.y = baseGroundY - 120; obs.width = 30; obs.height = 120; // Hohe Wand
+                // Hürde deutlich niedriger gemacht, damit man gut drüber kommt
+                obs.y = baseGroundY - 70; obs.width = 20; obs.height = 70; 
             }
 
             lastObstacleType = type;
             obstacles.push(obs);
             
-            let level = score < 100 ? 1 : (score < 250 ? 2 : 3);
+            let level = score < 150 ? 1 : (score < 400 ? 2 : 3);
             let wordList = level === 1 ? wordsLevel1 : (level === 2 ? wordsLevel2 : wordsLevel3);
             currentWord = wordList[Math.floor(Math.random() * wordList.length)];
             typedText = "";
@@ -259,9 +437,7 @@
         }
 
         function failWord() {
-            typedText = ""; 
-            comboTimer = 0;
-            comboBarContainer.style.display = 'none';
+            typedText = ""; comboTimer = 0; comboBarContainer.style.display = 'none';
             renderWord(true); 
             wordDisplay.classList.remove('shake-active');
             void wordDisplay.offsetWidth; 
@@ -270,35 +446,66 @@
 
         function jump() {
             if (!player.isJumping && player.dy === 0) { 
-                player.dy = player.jumpForce;
-                player.isJumping = true;
-                comboTimer = 0; 
-                comboBarContainer.style.display = 'none';
-                createParticles(player.x + player.width/2, player.y + player.height, "#0ff", 15);
+                player.dy = player.jumpForce; player.isJumping = true;
+                comboTimer = 0; comboBarContainer.style.display = 'none';
+                createParticles(player.x + player.width/2, player.y + player.height, "var(--neon-cyan)", 15);
+                stats.wordsCleared++;
+                addFloatingText("PERFECT", player.x, player.y - 20, "var(--neon-cyan)");
             }
+        }
+
+        function calculateStats() {
+            stats.endTime = Date.now();
+            let minutesAlive = (stats.endTime - stats.startTime) / 60000;
+            let accuracy = stats.totalKeystrokes > 0 ? Math.round((stats.correctKeystrokes / stats.totalKeystrokes) * 100) : 0;
+            let kpm = minutesAlive > 0 ? Math.round(stats.correctKeystrokes / minutesAlive) : 0;
+            
+            statScore.innerText = score.toString().padStart(4, '0');
+            statAcc.innerText = accuracy + "%";
+            statWords.innerText = stats.wordsCleared;
+            statKpm.innerText = kpm;
         }
 
         function gameOver(reason) {
             gameState = 'GAME_OVER';
             comboBarContainer.style.display = 'none';
-            createParticles(player.x + player.width/2, player.y + player.height/2, "#ff0055", 50);
+            createParticles(player.x + player.width/2, player.y + player.height/2, "var(--neon-pink)", 60);
             
+            // Ein tiefer, dumpfer Sound beim Crash generieren
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.frequency.setValueAtTime(100, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + 1);
+            gain.gain.setValueAtTime(1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1);
+            osc.connect(gain); gain.connect(audioMasterGain);
+            osc.start(); osc.stop(audioCtx.currentTime + 1);
+
+            calculateStats();
+
             setTimeout(() => {
                 overlay.style.display = 'flex';
                 bootScreen.style.display = 'none';
-                lockInScreen.style.display = 'block';
-                document.querySelector('#lockInScreen h2').innerText = "CRASH DETECTED";
-                document.querySelector('#lockInScreen h2').style.color = "#ff0055";
-                deathMsg.innerText = reason;
-                deathMsg.style.display = 'block';
+                lockInScreen.style.display = 'none';
+                document.getElementById('deathReason').innerText = reason;
+                deathScreen.style.display = 'flex';
                 
-                lockInIndex = 0; updateLockInUI(); gameState = 'LOCK_IN';
-            }, 1200); 
+                lockInIndex = 0; updateLockInUI();
+            }, 1000); 
         }
 
-        // Tastatur Eingaben
+        // --- 4. Input Handling ---
         document.addEventListener('keydown', (e) => {
             if (["Shift", "Control", "Alt", "CapsLock", "Tab"].includes(e.key)) return;
+            
+            // QUICK RESTART LOGIK
+            if (gameState === 'GAME_OVER' && e.key === 'Enter') {
+                deathScreen.style.display = 'none';
+                lockInScreen.style.display = 'block';
+                gameState = 'LOCK_IN';
+                return;
+            }
+
             const key = e.key.toLowerCase();
 
             if (gameState === 'LOCK_IN') {
@@ -306,42 +513,41 @@
                     lockInIndex++; updateLockInUI();
                     if (lockInIndex === lockInTarget.length) initGame();
                 } else {
-                    lockInIndex = 0; updateLockInUI(); // Ritual Fehler
+                    lockInIndex = 0; updateLockInUI(); // Striktes Ritual
                 }
                 return;
             }
 
             if (gameState !== 'PLAYING') return;
 
+            stats.totalKeystrokes++;
             const expectedChar = currentWord[typedText.length];
+            
             if (key === expectedChar) {
+                stats.correctKeystrokes++;
                 typedText += key;
                 renderWord();
                 
-                // Combo Timer: Muss flüssig tippen
                 if (typedText.length < currentWord.length) {
                     comboTimer = maxComboTime; 
                     comboBarContainer.style.display = 'block';
                 } else {
-                    jump();
-                    wordDisplay.innerHTML = ""; 
+                    jump(); wordDisplay.innerHTML = ""; 
                 }
             } else {
-                failWord(); // Falscher Buchstabe = Wort wird resettet
+                failWord(); 
             }
         });
 
+        // --- 5. Game Loop & Physics ---
         function update() {
             if (gameState !== 'PLAYING') return;
             frames++;
             
-            // Combo Timer reduzieren
             if (typedText.length > 0 && typedText.length < currentWord.length) {
                 comboTimer--;
                 comboBar.style.width = (comboTimer / maxComboTime) * 100 + "%";
-                if (comboTimer <= 0) {
-                    failWord(); // Zu lange gewartet!
-                }
+                if (comboTimer <= 0) failWord(); 
             }
 
             backgroundOffset -= gameSpeed * 0.5;
@@ -349,17 +555,21 @@
             if (backgroundOffset <= -80) backgroundOffset = 0;
             if (mountainOffset <= -800) mountainOffset = 0;
 
+            // Sterne bewegen
+            stars.forEach(s => {
+                s.x -= s.speed;
+                if(s.x < 0) { s.x = canvas.width; s.y = Math.random() * (baseGroundY - 100); }
+            });
+
             player.dy += player.gravity; player.y += player.dy;
 
-            // GEOMETRY DASH ROTATION: Nur in der Luft drehen!
+            // PHYSIK: Auf dem Boden starr, in der Luft rotieren
             if (player.isJumping || player.dy > 1) {
-                player.rotation += 0.15; // Dreht sich dynamisch in der Luft
+                player.rotation += 0.15; 
             } else {
-                // Rastet flach auf dem Boden/der Plattform ein
                 player.rotation = Math.round(player.rotation / (Math.PI/2)) * (Math.PI/2);
             }
 
-            // Trail speichern (mit Rotation!)
             player.trail.push({x: player.x, y: player.y, rot: player.rotation, life: 1});
             if (player.trail.length > 8) player.trail.shift();
 
@@ -373,13 +583,13 @@
                 if (obs.type === 'spike' || obs.type === 'double_spike') {
                     if (player.x < obs.x + obs.width - 12 && player.x + player.width - 12 > obs.x &&
                         player.y < obs.y + obs.height && player.y + player.height > obs.y + 15) {
-                        gameOver("IMPALED!");
+                        gameOver("IMPALED BY SPIKES");
                     }
                 } 
                 else if (obs.type === 'laser_wall') {
-                    if (player.x < obs.x + obs.width && player.x + player.width > obs.x &&
+                    if (player.x < obs.x + obs.width - 5 && player.x + player.width - 5 > obs.x &&
                         player.y < obs.y + obs.height && player.y + player.height > obs.y) {
-                        gameOver("ZAPPED BY LASER!");
+                        gameOver("ZAPPED BY LASER");
                     }
                 }
                 else if (obs.type === 'platform_lava') {
@@ -388,71 +598,86 @@
                     if (player.dy >= 0 && player.y + player.height >= obs.y && player.y + player.height <= obs.y + 25 &&
                         player.x + player.width > obs.x && player.x < obs.x + obs.width) {
                         currentFloorY = obs.y; player.y = currentFloorY - player.height; player.dy = 0;
-                        if(player.isJumping) { player.isJumping = false; createParticles(player.x + player.width/2, player.y + player.height, "#f0f", 10); }
+                        if(player.isJumping) { player.isJumping = false; createParticles(player.x + player.width/2, player.y + player.height, "var(--neon-purple)", 10); }
                         onLava = false; 
                     } 
                     else if (player.x + player.width > obs.x + 8 && player.x < obs.x + obs.width &&
                              player.y + player.height > obs.y + 8 && player.y < obs.y + obs.height) {
-                        gameOver("CRASHED!");
+                        gameOver("CRASHED INTO PLATFORM");
                     }
                 }
 
                 if (obs.x + obs.width < player.x && !obs.passed) {
-                    obs.passed = true; score += 10; gameSpeed += 0.05; 
+                    obs.passed = true; score += 10; gameSpeed += 0.04; 
+                    addFloatingText("+10", player.x, player.y - 40, "var(--neon-pink)");
                 }
             }
 
-            if (onLava && player.y >= baseGroundY - player.height - 5) gameOver("MELTED IN LAVA!");
+            if (onLava && player.y >= baseGroundY - player.height - 5) gameOver("INCINERATED IN LAVA");
 
             if (player.y >= baseGroundY - player.height && currentFloorY === baseGroundY && !onLava) {
                 player.y = baseGroundY - player.height; player.dy = 0;
-                if(player.isJumping) { player.isJumping = false; createParticles(player.x + player.width/2, player.y + player.height, "#0ff", 10); }
+                if(player.isJumping) { player.isJumping = false; createParticles(player.x + player.width/2, player.y + player.height, "var(--neon-cyan)", 10); }
             }
 
             if (obstacles.length > 0 && obstacles[0].x + obstacles[0].width < -150) {
                 obstacles.shift(); spawnObstacle();
             }
 
+            // Update Effects
             for (let i = particles.length - 1; i >= 0; i--) {
-                particles[i].x += particles[i].vx; particles[i].y += particles[i].vy; particles[i].life -= 0.03;
+                particles[i].x += particles[i].vx; particles[i].y += particles[i].vy; 
+                particles[i].vy += 0.5; // Gravity for particles
+                particles[i].life -= 0.03;
                 if (particles[i].life <= 0) particles.splice(i, 1);
             }
             for (let i = 0; i < player.trail.length; i++) player.trail[i].life -= 0.12;
+            for (let i = floatingTexts.length - 1; i >= 0; i--) {
+                floatingTexts[i].y -= 1; floatingTexts[i].life -= 0.02;
+                if (floatingTexts[i].life <= 0) floatingTexts.splice(i, 1);
+            }
         }
 
+        // --- 6. Rendering ---
         function drawMountains() {
-            ctx.fillStyle = "#0a0011"; ctx.beginPath(); ctx.moveTo(0, baseGroundY);
+            ctx.fillStyle = "#050011"; ctx.beginPath(); ctx.moveTo(0, baseGroundY);
             for(let i = 0; i < 20; i++) ctx.lineTo((i * 100) + mountainOffset, baseGroundY - 80 - Math.abs(Math.sin(i * 45) * 60));
             ctx.lineTo(canvas.width * 2, baseGroundY); ctx.fill();
-            ctx.strokeStyle = "#f0f"; ctx.lineWidth = 2; ctx.shadowBlur = 10; ctx.shadowColor = "#f0f";
+            ctx.strokeStyle = "var(--neon-purple)"; ctx.lineWidth = 2; ctx.shadowBlur = 10; ctx.shadowColor = "var(--neon-purple)";
             ctx.stroke(); ctx.shadowBlur = 0;
         }
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Sonne & Himmel
-            ctx.fillStyle = "#ff0055"; ctx.shadowBlur = 50; ctx.shadowColor = "#ff0055";
+            // Sterne
+            ctx.fillStyle = "#fff";
+            stars.forEach(s => { ctx.globalAlpha = Math.random() * 0.5 + 0.5; ctx.fillRect(s.x, s.y, s.size, s.size); });
+            ctx.globalAlpha = 1;
+
+            // Sonne
+            ctx.fillStyle = "var(--neon-pink)"; ctx.shadowBlur = 60; ctx.shadowColor = "var(--neon-pink)";
             ctx.beginPath(); ctx.arc(400, 250, 140, Math.PI, 0); ctx.fill(); ctx.shadowBlur = 0;
-            ctx.fillStyle = "#1a001a";
-            for(let i=0; i<6; i++) ctx.fillRect(200, 210 - (i*18), 400, i*3.5);
+            ctx.fillStyle = "#110022";
+            for(let i=0; i<7; i++) ctx.fillRect(200, 210 - (i*16), 400, i*3.5);
 
             drawMountains();
 
-            // Neon Raster
-            ctx.strokeStyle = "rgba(0, 255, 255, 0.4)"; ctx.lineWidth = 2; ctx.shadowBlur = 5; ctx.shadowColor = "#0ff";
+            // Grid
+            ctx.strokeStyle = "rgba(0, 255, 255, 0.3)"; ctx.lineWidth = 2; ctx.shadowBlur = 5; ctx.shadowColor = "var(--neon-cyan)";
             for (let i = -100; i < canvas.width + 100; i += 60) {
                 ctx.beginPath(); ctx.moveTo(i + backgroundOffset, baseGroundY);
                 ctx.lineTo((i - 400) * 2 + 400, canvas.height); ctx.stroke();
             }
-            ctx.strokeStyle = "#0ff"; ctx.lineWidth = 5; ctx.shadowBlur = 15;
+            
+            // Bodenlinie
+            ctx.strokeStyle = "var(--neon-cyan)"; ctx.lineWidth = 4; ctx.shadowBlur = 15;
             ctx.beginPath(); ctx.moveTo(0, baseGroundY); ctx.lineTo(canvas.width, baseGroundY); ctx.stroke();
             ctx.shadowBlur = 0;
 
-            // Hindernisse zeichnen
             obstacles.forEach(obs => {
                 if (obs.type === 'spike' || obs.type === 'double_spike') {
-                    ctx.shadowBlur = 20; ctx.shadowColor = "#ff0055"; ctx.fillStyle = "#ff0055";
+                    ctx.shadowBlur = 20; ctx.shadowColor = "var(--neon-pink)"; ctx.fillStyle = "var(--neon-pink)";
                     for(let i = 0; i < (obs.type === 'double_spike' ? 2 : 1); i++) {
                         let offsetX = obs.x + (i * 40);
                         ctx.beginPath(); ctx.moveTo(offsetX + 20, obs.y);
@@ -462,13 +687,13 @@
                         ctx.fillStyle = "#220011"; ctx.shadowBlur = 0;
                         ctx.beginPath(); ctx.moveTo(offsetX + 20, obs.y + 12);
                         ctx.lineTo(offsetX + 32, obs.y + obs.height - 4); ctx.lineTo(offsetX + 8, obs.y + obs.height - 4);
-                        ctx.closePath(); ctx.fill(); ctx.fillStyle = "#ff0055"; 
+                        ctx.closePath(); ctx.fill(); ctx.fillStyle = "var(--neon-pink)"; 
                     }
                 } 
                 else if (obs.type === 'laser_wall') {
-                    ctx.shadowBlur = 20; ctx.shadowColor = "#0ff"; ctx.fillStyle = "#0ff";
+                    ctx.shadowBlur = 25; ctx.shadowColor = "var(--neon-cyan)"; ctx.fillStyle = "rgba(0, 255, 255, 0.8)";
                     ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-                    ctx.fillStyle = "#fff"; ctx.fillRect(obs.x + 10, obs.y, 10, obs.height);
+                    ctx.fillStyle = "#fff"; ctx.fillRect(obs.x + 8, obs.y, 4, obs.height);
                 }
                 else if (obs.type === 'platform_lava') {
                     let lavaWave = Math.sin(frames * 0.1) * 5; 
@@ -476,47 +701,51 @@
                     ctx.fillRect(obs.x, baseGroundY - 5 + lavaWave, obs.width, 25);
                     ctx.fillStyle = "#ffaa00"; ctx.fillRect(obs.x + 10, baseGroundY + lavaWave, obs.width - 20, 10);
                     
-                    ctx.shadowBlur = 15; ctx.shadowColor = "#f0f"; ctx.fillStyle = "#f0f";
+                    ctx.shadowBlur = 15; ctx.shadowColor = "var(--neon-purple)"; ctx.fillStyle = "var(--neon-purple)";
                     ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-                    ctx.fillStyle = "#110011"; ctx.fillRect(obs.x + 4, obs.y + 4, obs.width - 8, obs.height - 8);
+                    ctx.fillStyle = "#110011"; ctx.fillRect(obs.x + 3, obs.y + 3, obs.width - 6, obs.height - 6);
                 }
                 ctx.shadowBlur = 0;
             });
 
-            // Spieler & Trail zeichnen (mit Rotation)
             if (gameState !== 'GAME_OVER') {
                 player.trail.forEach(t => {
                     if (t.life > 0) {
-                        ctx.save();
-                        ctx.translate(t.x + player.width/2, t.y + player.height/2);
-                        ctx.rotate(t.rot);
+                        ctx.save(); ctx.translate(t.x + player.width/2, t.y + player.height/2); ctx.rotate(t.rot);
                         ctx.fillStyle = `rgba(0, 255, 255, ${t.life * 0.3})`;
-                        ctx.fillRect(-player.width/2, -player.height/2, player.width, player.height);
-                        ctx.restore();
+                        ctx.fillRect(-player.width/2, -player.height/2, player.width, player.height); ctx.restore();
                     }
                 });
 
-                ctx.save();
-                ctx.translate(player.x + player.width/2, player.y + player.height/2);
-                ctx.rotate(player.rotation);
-                ctx.fillStyle = "#0ff"; ctx.shadowBlur = 25; ctx.shadowColor = "#0ff";
+                ctx.save(); ctx.translate(player.x + player.width/2, player.y + player.height/2); ctx.rotate(player.rotation);
+                ctx.fillStyle = "var(--neon-cyan)"; ctx.shadowBlur = 25; ctx.shadowColor = "var(--neon-cyan)";
                 ctx.fillRect(-player.width/2, -player.height/2, player.width, player.height);
-                ctx.fillStyle = "#000"; ctx.fillRect(-10, -10, 20, 20); // Inneres Quadrat
+                ctx.fillStyle = "#000"; ctx.fillRect(-12, -12, 24, 24); 
+                ctx.fillStyle = "var(--neon-pink)"; ctx.fillRect(-4, -4, 8, 8); // Core
                 ctx.restore();
             }
 
-            // Partikel
             particles.forEach(p => {
                 ctx.fillStyle = p.color; ctx.globalAlpha = p.life;
                 ctx.shadowBlur = 15; ctx.shadowColor = p.color;
                 ctx.fillRect(p.x, p.y, p.size, p.size);
             });
+            
+            ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+            
+            // Floating Texts (+10)
+            ctx.font = "24px VT323"; ctx.textAlign = "center";
+            floatingTexts.forEach(ft => {
+                ctx.fillStyle = ft.color; ctx.globalAlpha = ft.life;
+                ctx.shadowBlur = 10; ctx.shadowColor = ft.color;
+                ctx.fillText(ft.text, ft.x + 20, ft.y);
+            });
             ctx.globalAlpha = 1; ctx.shadowBlur = 0;
         }
 
         function updateUI() {
-            document.getElementById('scoreDisplay').innerText = "SCORE: " + score;
-            document.getElementById('levelDisplay').innerText = "SPEED: " + (gameSpeed / baseSpeed).toFixed(1) + "x";
+            document.getElementById('scoreDisplay').innerText = "SCORE: " + score.toString().padStart(4, '0');
+            document.getElementById('speedDisplay').innerText = "SPD: " + (gameSpeed / baseSpeed).toFixed(1) + "x";
         }
 
         function gameLoop() {
@@ -527,7 +756,7 @@
             }
         }
 
-        draw(); // Zeichnet initial den Startbildschirm
+        draw(); 
     </script>
 </body>
 </html>
