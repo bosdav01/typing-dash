@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retro Type Dash - Synthwave Edition</title>
+    <title>Retro Type Dash - Pro Edition</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 
@@ -19,17 +19,28 @@
             justify-content: center;
             height: 100vh;
             overflow: hidden;
+            user-select: none;
         }
 
         /* Scanline CRT Effect */
         body::after {
-            content: " ";
-            display: block;
+            content: "";
             position: absolute;
             top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            z-index: 2;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 100;
             background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        /* Vignette für mehr Tiefe */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: radial-gradient(circle, rgba(0,0,0,0) 50%, rgba(0,0,0,0.8) 100%);
+            z-index: 99;
             pointer-events: none;
         }
 
@@ -37,10 +48,10 @@
             position: relative;
             width: 800px;
             height: 450px;
-            background: linear-gradient(180deg, #200122 0%, #000000 100%);
-            border: 4px solid #f0f;
-            border-radius: 10px;
-            box-shadow: 0 0 30px #f0f, inset 0 0 20px #0ff;
+            background: linear-gradient(180deg, #1a001a 0%, #000000 100%);
+            border: 4px solid #0ff;
+            border-radius: 8px;
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.5), inset 0 0 30px rgba(255, 0, 255, 0.3);
             overflow: hidden;
             z-index: 10;
         }
@@ -54,91 +65,96 @@
             right: 20px;
             display: flex;
             justify-content: space-between;
-            font-size: 28px;
+            font-size: 32px;
             z-index: 10;
-            color: #0ff;
-            text-shadow: 0 0 10px #0ff;
+            color: #f0f;
+            text-shadow: 0 0 10px #f0f;
         }
 
         #wordDisplay {
             position: absolute;
-            top: 100px;
+            top: 90px;
             width: 100%;
             text-align: center;
-            font-size: 60px;
-            letter-spacing: 8px;
+            font-size: 65px;
+            letter-spacing: 10px;
             z-index: 10;
-            text-shadow: 0 0 15px rgba(0,0,0,0.8);
-            transition: transform 0.1s;
+            text-shadow: 0 5px 15px rgba(0,0,0,0.9);
+            transition: transform 0.05s;
         }
 
-        .typed { color: #f0f; text-shadow: 0 0 20px #f0f; }
-        .untyped { color: #fff; text-shadow: 0 0 10px #fff; }
-        .error { color: #ff0000; text-shadow: 0 0 20px #ff0000; }
+        .typed { color: #0ff; text-shadow: 0 0 20px #0ff, 0 0 40px #0ff; }
+        .untyped { color: #e0e0e0; text-shadow: 0 0 5px #fff; }
+        .error { color: #ff0055; text-shadow: 0 0 20px #ff0055; }
 
         @keyframes shake {
-            0% { transform: translateX(0); }
+            0% { transform: translateX(0); color: #ff0055; }
             25% { transform: translateX(-15px); }
             50% { transform: translateX(15px); }
             75% { transform: translateX(-15px); }
-            100% { transform: translateX(0); }
+            100% { transform: translateX(0); color: #fff; }
         }
-        .shake-active { animation: shake 0.2s; }
+        .shake-active { animation: shake 0.25s; }
 
         #overlay {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.85);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 20;
+            z-index: 50;
         }
 
         h1 {
             color: #f0f;
-            font-size: 40px;
-            text-shadow: 0 0 20px #f0f, 0 0 40px #0ff;
+            font-size: 45px;
+            text-shadow: 0 0 20px #f0f, 0 0 40px #f0f;
             margin-bottom: 5px;
-            text-transform: uppercase;
+            letter-spacing: 4px;
         }
 
         #overlayTitle {
-            font-size: 60px;
+            font-size: 70px;
             color: #0ff;
-            text-shadow: 0 0 20px #0ff;
+            text-shadow: 0 0 25px #0ff;
             margin-bottom: 10px;
+            letter-spacing: 5px;
         }
 
         #lockInDisplay {
-            font-size: 50px;
+            font-size: 55px;
             letter-spacing: 15px;
-            margin-top: 20px;
-            color: #444;
+            margin-top: 25px;
+            color: #333;
+            background: rgba(0,0,0,0.5);
+            padding: 10px 30px;
+            border-radius: 10px;
+            border: 2px solid #222;
         }
-        .lock-typed { color: #0ff; text-shadow: 0 0 20px #0ff; }
+        .lock-typed { color: #0ff; text-shadow: 0 0 25px #0ff; }
 
     </style>
 </head>
 <body>
 
     <h1 style="z-index: 10;">SYNTHWAVE TYPE DASH</h1>
-    <p style="color: #0ff; margin-bottom: 20px; z-index: 10; font-size: 20px;">Weiche Lava und Stacheln aus. Falsche Tasten wackeln nur.</p>
+    <p style="color: #0ff; margin-bottom: 20px; z-index: 10; font-size: 22px; text-shadow: 0 0 10px #0ff;">Musik an! Weiche den Hindernissen aus.</p>
 
     <div id="gameContainer">
         <div id="ui">
             <span id="scoreDisplay">SCORE: 0</span>
-            <span id="levelDisplay">LEVEL: 1</span>
+            <span id="levelDisplay">SPEED: 1.0x</span>
         </div>
         <div id="wordDisplay"></div>
         <canvas id="gameCanvas" width="800" height="450"></canvas>
         
         <div id="overlay">
-            <h2 id="overlayTitle">PLAYER LOCK-IN</h2>
-            <p id="overlayText" style="color: #fff; font-size: 24px;">Tippe die Grundreihe von links nach rechts, um zu starten:</p>
+            <h2 id="overlayTitle">SYSTEM BOOT</h2>
+            <p style="color: #fff; font-size: 26px;">Aktiviere die Grundreihe (links nach rechts):</p>
             <div id="lockInDisplay">ASDFGHJKLÖ</div>
-            <p id="deathMsg" style="color: #ff0000; font-size: 30px; margin-top: 20px; text-shadow: 0 0 10px #ff0000; display: none;"></p>
+            <p id="deathMsg" style="color: #ff0055; font-size: 35px; margin-top: 25px; text-shadow: 0 0 15px #ff0055; display: none;"></p>
         </div>
     </div>
 
@@ -156,34 +172,38 @@
         const deathMsg = document.getElementById('deathMsg');
         const bgMusic = document.getElementById('bgMusic');
 
-        // Erweiterter Wortschatz (Nur Grundreihe)
+        // Wörter (Grundreihe)
         const wordsLevel1 = ["a", "s", "d", "f", "g", "h", "j", "k", "l", "ö"];
         const wordsLevel2 = ["as", "df", "gh", "jk", "lö", "sa", "fd", "hj", "kl", "da", "la", "ha"];
         const wordsLevel3 = ["das", "fad", "lass", "fall", "saal", "hall", "kahl", "als", "lag", "fass", "glas", "schlag"];
 
         const lockInTarget = "asdfghjklö";
         let lockInIndex = 0;
-        let gameState = 'LOCK_IN'; // 'LOCK_IN', 'PLAYING', 'GAME_OVER'
+        let gameState = 'LOCK_IN'; 
 
         let score = 0;
-        let level = 1;
-        let gameSpeed = 5;
+        let gameSpeed = 5.5;
+        let baseSpeed = 5.5;
         let backgroundOffset = 0;
+        let mountainOffset = 0;
+        let frames = 0;
+        
         let currentWord = "";
         let typedText = "";
+        let lastObstacleType = '';
         
         const baseGroundY = 380;
 
         const player = {
-            x: 100, y: baseGroundY - 40,
+            x: 120, y: baseGroundY - 40,
             width: 40, height: 40,
-            dy: 0, jumpForce: -14, gravity: 0.8,
-            isJumping: false, rotation: 0
+            dy: 0, jumpForce: -14.5, gravity: 0.8,
+            isJumping: false, rotation: 0,
+            trail: [] // Für den Leuchteffekt hinter dem Spieler
         };
 
         const obstacles = [];
         let particles = [];
-        let frames = 0;
 
         function updateLockInUI() {
             let html = "";
@@ -195,13 +215,13 @@
         }
 
         function initGame() {
-            score = 0; level = 1; gameSpeed = 5;
+            score = 0; gameSpeed = baseSpeed;
             player.y = baseGroundY - player.height;
-            player.dy = 0; player.isJumping = false; player.rotation = 0;
-            obstacles.length = 0; particles = []; frames = 0;
+            player.dy = 0; player.isJumping = false; player.rotation = 0; player.trail = [];
+            obstacles.length = 0; particles = []; frames = 0; lastObstacleType = '';
             
-            bgMusic.volume = 0.3;
-            bgMusic.play().catch(e => console.log("Audio needs user interaction"));
+            bgMusic.volume = 0.4;
+            bgMusic.play().catch(e => console.log("Audio braucht User-Klick"));
 
             spawnObstacle();
             updateUI();
@@ -212,35 +232,40 @@
             gameLoop();
         }
 
-        function createParticles(x, y, color, count = 15) {
+        function createParticles(x, y, color, count = 20) {
             for (let i = 0; i < count; i++) {
                 particles.push({
                     x: x, y: y,
-                    vx: (Math.random() - 0.5) * 12,
-                    vy: (Math.random() - 1) * 12,
-                    size: Math.random() * 6 + 2,
+                    vx: (Math.random() - 0.5) * 15,
+                    vy: (Math.random() - 1) * 15,
+                    size: Math.random() * 5 + 2,
                     life: 1, color: color
                 });
             }
         }
 
         function spawnObstacle() {
-            let type = Math.random();
             let obs = { x: canvas.width, passed: false };
+            
+            // Verhindern, dass immer das Gleiche kommt
+            let isSpike = Math.random() < 0.5;
+            if (lastObstacleType === 'spike' && Math.random() < 0.7) isSpike = false;
+            if (lastObstacleType === 'platform' && Math.random() < 0.7) isSpike = true;
 
-            if (type < 0.4) {
-                // Nur Stachel
+            if (isSpike) {
                 obs.type = 'spike';
                 obs.y = baseGroundY - 40;
                 obs.width = 40; obs.height = 40;
+                lastObstacleType = 'spike';
             } else {
-                // Plattform MIT Lava darunter! (Man MUSS springen)
                 obs.type = 'platform_lava';
-                obs.y = baseGroundY - 100; // Hoch in der Luft
-                obs.width = 200; obs.height = 20;
+                obs.y = baseGroundY - 110; // Hoch in der Luft
+                obs.width = 180; obs.height = 20;
+                lastObstacleType = 'platform';
             }
             obstacles.push(obs);
             
+            let level = score < 100 ? 1 : (score < 250 ? 2 : 3);
             let wordList = level === 1 ? wordsLevel1 : (level === 2 ? wordsLevel2 : wordsLevel3);
             currentWord = wordList[Math.floor(Math.random() * wordList.length)];
             typedText = "";
@@ -258,35 +283,34 @@
         }
 
         function jump() {
-            if (!player.isJumping) {
+            if (!player.isJumping && player.dy === 0) { // Darf nur springen, wenn er auf Boden/Plattform steht
                 player.dy = player.jumpForce;
                 player.isJumping = true;
-                createParticles(player.x + player.width/2, player.y + player.height, "#0ff");
+                createParticles(player.x + player.width/2, player.y + player.height, "#0ff", 15);
             }
         }
 
         function gameOver(reason) {
             gameState = 'GAME_OVER';
             bgMusic.pause();
-            createParticles(player.x + player.width/2, player.y + player.height/2, "#ff0000", 40);
+            createParticles(player.x + player.width/2, player.y + player.height/2, "#ff0055", 50);
             
             setTimeout(() => {
                 overlay.style.display = 'flex';
-                overlayTitle.innerText = "SYSTEM FAILURE";
-                overlayTitle.style.color = "#ff0000";
-                overlayTitle.style.textShadow = "0 0 20px #ff0000";
+                overlayTitle.innerText = "CRASH DETECTED";
+                overlayTitle.style.color = "#ff0055";
+                overlayTitle.style.textShadow = "0 0 20px #ff0055";
                 deathMsg.innerText = reason;
                 deathMsg.style.display = 'block';
                 
-                // Reset Lock-in for retry
                 lockInIndex = 0;
                 updateLockInUI();
                 gameState = 'LOCK_IN';
-            }, 1000); // 1 Sekunde Verzögerung für die Explosion
+            }, 1200); 
         }
 
         document.addEventListener('keydown', (e) => {
-            if (["Shift", "Control", "Alt", "CapsLock"].includes(e.key)) return;
+            if (["Shift", "Control", "Alt", "CapsLock", "Tab"].includes(e.key)) return;
             const key = e.key.toLowerCase();
 
             if (gameState === 'LOCK_IN') {
@@ -295,7 +319,7 @@
                     updateLockInUI();
                     if (lockInIndex === lockInTarget.length) initGame();
                 } else {
-                    lockInIndex = 0; // Fehler = Von vorne anfangen (Striktes Ritual)
+                    lockInIndex = 0; // Ritual muss fehlerfrei sein
                     updateLockInUI();
                 }
                 return;
@@ -314,7 +338,7 @@
             } else {
                 renderWord(true); 
                 wordDisplay.classList.remove('shake-active');
-                void wordDisplay.offsetWidth; 
+                void wordDisplay.offsetWidth; // Reset Animation
                 wordDisplay.classList.add('shake-active');
             }
         });
@@ -322,89 +346,125 @@
         function update() {
             if (gameState !== 'PLAYING') return;
             frames++;
-            backgroundOffset -= gameSpeed * 0.4;
-            if (backgroundOffset <= -40) backgroundOffset = 0;
+            
+            // Parallax Scrolling
+            backgroundOffset -= gameSpeed * 0.5;
+            mountainOffset -= gameSpeed * 0.15; // Berge bewegen sich langsamer
+            if (backgroundOffset <= -80) backgroundOffset = 0;
+            if (mountainOffset <= -800) mountainOffset = 0;
 
+            // Player Physik
             player.dy += player.gravity;
             player.y += player.dy;
 
-            if (player.isJumping) player.rotation += 0.15;
+            // Rotation
+            if (player.isJumping || player.dy > 0) player.rotation += 0.18;
             else player.rotation = Math.round(player.rotation / (Math.PI/2)) * (Math.PI/2);
+
+            // Trail speichern
+            player.trail.push({x: player.x, y: player.y, rot: player.rotation, life: 1});
+            if (player.trail.length > 10) player.trail.shift();
 
             let currentFloorY = baseGroundY;
             let onLava = false;
 
+            // Hindernisse & Kollision
             for (let i = 0; i < obstacles.length; i++) {
                 let obs = obstacles[i];
                 obs.x -= gameSpeed;
 
                 if (obs.type === 'spike') {
-                    if (player.x < obs.x + obs.width - 10 && player.x + player.width - 10 > obs.x &&
-                        player.y < obs.y + obs.height && player.y + player.height > obs.y + 10) {
-                        gameOver("IMPALED BY SPIKE!");
+                    // Stachel Kollision (Dreieck Hitbox leicht verkleinert für Fairness)
+                    if (player.x < obs.x + obs.width - 12 && player.x + player.width - 12 > obs.x &&
+                        player.y < obs.y + obs.height && player.y + player.height > obs.y + 15) {
+                        gameOver("IMPALED!");
                     }
                 } 
                 else if (obs.type === 'platform_lava') {
-                    // Check Lava (Boden unter der Plattform)
-                    if (player.x + player.width/2 > obs.x && player.x + player.width/2 < obs.x + obs.width) {
-                        onLava = true; // Spieler ist in der X-Zone der Lava
+                    // Befindet sich Spieler über der Lava?
+                    if (player.x + player.width > obs.x + 10 && player.x < obs.x + obs.width - 10) {
+                        onLava = true; 
                     }
 
-                    // Check Plattform Landung
-                    if (player.dy > 0 && player.y + player.height >= obs.y && player.y + player.height <= obs.y + 25 &&
+                    // Landung auf der Plattform (von oben kommend)
+                    if (player.dy >= 0 && player.y + player.height >= obs.y && player.y + player.height <= obs.y + 25 &&
                         player.x + player.width > obs.x && player.x < obs.x + obs.width) {
                         currentFloorY = obs.y;
                         player.y = currentFloorY - player.height;
                         player.dy = 0;
                         if(player.isJumping) {
                             player.isJumping = false;
-                            createParticles(player.x + player.width/2, player.y + player.height, "#f0f");
+                            createParticles(player.x + player.width/2, player.y + player.height, "#f0f", 10);
                         }
                         onLava = false; // Sicher auf Plattform
                     } 
-                    // Gegen Plattform-Wand krachen
-                    else if (player.x + player.width > obs.x + 5 && player.x < obs.x + obs.width &&
-                             player.y + player.height > obs.y + 5 && player.y < obs.y + obs.height) {
-                        gameOver("CRASHED INTO PLATFORM!");
+                    // Frontaler Crash in die Plattform-Wand
+                    else if (player.x + player.width > obs.x + 8 && player.x < obs.x + obs.width &&
+                             player.y + player.height > obs.y + 8 && player.y < obs.y + obs.height) {
+                        gameOver("CRASHED!");
                     }
                 }
 
+                // Punkte vergeben
                 if (obs.x + obs.width < player.x && !obs.passed) {
                     obs.passed = true;
                     score += 10;
-                    gameSpeed += 0.05;
-                    if (score === 80) level = 2;
-                    if (score === 200) level = 3;
+                    gameSpeed += 0.05; // Wird immer schneller
                 }
             }
 
-            // Lava Tod
+            // In Lava gefallen
             if (onLava && player.y >= baseGroundY - player.height - 5) {
-                gameOver("BURNED IN LAVA!");
+                gameOver("MELTED IN LAVA!");
             }
 
-            // Normaler Boden
+            // Normaler Boden Fallback
             if (player.y >= baseGroundY - player.height && currentFloorY === baseGroundY && !onLava) {
                 player.y = baseGroundY - player.height;
                 player.dy = 0;
                 if(player.isJumping) {
                     player.isJumping = false;
-                    createParticles(player.x + player.width/2, player.y + player.height, "#0ff");
+                    createParticles(player.x + player.width/2, player.y + player.height, "#0ff", 10);
                 }
             }
 
             // Array aufräumen
-            if (obstacles.length > 0 && obstacles[0].x + obstacles[0].width < -100) {
+            if (obstacles.length > 0 && obstacles[0].x + obstacles[0].width < -150) {
                 obstacles.shift();
                 spawnObstacle();
             }
 
-            // Partikel updaten
+            // Partikel & Trail updaten
             for (let i = particles.length - 1; i >= 0; i--) {
-                let p = particles[i];
-                p.x += p.vx; p.y += p.vy; p.life -= 0.04;
-                if (p.life <= 0) particles.splice(i, 1);
+                particles[i].x += particles[i].vx; 
+                particles[i].y += particles[i].vy; 
+                particles[i].life -= 0.03;
+                if (particles[i].life <= 0) particles.splice(i, 1);
             }
+            for (let i = 0; i < player.trail.length; i++) {
+                player.trail[i].life -= 0.1;
+            }
+        }
+
+        // --- Zeichen-Funktionen (Visuals) ---
+
+        function drawMountains() {
+            ctx.fillStyle = "#0a0011";
+            ctx.beginPath();
+            ctx.moveTo(0, baseGroundY);
+            // Generiere eine Berglandschaft, die sich mit mountainOffset verschiebt
+            for(let i = 0; i < 20; i++) {
+                ctx.lineTo((i * 100) + mountainOffset, baseGroundY - 80 - Math.abs(Math.sin(i * 45) * 60));
+            }
+            ctx.lineTo(canvas.width * 2, baseGroundY);
+            ctx.fill();
+            
+            // Berg-Neon-Kontur
+            ctx.strokeStyle = "#f0f";
+            ctx.lineWidth = 2;
+            ctx.shadowBlur = 10; ctx.shadowColor = "#f0f";
+            ctx.stroke();
+            ctx.shadowBlur = 0;
         }
 
         function draw() {
@@ -412,83 +472,114 @@
 
             // Retro Sun Background
             ctx.fillStyle = "#ff0055";
+            ctx.shadowBlur = 50; ctx.shadowColor = "#ff0055";
             ctx.beginPath();
-            ctx.arc(400, 250, 150, Math.PI, 0);
+            ctx.arc(400, 250, 140, Math.PI, 0);
             ctx.fill();
-            // Sun stripes
-            ctx.fillStyle = "#200122";
-            for(let i=0; i<5; i++) {
-                ctx.fillRect(200, 200 - (i*20), 400, i*3);
+            ctx.shadowBlur = 0;
+            
+            // Sun Stripes (Retro Effekt)
+            ctx.fillStyle = "#1a001a";
+            for(let i=0; i<6; i++) {
+                ctx.fillRect(200, 210 - (i*18), 400, i*3.5);
             }
 
-            // Neon Grid Floor
-            ctx.strokeStyle = "#f0f";
+            drawMountains();
+
+            // Neon Grid Floor (Perspektivisch)
+            ctx.strokeStyle = "rgba(0, 255, 255, 0.4)";
             ctx.lineWidth = 2;
-            ctx.shadowBlur = 10; ctx.shadowColor = "#f0f";
-            for (let i = 0; i < canvas.width; i += 40) {
+            ctx.shadowBlur = 5; ctx.shadowColor = "#0ff";
+            for (let i = -100; i < canvas.width + 100; i += 60) {
                 ctx.beginPath();
                 ctx.moveTo(i + backgroundOffset, baseGroundY);
-                ctx.lineTo(i + backgroundOffset - 150, canvas.height); // Perspektive
+                ctx.lineTo((i - 400) * 2 + 400, canvas.height); 
                 ctx.stroke();
             }
             
             // Bodenlinie
-            ctx.strokeStyle = "#0ff"; ctx.shadowColor = "#0ff"; ctx.lineWidth = 4;
+            ctx.strokeStyle = "#0ff"; ctx.lineWidth = 5; ctx.shadowBlur = 15;
             ctx.beginPath(); ctx.moveTo(0, baseGroundY); ctx.lineTo(canvas.width, baseGroundY); ctx.stroke();
             ctx.shadowBlur = 0;
 
             // Hindernisse zeichnen
             obstacles.forEach(obs => {
                 if (obs.type === 'spike') {
-                    ctx.shadowBlur = 15; ctx.shadowColor = "#ff0000"; ctx.fillStyle = "#ff0000";
+                    // Stachel zeichnen
+                    ctx.shadowBlur = 20; ctx.shadowColor = "#ff0055"; 
+                    ctx.fillStyle = "#ff0055";
                     ctx.beginPath();
                     ctx.moveTo(obs.x + obs.width / 2, obs.y);
                     ctx.lineTo(obs.x + obs.width, obs.y + obs.height);
                     ctx.lineTo(obs.x, obs.y + obs.height);
                     ctx.closePath(); ctx.fill();
+                    
+                    // Inneres Dreieck
+                    ctx.fillStyle = "#220011"; ctx.shadowBlur = 0;
+                    ctx.beginPath();
+                    ctx.moveTo(obs.x + obs.width / 2, obs.y + 12);
+                    ctx.lineTo(obs.x + obs.width - 8, obs.y + obs.height - 4);
+                    ctx.lineTo(obs.x + 8, obs.y + obs.height - 4);
+                    ctx.closePath(); ctx.fill();
                 } 
                 else if (obs.type === 'platform_lava') {
-                    // Lava auf dem Boden zeichnen
-                    ctx.fillStyle = (frames % 20 < 10) ? "#ff3300" : "#ff0000"; // Animierte Lava
-                    ctx.shadowBlur = 20; ctx.shadowColor = "#ff0000";
-                    ctx.fillRect(obs.x, baseGroundY, obs.width, 20);
+                    // Animierte Lava auf dem Boden zeichnen
+                    let lavaWave = Math.sin(frames * 0.1) * 5; // Sinus-Welle für Blubbern
+                    ctx.fillStyle = "#ff3300";
+                    ctx.shadowBlur = 25; ctx.shadowColor = "#ff0000";
+                    ctx.fillRect(obs.x, baseGroundY - 5 + lavaWave, obs.width, 25);
+                    ctx.fillStyle = "#ffaa00"; // Hellerer Lava-Kern
+                    ctx.fillRect(obs.x + 10, baseGroundY + lavaWave, obs.width - 20, 10);
                     
                     // Schwebende Plattform zeichnen
                     ctx.shadowBlur = 15; ctx.shadowColor = "#f0f";
                     ctx.fillStyle = "#f0f";
                     ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-                    ctx.fillStyle = "#111";
-                    ctx.fillRect(obs.x + 3, obs.y + 3, obs.width - 6, obs.height - 6);
+                    ctx.fillStyle = "#110011";
+                    ctx.fillRect(obs.x + 4, obs.y + 4, obs.width - 8, obs.height - 8);
                 }
                 ctx.shadowBlur = 0;
             });
 
-            // Partikel
-            particles.forEach(p => {
-                ctx.fillStyle = p.color;
-                ctx.globalAlpha = p.life;
-                ctx.shadowBlur = 10; ctx.shadowColor = p.color;
-                ctx.fillRect(p.x, p.y, p.size, p.size);
-            });
-            ctx.globalAlpha = 1; ctx.shadowBlur = 0;
-
-            // Spieler zeichnen
+            // Spieler Trail zeichnen
             if (gameState !== 'GAME_OVER') {
+                player.trail.forEach(t => {
+                    if (t.life > 0) {
+                        ctx.save();
+                        ctx.translate(t.x + player.width/2, t.y + player.height/2);
+                        ctx.rotate(t.rot);
+                        ctx.fillStyle = `rgba(0, 255, 255, ${t.life * 0.3})`;
+                        ctx.fillRect(-player.width/2, -player.height/2, player.width, player.height);
+                        ctx.restore();
+                    }
+                });
+
+                // Spieler selbst zeichnen
                 ctx.save();
                 ctx.translate(player.x + player.width/2, player.y + player.height/2);
                 ctx.rotate(player.rotation);
                 ctx.fillStyle = "#0ff";
-                ctx.shadowBlur = 20; ctx.shadowColor = "#0ff";
+                ctx.shadowBlur = 25; ctx.shadowColor = "#0ff";
                 ctx.fillRect(-player.width/2, -player.height/2, player.width, player.height);
                 ctx.fillStyle = "#000";
                 ctx.fillRect(-player.width/4, -player.height/4, player.width/2, player.height/2);
                 ctx.restore();
             }
+
+            // Partikel zeichnen
+            particles.forEach(p => {
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.life;
+                ctx.shadowBlur = 15; ctx.shadowColor = p.color;
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+            });
+            ctx.globalAlpha = 1; ctx.shadowBlur = 0;
         }
 
         function updateUI() {
             document.getElementById('scoreDisplay').innerText = "SCORE: " + score;
-            document.getElementById('levelDisplay').innerText = "LEVEL: " + level;
+            // Zeige den aktuellen Speed-Multiplikator an
+            document.getElementById('levelDisplay').innerText = "SPEED: " + (gameSpeed / baseSpeed).toFixed(1) + "x";
         }
 
         function gameLoop() {
@@ -500,9 +591,9 @@
             }
         }
 
-        // Startbildschirm initialisieren
+        // Initiales Setup
         updateLockInUI();
-        draw(); // Zeichnet Hintergrund 1x
+        draw(); 
     </script>
 </body>
 </html>
