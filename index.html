@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retro Type Dash - Ultimate Edition</title>
+    <title>Retro Type Dash - Ultimate Edition V2</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 
@@ -107,15 +107,18 @@
         }
         button.bootBtn:hover { background: var(--neon-pink); color: #000; box-shadow: 0 0 40px var(--neon-pink); transform: scale(1.05); }
 
-        /* Stats Screen Styles */
+        /* Stats Screen Styles - Erweitert auf 6 Boxen */
         .stats-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;
             background: rgba(0,255,255,0.05); border: 1px solid var(--neon-cyan);
-            padding: 20px; border-radius: 8px; margin-top: 20px; width: 80%;
+            padding: 25px; border-radius: 8px; margin-top: 20px; width: 90%;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
         }
-        .stat-box { text-align: center; }
-        .stat-label { color: #888; font-size: 24px; text-transform: uppercase; }
-        .stat-value { color: #fff; font-size: 40px; text-shadow: 0 0 10px var(--neon-purple); }
+        .stat-box { text-align: center; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 5px; border: 1px solid #333;}
+        .stat-label { color: #888; font-size: 22px; text-transform: uppercase; }
+        .stat-value { color: #fff; font-size: 38px; text-shadow: 0 0 10px var(--neon-purple); }
+        .stat-value.bad { color: var(--neon-pink); text-shadow: 0 0 10px var(--neon-pink); }
+        
         .blinking-text { animation: blinker 1.5s linear infinite; color: var(--neon-cyan); font-size: 28px; margin-top: 30px; text-shadow: 0 0 10px var(--neon-cyan);}
         @keyframes blinker { 50% { opacity: 0; } }
 
@@ -124,7 +127,7 @@
 <body>
 
     <h1>SYNTHWAVE TYPE DASH</h1>
-    <p style="color: var(--neon-cyan); margin-bottom: 20px; z-index: 10; font-size: 22px;">Bleib im Flow. Ein Tippfehler oder Zögern resettet die Combo.</p>
+    <p style="color: var(--neon-cyan); margin-bottom: 20px; z-index: 10; font-size: 22px;">Ein Tippfehler oder langes Zögern bricht die Combo ab!</p>
 
     <div id="gameWrapper">
         <div id="gameContainer">
@@ -150,8 +153,8 @@
                 </div>
 
                 <div id="deathScreen" style="display: none; text-align: center; width: 100%; display: flex; flex-direction: column; align-items: center;">
-                    <h2 class="bigTitle" style="color: var(--neon-pink); text-shadow: 0 0 25px var(--neon-pink);">SIGNAL LOST</h2>
-                    <p id="deathReason" style="color: #fff; font-size: 32px;"></p>
+                    <h2 class="bigTitle" style="color: var(--neon-pink); text-shadow: 0 0 25px var(--neon-pink); margin-top: 20px;">SIGNAL LOST</h2>
+                    <p id="deathReason" style="color: #fff; font-size: 32px; margin-top: 0;"></p>
                     
                     <div class="stats-grid">
                         <div class="stat-box">
@@ -163,12 +166,20 @@
                             <div class="stat-value" id="statAcc">0%</div>
                         </div>
                         <div class="stat-box">
+                            <div class="stat-label">Speed (KPM)</div>
+                            <div class="stat-value" id="statKpm">0</div>
+                        </div>
+                        <div class="stat-box">
                             <div class="stat-label">Words Cleared</div>
                             <div class="stat-value" id="statWords">0</div>
                         </div>
                         <div class="stat-box">
-                            <div class="stat-label">Speed (KPM)</div>
-                            <div class="stat-value" id="statKpm">0</div>
+                            <div class="stat-label">Errors Made</div>
+                            <div class="stat-value bad" id="statErrors">0</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Top Speed</div>
+                            <div class="stat-value" id="statMaxSpd">1.0x</div>
                         </div>
                     </div>
                     
@@ -179,11 +190,10 @@
     </div>
 
     <script>
-        // --- 1. Audio Engine (Web Audio API Synthesizer) ---
-        // Generiert Musik in Echtzeit, komplett ohne externe Dateien!
+        // --- 1. Audio Engine (Eingebauter Synthesizer) ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         let audioMasterGain = audioCtx.createGain();
-        audioMasterGain.gain.value = 0.3; // Globale Lautstärke
+        audioMasterGain.gain.value = 0.3; 
         audioMasterGain.connect(audioCtx.destination);
         
         let isPlayingMusic = false;
@@ -194,7 +204,7 @@
         const scheduleAheadTime = 0.1; 
         let timerID;
 
-        // Bassline Noten (Frequenzen) für einen Synthwave-Vibe
+        // Synthwave Bassline
         const notes = [
             41.20, 41.20, 41.20, 41.20, // E1
             49.00, 49.00,               // G1
@@ -248,14 +258,11 @@
 
         function scheduler() {
             while (nextNoteTime < audioCtx.currentTime + scheduleAheadTime) {
-                // Kick auf jeden 4. Schlag (4-on-the-floor)
                 if (current16thNote % 4 === 0) playKick(nextNoteTime);
-                // Hi-Hat auf die Offbeats
                 if (current16thNote % 2 !== 0) playHiHat(nextNoteTime);
-                // Bassline durchgehend
                 playBass(nextNoteTime, current16thNote);
                 
-                nextNoteTime += 0.25 * (60.0 / tempo); // 16tel Note Dauer
+                nextNoteTime += 0.25 * (60.0 / tempo); 
                 current16thNote++;
                 if (current16thNote === 16) current16thNote = 0;
             }
@@ -283,7 +290,6 @@
         const comboBarContainer = document.getElementById('comboBarContainer');
         const comboBar = document.getElementById('comboBar');
         
-        // Screens
         const overlay = document.getElementById('overlay');
         const bootScreen = document.getElementById('bootScreen');
         const lockInScreen = document.getElementById('lockInScreen');
@@ -295,9 +301,10 @@
         const statAcc = document.getElementById('statAcc');
         const statWords = document.getElementById('statWords');
         const statKpm = document.getElementById('statKpm');
-        const restartPrompt = document.getElementById('restartPrompt');
+        const statErrors = document.getElementById('statErrors');
+        const statMaxSpd = document.getElementById('statMaxSpd');
 
-        // Lexikon (Nur Grundreihe)
+        // Lexikon
         const wordsLevel1 = ["a", "s", "d", "f", "g", "h", "j", "k", "l", "ö"];
         const wordsLevel2 = ["as", "df", "gh", "jk", "lö", "sa", "fd", "hj", "kl", "da", "la", "ha"];
         const wordsLevel3 = ["das", "fad", "lass", "fall", "saal", "hall", "kahl", "als", "lag", "fass", "glas", "schlag"];
@@ -306,21 +313,23 @@
         let lockInIndex = 0;
         let gameState = 'BOOT'; 
 
-        // Core Game State
-        let score = 0; let gameSpeed = 5.5; let baseSpeed = 5.5;
+        // Core Game State (Expliziter Reset-Fokus)
+        let score = 0; 
+        const baseSpeed = 5.0; // Etwas langsamerer Einstieg für Fairness
+        let gameSpeed = baseSpeed; 
+        
         let backgroundOffset = 0; let mountainOffset = 0; let frames = 0;
         let currentWord = ""; let typedText = ""; let lastObstacleType = '';
         
-        // Stats Tracking
         let stats = {
             totalKeystrokes: 0,
             correctKeystrokes: 0,
+            errors: 0,
             wordsCleared: 0,
             startTime: 0,
-            endTime: 0
+            maxSpeed: 1.0
         };
         
-        // Combo System
         let comboTimer = 0;
         const maxComboTime = 100;
 
@@ -334,10 +343,9 @@
 
         const obstacles = [];
         let particles = [];
-        let floatingTexts = []; // Für "+10" Popups
-        let stars = []; // Sternenhimmel
+        let floatingTexts = []; 
+        let stars = []; 
 
-        // Initialisiere Sterne
         for(let i=0; i<50; i++) {
             stars.push({
                 x: Math.random() * canvas.width, y: Math.random() * (baseGroundY - 100),
@@ -365,14 +373,25 @@
         }
 
         function initGame() {
-            score = 0; gameSpeed = baseSpeed;
-            player.y = baseGroundY - player.height; player.dy = 0; 
-            player.isJumping = false; player.rotation = 0; player.trail = [];
-            obstacles.length = 0; particles = []; floatingTexts = []; frames = 0; lastObstacleType = '';
-            comboTimer = 0; comboBarContainer.style.display = 'none';
+            // HARTES ZURÜCKSETZEN ALLER WERTE
+            score = 0; 
+            gameSpeed = baseSpeed; 
             
-            // Reset Stats
-            stats = { totalKeystrokes: 0, correctKeystrokes: 0, wordsCleared: 0, startTime: Date.now(), endTime: 0 };
+            player.y = baseGroundY - player.height; 
+            player.dy = 0; 
+            player.isJumping = false; 
+            player.rotation = 0; 
+            player.trail = [];
+            
+            obstacles.length = 0; 
+            particles = []; 
+            floatingTexts = []; 
+            frames = 0; 
+            lastObstacleType = '';
+            comboTimer = 0; 
+            comboBarContainer.style.display = 'none';
+            
+            stats = { totalKeystrokes: 0, correctKeystrokes: 0, errors: 0, wordsCleared: 0, startTime: Date.now(), maxSpeed: 1.0 };
             
             spawnObstacle();
             updateUI();
@@ -412,8 +431,8 @@
             } else if (type === 'platform_lava') {
                 obs.y = baseGroundY - 120; obs.width = 180; obs.height = 20;
             } else if (type === 'laser_wall') {
-                // Hürde deutlich niedriger gemacht, damit man gut drüber kommt
-                obs.y = baseGroundY - 70; obs.width = 20; obs.height = 70; 
+                // Laserwand fair und machbar (Höhe 45, Breite 25)
+                obs.y = baseGroundY - 45; obs.width = 25; obs.height = 45; 
             }
 
             lastObstacleType = type;
@@ -455,15 +474,16 @@
         }
 
         function calculateStats() {
-            stats.endTime = Date.now();
-            let minutesAlive = (stats.endTime - stats.startTime) / 60000;
+            let secondsAlive = (Date.now() - stats.startTime) / 1000;
             let accuracy = stats.totalKeystrokes > 0 ? Math.round((stats.correctKeystrokes / stats.totalKeystrokes) * 100) : 0;
-            let kpm = minutesAlive > 0 ? Math.round(stats.correctKeystrokes / minutesAlive) : 0;
+            let kpm = secondsAlive > 0 ? Math.round((stats.correctKeystrokes / secondsAlive) * 60) : 0;
             
             statScore.innerText = score.toString().padStart(4, '0');
             statAcc.innerText = accuracy + "%";
             statWords.innerText = stats.wordsCleared;
             statKpm.innerText = kpm;
+            statErrors.innerText = stats.errors;
+            statMaxSpd.innerText = stats.maxSpeed.toFixed(1) + "x";
         }
 
         function gameOver(reason) {
@@ -471,7 +491,6 @@
             comboBarContainer.style.display = 'none';
             createParticles(player.x + player.width/2, player.y + player.height/2, "var(--neon-pink)", 60);
             
-            // Ein tiefer, dumpfer Sound beim Crash generieren
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.frequency.setValueAtTime(100, audioCtx.currentTime);
@@ -498,7 +517,7 @@
         document.addEventListener('keydown', (e) => {
             if (["Shift", "Control", "Alt", "CapsLock", "Tab"].includes(e.key)) return;
             
-            // QUICK RESTART LOGIK
+            // QUICK RESTART MIT ENTER
             if (gameState === 'GAME_OVER' && e.key === 'Enter') {
                 deathScreen.style.display = 'none';
                 lockInScreen.style.display = 'block';
@@ -513,7 +532,7 @@
                     lockInIndex++; updateLockInUI();
                     if (lockInIndex === lockInTarget.length) initGame();
                 } else {
-                    lockInIndex = 0; updateLockInUI(); // Striktes Ritual
+                    lockInIndex = 0; updateLockInUI(); 
                 }
                 return;
             }
@@ -535,6 +554,7 @@
                     jump(); wordDisplay.innerHTML = ""; 
                 }
             } else {
+                stats.errors++;
                 failWord(); 
             }
         });
@@ -547,7 +567,10 @@
             if (typedText.length > 0 && typedText.length < currentWord.length) {
                 comboTimer--;
                 comboBar.style.width = (comboTimer / maxComboTime) * 100 + "%";
-                if (comboTimer <= 0) failWord(); 
+                if (comboTimer <= 0) {
+                    stats.errors++; // Zögern zählt als Fehler
+                    failWord(); 
+                }
             }
 
             backgroundOffset -= gameSpeed * 0.5;
@@ -555,7 +578,6 @@
             if (backgroundOffset <= -80) backgroundOffset = 0;
             if (mountainOffset <= -800) mountainOffset = 0;
 
-            // Sterne bewegen
             stars.forEach(s => {
                 s.x -= s.speed;
                 if(s.x < 0) { s.x = canvas.width; s.y = Math.random() * (baseGroundY - 100); }
@@ -563,7 +585,7 @@
 
             player.dy += player.gravity; player.y += player.dy;
 
-            // PHYSIK: Auf dem Boden starr, in der Luft rotieren
+            // PHYSIK: Auf dem Boden starr, in der Luft drehen
             if (player.isJumping || player.dy > 1) {
                 player.rotation += 0.15; 
             } else {
@@ -580,6 +602,7 @@
                 let obs = obstacles[i];
                 obs.x -= gameSpeed;
 
+                // Hitboxen leicht verkleinert für Fairness
                 if (obs.type === 'spike' || obs.type === 'double_spike') {
                     if (player.x < obs.x + obs.width - 12 && player.x + player.width - 12 > obs.x &&
                         player.y < obs.y + obs.height && player.y + player.height > obs.y + 15) {
@@ -587,8 +610,8 @@
                     }
                 } 
                 else if (obs.type === 'laser_wall') {
-                    if (player.x < obs.x + obs.width - 5 && player.x + player.width - 5 > obs.x &&
-                        player.y < obs.y + obs.height && player.y + player.height > obs.y) {
+                    if (player.x < obs.x + obs.width - 8 && player.x + player.width - 8 > obs.x &&
+                        player.y < obs.y + obs.height && player.y + player.height > obs.y + 10) {
                         gameOver("ZAPPED BY LASER");
                     }
                 }
@@ -608,7 +631,12 @@
                 }
 
                 if (obs.x + obs.width < player.x && !obs.passed) {
-                    obs.passed = true; score += 10; gameSpeed += 0.04; 
+                    obs.passed = true; score += 10; 
+                    // Sanftere Beschleunigung
+                    gameSpeed += 0.02; 
+                    let currentSpeedMult = gameSpeed / baseSpeed;
+                    if (currentSpeedMult > stats.maxSpeed) stats.maxSpeed = currentSpeedMult;
+
                     addFloatingText("+10", player.x, player.y - 40, "var(--neon-pink)");
                 }
             }
@@ -627,7 +655,7 @@
             // Update Effects
             for (let i = particles.length - 1; i >= 0; i--) {
                 particles[i].x += particles[i].vx; particles[i].y += particles[i].vy; 
-                particles[i].vy += 0.5; // Gravity for particles
+                particles[i].vy += 0.5; 
                 particles[i].life -= 0.03;
                 if (particles[i].life <= 0) particles.splice(i, 1);
             }
@@ -721,7 +749,7 @@
                 ctx.fillStyle = "var(--neon-cyan)"; ctx.shadowBlur = 25; ctx.shadowColor = "var(--neon-cyan)";
                 ctx.fillRect(-player.width/2, -player.height/2, player.width, player.height);
                 ctx.fillStyle = "#000"; ctx.fillRect(-12, -12, 24, 24); 
-                ctx.fillStyle = "var(--neon-pink)"; ctx.fillRect(-4, -4, 8, 8); // Core
+                ctx.fillStyle = "var(--neon-pink)"; ctx.fillRect(-4, -4, 8, 8); 
                 ctx.restore();
             }
 
@@ -733,7 +761,6 @@
             
             ctx.globalAlpha = 1; ctx.shadowBlur = 0;
             
-            // Floating Texts (+10)
             ctx.font = "24px VT323"; ctx.textAlign = "center";
             floatingTexts.forEach(ft => {
                 ctx.fillStyle = ft.color; ctx.globalAlpha = ft.life;
