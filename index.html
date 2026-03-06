@@ -15,7 +15,7 @@
             height: 100vh; overflow: hidden; user-select: none;
         }
 
-        /* CRT Scanlines */
+        /* CRT Scanlines für den Retro-Look */
         body::after {
             content: ""; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
@@ -45,7 +45,7 @@
             text-shadow: 0 5px 15px rgba(0,0,0,0.9); transition: transform 0.05s;
         }
 
-        /* Combo Timer Bar UI */
+        /* UI für den Tipp-Timer */
         #comboBarContainer {
             position: absolute; top: 170px; left: 50%; transform: translateX(-50%);
             width: 200px; height: 6px; background: rgba(255,255,255,0.1);
@@ -76,7 +76,6 @@
         }
 
         h1 { color: #f0f; font-size: 45px; text-shadow: 0 0 20px #f0f; margin-bottom: 5px; letter-spacing: 4px; z-index: 10;}
-
         .bigTitle { font-size: 70px; color: #0ff; text-shadow: 0 0 25px #0ff; margin-bottom: 10px; letter-spacing: 5px;}
 
         #lockInDisplay {
@@ -87,9 +86,9 @@
 
         button.bootBtn {
             padding: 15px 40px; font-size: 35px; font-family: 'VT323', monospace;
-            background: transparent; color: #f0f; border: 3px solid #f0f; border-radius: 5px;
+            background: rgba(0,0,0,0.8); color: #f0f; border: 3px solid #f0f; border-radius: 5px;
             cursor: pointer; transition: 0.3s; text-shadow: 0 0 10px #f0f; box-shadow: 0 0 15px rgba(255,0,255,0.4);
-            margin-top: 20px;
+            margin-top: 20px; pointer-events: auto;
         }
         button.bootBtn:hover { background: #f0f; color: #000; box-shadow: 0 0 30px #f0f; }
 
@@ -98,7 +97,7 @@
 <body>
 
     <h1>SYNTHWAVE TYPE DASH</h1>
-    <p style="color: #0ff; margin-bottom: 20px; z-index: 10; font-size: 24px; text-shadow: 0 0 10px #0ff;">Tippe flüssig! Zu langes Warten bricht das Wort ab.</p>
+    <p style="color: #0ff; margin-bottom: 20px; z-index: 10; font-size: 24px; text-shadow: 0 0 10px #0ff;">Tippe flüssig! Zu langes Warten bricht die Combo ab.</p>
 
     <div id="gameContainer">
         <div id="ui">
@@ -112,11 +111,11 @@
         <div id="overlay">
             <div id="bootScreen" style="text-align: center;">
                 <h2 class="bigTitle">SYSTEM OFFLINE</h2>
-                <button class="bootBtn" id="bootBtn">POWER ON (AUDIO)</button>
+                <button class="bootBtn" id="bootBtn">POWER ON (AUDIO & START)</button>
             </div>
 
             <div id="lockInScreen" style="display: none; text-align: center;">
-                <h2 class="bigTitle">SYSTEM BOOT</h2>
+                <h2 class="bigTitle">PLAYER LOCK-IN</h2>
                 <p style="color: #fff; font-size: 26px;">Aktiviere die Grundreihe (links nach rechts):</p>
                 <div id="lockInDisplay">ASDFGHJKLÖ</div>
             </div>
@@ -149,7 +148,7 @@
 
         const lockInTarget = "asdfghjklö";
         let lockInIndex = 0;
-        let gameState = 'BOOT'; // BOOT -> LOCK_IN -> PLAYING -> GAME_OVER
+        let gameState = 'BOOT'; 
 
         let score = 0;
         let gameSpeed = 5.5;
@@ -160,31 +159,30 @@
         let typedText = "";
         let lastObstacleType = '';
         
-        // Combo-Timer Variablen (Abfolge-Zwang)
         let comboTimer = 0;
-        const maxComboTime = 90; // Frames (~1.5 Sekunden Zeit zwischen Buchstaben)
+        const maxComboTime = 90; // Frame-Zeitfenster für den nächsten Buchstaben (~1.5s)
 
         const baseGroundY = 380;
 
+        // Spieler-Objekt (Jetzt mit dynamischer Rotation)
         const player = {
             x: 120, y: baseGroundY - 40,
             width: 40, height: 40,
             dy: 0, jumpForce: -14.5, gravity: 0.8,
-            isJumping: false, trail: []
+            isJumping: false, rotation: 0, trail: []
         };
 
         const obstacles = [];
         let particles = [];
 
-        // 1. Initiale Interaktion für Audio
+        // 1. Audio Start & Wechsel zum Lock-In
         bootBtn.addEventListener('click', () => {
             bgMusic.volume = 0.4;
-            bgMusic.play().then(() => {
-                bootScreen.style.display = 'none';
-                lockInScreen.style.display = 'block';
-                gameState = 'LOCK_IN';
-                updateLockInUI();
-            }).catch(e => console.error("Audio blocked:", e));
+            bgMusic.play().catch(e => console.log("Audio blockiert."));
+            bootScreen.style.display = 'none';
+            lockInScreen.style.display = 'block';
+            gameState = 'LOCK_IN';
+            updateLockInUI();
         });
 
         function updateLockInUI() {
@@ -199,7 +197,7 @@
         function initGame() {
             score = 0; gameSpeed = baseSpeed;
             player.y = baseGroundY - player.height;
-            player.dy = 0; player.isJumping = false; player.trail = [];
+            player.dy = 0; player.isJumping = false; player.rotation = 0; player.trail = [];
             obstacles.length = 0; particles = []; frames = 0; lastObstacleType = '';
             comboTimer = 0; comboBarContainer.style.display = 'none';
             
@@ -226,7 +224,6 @@
             let obs = { x: canvas.width, passed: false };
             let types = ['spike', 'double_spike', 'platform_lava', 'laser_wall'];
             
-            // Verhindern, dass immer das Gleiche kommt
             let type = types[Math.floor(Math.random() * types.length)];
             if (type === lastObstacleType) type = types[(types.indexOf(type) + 1) % types.length];
 
@@ -262,7 +259,7 @@
         }
 
         function failWord() {
-            typedText = ""; // Wort zurücksetzen
+            typedText = ""; 
             comboTimer = 0;
             comboBarContainer.style.display = 'none';
             renderWord(true); 
@@ -275,7 +272,7 @@
             if (!player.isJumping && player.dy === 0) { 
                 player.dy = player.jumpForce;
                 player.isJumping = true;
-                comboTimer = 0; // Timer ausblenden bei Sprung
+                comboTimer = 0; 
                 comboBarContainer.style.display = 'none';
                 createParticles(player.x + player.width/2, player.y + player.height, "#0ff", 15);
             }
@@ -299,6 +296,7 @@
             }, 1200); 
         }
 
+        // Tastatur Eingaben
         document.addEventListener('keydown', (e) => {
             if (["Shift", "Control", "Alt", "CapsLock", "Tab"].includes(e.key)) return;
             const key = e.key.toLowerCase();
@@ -308,7 +306,7 @@
                     lockInIndex++; updateLockInUI();
                     if (lockInIndex === lockInTarget.length) initGame();
                 } else {
-                    lockInIndex = 0; updateLockInUI();
+                    lockInIndex = 0; updateLockInUI(); // Ritual Fehler
                 }
                 return;
             }
@@ -320,16 +318,16 @@
                 typedText += key;
                 renderWord();
                 
-                // Combo Timer Logik
+                // Combo Timer: Muss flüssig tippen
                 if (typedText.length < currentWord.length) {
-                    comboTimer = maxComboTime; // Timer resetten für nächsten Buchstaben
+                    comboTimer = maxComboTime; 
                     comboBarContainer.style.display = 'block';
                 } else {
                     jump();
                     wordDisplay.innerHTML = ""; 
                 }
             } else {
-                failWord(); // Fehler bricht sofort ab
+                failWord(); // Falscher Buchstabe = Wort wird resettet
             }
         });
 
@@ -353,8 +351,16 @@
 
             player.dy += player.gravity; player.y += player.dy;
 
-            // Keine Rotation mehr! Würfel bleibt gerade.
-            player.trail.push({x: player.x, y: player.y, life: 1});
+            // GEOMETRY DASH ROTATION: Nur in der Luft drehen!
+            if (player.isJumping || player.dy > 1) {
+                player.rotation += 0.15; // Dreht sich dynamisch in der Luft
+            } else {
+                // Rastet flach auf dem Boden/der Plattform ein
+                player.rotation = Math.round(player.rotation / (Math.PI/2)) * (Math.PI/2);
+            }
+
+            // Trail speichern (mit Rotation!)
+            player.trail.push({x: player.x, y: player.y, rot: player.rotation, life: 1});
             if (player.trail.length > 8) player.trail.shift();
 
             let currentFloorY = baseGroundY;
@@ -378,6 +384,7 @@
                 }
                 else if (obs.type === 'platform_lava') {
                     if (player.x + player.width > obs.x + 10 && player.x < obs.x + obs.width - 10) onLava = true; 
+                    
                     if (player.dy >= 0 && player.y + player.height >= obs.y && player.y + player.height <= obs.y + 25 &&
                         player.x + player.width > obs.x && player.x < obs.x + obs.width) {
                         currentFloorY = obs.y; player.y = currentFloorY - player.height; player.dy = 0;
@@ -424,6 +431,7 @@
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+            // Sonne & Himmel
             ctx.fillStyle = "#ff0055"; ctx.shadowBlur = 50; ctx.shadowColor = "#ff0055";
             ctx.beginPath(); ctx.arc(400, 250, 140, Math.PI, 0); ctx.fill(); ctx.shadowBlur = 0;
             ctx.fillStyle = "#1a001a";
@@ -431,16 +439,17 @@
 
             drawMountains();
 
+            // Neon Raster
             ctx.strokeStyle = "rgba(0, 255, 255, 0.4)"; ctx.lineWidth = 2; ctx.shadowBlur = 5; ctx.shadowColor = "#0ff";
             for (let i = -100; i < canvas.width + 100; i += 60) {
                 ctx.beginPath(); ctx.moveTo(i + backgroundOffset, baseGroundY);
                 ctx.lineTo((i - 400) * 2 + 400, canvas.height); ctx.stroke();
             }
-            
             ctx.strokeStyle = "#0ff"; ctx.lineWidth = 5; ctx.shadowBlur = 15;
             ctx.beginPath(); ctx.moveTo(0, baseGroundY); ctx.lineTo(canvas.width, baseGroundY); ctx.stroke();
             ctx.shadowBlur = 0;
 
+            // Hindernisse zeichnen
             obstacles.forEach(obs => {
                 if (obs.type === 'spike' || obs.type === 'double_spike') {
                     ctx.shadowBlur = 20; ctx.shadowColor = "#ff0055"; ctx.fillStyle = "#ff0055";
@@ -453,13 +462,13 @@
                         ctx.fillStyle = "#220011"; ctx.shadowBlur = 0;
                         ctx.beginPath(); ctx.moveTo(offsetX + 20, obs.y + 12);
                         ctx.lineTo(offsetX + 32, obs.y + obs.height - 4); ctx.lineTo(offsetX + 8, obs.y + obs.height - 4);
-                        ctx.closePath(); ctx.fill(); ctx.fillStyle = "#ff0055"; // Reset für 2. Stachel
+                        ctx.closePath(); ctx.fill(); ctx.fillStyle = "#ff0055"; 
                     }
                 } 
                 else if (obs.type === 'laser_wall') {
                     ctx.shadowBlur = 20; ctx.shadowColor = "#0ff"; ctx.fillStyle = "#0ff";
                     ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-                    ctx.fillStyle = "#fff"; ctx.fillRect(obs.x + 10, obs.y, 10, obs.height); // Heller Kern
+                    ctx.fillStyle = "#fff"; ctx.fillRect(obs.x + 10, obs.y, 10, obs.height);
                 }
                 else if (obs.type === 'platform_lava') {
                     let lavaWave = Math.sin(frames * 0.1) * 5; 
@@ -474,19 +483,29 @@
                 ctx.shadowBlur = 0;
             });
 
+            // Spieler & Trail zeichnen (mit Rotation)
             if (gameState !== 'GAME_OVER') {
                 player.trail.forEach(t => {
                     if (t.life > 0) {
+                        ctx.save();
+                        ctx.translate(t.x + player.width/2, t.y + player.height/2);
+                        ctx.rotate(t.rot);
                         ctx.fillStyle = `rgba(0, 255, 255, ${t.life * 0.3})`;
-                        ctx.fillRect(t.x, t.y, player.width, player.height); // Keine Rotation
+                        ctx.fillRect(-player.width/2, -player.height/2, player.width, player.height);
+                        ctx.restore();
                     }
                 });
 
+                ctx.save();
+                ctx.translate(player.x + player.width/2, player.y + player.height/2);
+                ctx.rotate(player.rotation);
                 ctx.fillStyle = "#0ff"; ctx.shadowBlur = 25; ctx.shadowColor = "#0ff";
-                ctx.fillRect(player.x, player.y, player.width, player.height);
-                ctx.fillStyle = "#000"; ctx.fillRect(player.x + 10, player.y + 10, 20, 20);
+                ctx.fillRect(-player.width/2, -player.height/2, player.width, player.height);
+                ctx.fillStyle = "#000"; ctx.fillRect(-10, -10, 20, 20); // Inneres Quadrat
+                ctx.restore();
             }
 
+            // Partikel
             particles.forEach(p => {
                 ctx.fillStyle = p.color; ctx.globalAlpha = p.life;
                 ctx.shadowBlur = 15; ctx.shadowColor = p.color;
@@ -508,7 +527,7 @@
             }
         }
 
-        draw(); 
+        draw(); // Zeichnet initial den Startbildschirm
     </script>
 </body>
 </html>
