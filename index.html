@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Neon Typing Arcade - Bachelor Edition</title>
+    <title>Neon Typing Arcade - Bachelor Edition Optimized</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 
@@ -21,6 +21,7 @@
             --white: #f5fbff;
             --muted: #9db0c0;
             --orange: #ff9a3d;
+            --deep: #08111f;
         }
 
         * {
@@ -65,6 +66,12 @@
             color: var(--cyan);
             text-shadow: 0 0 18px var(--cyan), 0 0 36px rgba(0,245,255,0.55);
             text-transform: uppercase;
+            animation: glowPulse 2.4s infinite alternate;
+        }
+
+        @keyframes glowPulse {
+            0% { text-shadow: 0 0 18px var(--cyan), 0 0 36px rgba(0,245,255,0.55); }
+            100% { text-shadow: 0 0 24px var(--cyan), 0 0 44px rgba(0,245,255,0.75); }
         }
 
         .page-subtitle {
@@ -156,8 +163,8 @@
             padding: 14px 22px;
             border-radius: 16px;
             border: 2px solid rgba(156,98,255,0.72);
-            background: rgba(3, 7, 20, 0.94);
-            box-shadow: 0 0 26px rgba(156,98,255,0.2);
+            background: rgba(3, 7, 20, 0.95);
+            box-shadow: 0 0 26px rgba(156,98,255,0.22);
             z-index: 11;
             display: none;
             text-align: center;
@@ -172,11 +179,13 @@
         }
 
         #wordDisplay {
-            font-size: 88px;
+            font-size: 92px;
             line-height: 1;
             letter-spacing: 9px;
             color: var(--white);
-            text-shadow: 0 0 18px rgba(255,255,255,0.2);
+            text-shadow:
+                0 0 8px rgba(255,255,255,0.2),
+                0 0 20px rgba(0,245,255,0.14);
         }
 
         #helperText {
@@ -203,7 +212,9 @@
 
         .untyped {
             color: var(--cyan);
-            text-shadow: 0 0 18px rgba(0,245,255,0.88);
+            text-shadow:
+                0 0 10px rgba(0,245,255,0.9),
+                0 0 24px rgba(0,245,255,0.45);
         }
 
         .error {
@@ -470,7 +481,7 @@
                             <div class="difficulty-pill pill-hard">Schwierigkeit: Schwer</div>
                             <h3>Type Dash</h3>
                             <p>Geometry Dash Stil mit rotierendem Würfel, Neon Trails und längerer Sprungkurve für mehr Fehlertoleranz.</p>
-                            <div class="progression-note">Startet mit Einzelbuchstaben, dann Zweierkombinationen, kurze Muster und erst später komplexere Folgen.</div>
+                            <div class="progression-note">Einzelbuchstaben werden zufällig gemischt und nicht direkt wiederholt. Erst danach kommen Kombinationen und längere Muster.</div>
                             <button class="bootBtn" data-game="dash">Start Dash</button>
                         </div>
 
@@ -549,14 +560,13 @@
             green: '#37ff9f',
             red: '#ff4e6a',
             white: '#f5fbff',
-            orange: '#ff9a3d',
-            blueMid: '#13244f'
+            orange: '#ff9a3d'
         };
 
         const HOME_ROW = ['a', 's', 'd', 'f', 'j', 'k', 'l', 'ö'];
 
         const DASH_WORDS = {
-            1: ['f', 'j', 'd', 'k'],
+            1: ['f', 'j', 'd', 'k', 'a', 's', 'l', 'ö'],
             2: ['a', 's', 'd', 'f', 'j', 'k', 'l', 'ö'],
             3: ['as', 'df', 'jk', 'lö', 'sa', 'fd', 'kj', 'öl'],
             4: ['das', 'fad', 'als', 'ass', 'all', 'ja', 'da', 'las'],
@@ -607,6 +617,9 @@
         let stars = createStars(100);
         let particles = [];
         let floatingTexts = [];
+
+        let dashWordBag = [];
+        let dashLastWord = '';
 
         const dashGame = {
             groundY: 490,
@@ -673,6 +686,26 @@
                 speed: Math.random() * 0.9 + 0.1,
                 alpha: Math.random() * 0.5 + 0.4
             }));
+        }
+
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function refillDashBag(tier) {
+            let pool = DASH_WORDS[tier] ? [...DASH_WORDS[tier]] : [...DASH_WORDS[1]];
+            pool = shuffleArray(pool);
+
+            if (pool.length > 1 && pool[pool.length - 1] === dashLastWord) {
+                [pool[0], pool[pool.length - 1]] = [pool[pool.length - 1], pool[0]];
+            }
+
+            dashWordBag = pool;
         }
 
         function getAccuracy() {
@@ -810,9 +843,14 @@
 
         function chooseDashWord() {
             const tier = Math.min(6, currentLevel);
-            const pool = DASH_WORDS[tier];
-            dashGame.currentWord = pool[Math.floor(Math.random() * pool.length)];
+            if (dashWordBag.length === 0) refillDashBag(tier);
+
+            if (!dashWordBag.length) refillDashBag(1);
+
+            const nextWord = dashWordBag.pop();
+            dashGame.currentWord = nextWord;
             dashGame.typed = '';
+            dashLastWord = nextWord;
             renderDashWord();
         }
 
@@ -856,6 +894,8 @@
         function startDash() {
             resetSessionStats();
             currentErrorLimit = 6;
+            dashWordBag = [];
+            dashLastWord = '';
             dashGame.speed = 3.0;
             dashGame.backgroundOffset = 0;
             dashGame.mountainOffset = 0;
@@ -868,7 +908,7 @@
             dashGame.player.trail = [];
             chooseDashWord();
             spawnDashObstacle();
-            setHelper('Start bewusst leicht. Einzelbuchstaben zuerst, danach längere Muster.', true);
+            setHelper('Jetzt kommt zu Beginn wirklich eine gemischte Folge verschiedener Buchstaben statt Wiederholungen.', true);
             updateHUD('TYPE DASH');
         }
 
@@ -1501,6 +1541,7 @@
             else if (currentGame === 'astro') drawAstro();
             else if (currentGame === 'beat') drawBeat();
             else drawLobbyPreview();
+
             drawParticlesAndTexts();
         }
 
@@ -1529,6 +1570,7 @@
             stopLoop();
             setWordPanel('', '', false);
             setHelper('Wähle ein Spiel aus. Jeder Start kostet 1 Ticket.', true);
+
             DOM.ticketBank.textContent = `TICKETS VERFÜGBAR: ${tickets}`;
             DOM.lobbyMessage.innerHTML = tickets > 0
                 ? 'Wenn alle 5 Tickets aufgebraucht sind, ist die Session beendet.'
@@ -1539,6 +1581,7 @@
             DOM.summary.style.display = 'none';
 
             document.querySelectorAll('[data-game]').forEach(btn => btn.disabled = tickets <= 0);
+
             currentErrorLimit = 0;
             updateHUD('LOBBY');
             draw();
@@ -1563,6 +1606,7 @@
 
         function endGame(reason) {
             if (gameState === 'OVER') return;
+
             gameState = 'OVER';
             stopLoop();
             setWordPanel('', '', false);
@@ -1585,6 +1629,14 @@
             DOM.lobby.style.display = 'none';
             DOM.summary.style.display = 'block';
             draw();
+        }
+
+        function registerError(reasonText = 'FEHLER') {
+            stats.errors += 1;
+            addFloatingText(reasonText, canvas.width / 2, 140, COLORS.red);
+            if (stats.errors >= currentErrorLimit) {
+                endGame('Zu viele Fehlanschläge');
+            }
         }
 
         function handleDashKey(key) {
