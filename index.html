@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Neon Typing Arcade - Ultimate Edition</title>
+    <title>Neon Typing Arcade - Ultimate Optimized Edition</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 
         :root {
             --bg-1: #050812;
-            --bg-2: #0a1230;
+            --bg-2: #0b1538;
             --bg-3: #02040d;
-            --panel: rgba(8, 12, 26, 0.96);
+            --panel: rgba(7, 12, 28, 0.96);
+            --panel-soft: rgba(8, 12, 26, 0.82);
             --cyan: #00f5ff;
             --pink: #ff2bd6;
             --purple: #9c62ff;
@@ -19,12 +20,18 @@
             --green: #37ff9f;
             --red: #ff4e6a;
             --white: #f5fbff;
+            --muted: #9db0c0;
+            --orange: #ff9a3d;
         }
 
-        * { box-sizing: border-box; user-select: none; }
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
 
         html, body {
-            margin: 0; min-height: 100%;
+            margin: 0;
+            min-height: 100%;
             background: radial-gradient(circle at top, #122053 0%, #050812 52%, #02040b 100%);
             color: var(--white);
             font-family: 'VT323', monospace;
@@ -32,151 +39,406 @@
         }
 
         body {
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             padding: 18px;
         }
 
-        /* CRT Scanline & Vignette Effect */
         body::before {
-            content: ""; position: fixed; inset: 0;
-            background: linear-gradient(rgba(255,255,255,0) 50%, rgba(0,0,0,0.18) 50%),
-                        radial-gradient(circle at center, transparent 55%, rgba(0,0,0,0.45) 100%);
+            content: "";
+            position: fixed;
+            inset: 0;
+            background:
+                linear-gradient(rgba(255,255,255,0) 50%, rgba(0,0,0,0.18) 50%),
+                radial-gradient(circle at center, transparent 54%, rgba(0,0,0,0.44) 100%);
             background-size: 100% 4px, 100% 100%;
-            pointer-events: none; z-index: 100; opacity: 0.75;
+            pointer-events: none;
+            z-index: 100;
+            opacity: 0.72;
         }
 
         .page-title {
-            margin: 0 0 2px; font-size: 66px; letter-spacing: 6px;
+            margin: 0 0 6px;
+            font-size: 68px;
+            letter-spacing: 7px;
             color: var(--cyan);
-            text-shadow: 0 0 18px var(--cyan), 0 0 36px rgba(0,245,255,0.6);
+            text-shadow: 0 0 18px var(--cyan), 0 0 36px rgba(0,245,255,0.55);
             text-transform: uppercase;
+            animation: titlePulse 2.8s ease-in-out infinite;
+        }
+
+        @keyframes titlePulse {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-1px); }
         }
 
         .page-subtitle {
-            margin: 0 0 16px; font-size: 28px; color: #d8e4ef;
-            text-shadow: 0 0 8px rgba(255,255,255,0.18);
+            margin: 0 0 18px;
+            font-size: 28px;
+            color: #d8e4ef;
+            text-shadow: 0 0 8px rgba(255,255,255,0.14);
         }
 
         #gameWrapper {
-            position: relative; padding: 18px; border-radius: 20px;
+            position: relative;
+            padding: 18px;
+            border-radius: 22px;
             background: linear-gradient(180deg, #171d34 0%, #0d1227 100%);
-            box-shadow: 0 0 60px rgba(0,245,255,0.15), 0 0 90px rgba(255,43,214,0.12), inset 0 0 34px rgba(0,0,0,0.5);
+            box-shadow:
+                0 0 60px rgba(0,245,255,0.15),
+                0 0 90px rgba(255,43,214,0.12),
+                inset 0 0 34px rgba(0,0,0,0.55);
         }
 
         #gameContainer {
-            position: relative; width: 980px; height: 600px;
-            overflow: hidden; border-radius: 14px;
-            border: 3px solid rgba(0,245,255,0.72);
+            position: relative;
+            width: 1000px;
+            height: 620px;
+            overflow: hidden;
+            border-radius: 16px;
+            border: 3px solid rgba(0,245,255,0.7);
             background: linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 54%, var(--bg-3) 100%);
             box-shadow: inset 0 0 36px rgba(0,245,255,0.08);
         }
 
-        canvas { display: block; width: 100%; height: 100%; }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
 
         #hud {
-            position: absolute; top: 14px; left: 14px; right: 14px; z-index: 12;
-            display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 12px; pointer-events: none;
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            right: 14px;
+            z-index: 12;
+            display: grid;
+            grid-template-columns: 1.25fr 0.9fr 0.9fr 0.9fr 0.9fr;
+            gap: 12px;
+            pointer-events: none;
         }
 
         .hud-box {
-            min-height: 56px; display: flex; align-items: center; justify-content: center;
-            background: rgba(3, 8, 22, 0.7); border: 2px solid rgba(0,245,255,0.22);
-            border-radius: 12px; font-size: 30px; letter-spacing: 1px;
-            text-shadow: 0 0 10px rgba(0,245,255,0.4); box-shadow: inset 0 0 18px rgba(0,0,0,0.45);
+            min-height: 54px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(3, 8, 22, 0.74);
+            border: 2px solid rgba(0,245,255,0.22);
+            border-radius: 12px;
+            color: var(--white);
+            font-size: 28px;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(0,245,255,0.36);
+            box-shadow: inset 0 0 18px rgba(0,0,0,0.45);
         }
 
-        #creditsDisplay { color: var(--yellow); text-shadow: 0 0 10px rgba(255,240,102,0.8); }
+        #creditsDisplay {
+            color: var(--yellow);
+            text-shadow: 0 0 10px rgba(255,240,102,0.8);
+        }
+
+        #difficultyDisplay {
+            color: var(--green);
+            text-shadow: 0 0 10px rgba(55,255,159,0.8);
+        }
 
         #wordPanel {
-            position: absolute; top: 86px; left: 50%; transform: translateX(-50%);
-            min-width: 520px; padding: 14px 22px; border-radius: 16px;
-            border: 2px solid rgba(156,98,255,0.7); background: rgba(5, 8, 23, 0.88);
-            box-shadow: 0 0 26px rgba(156,98,255,0.18); z-index: 11; display: none; text-align: center;
+            position: absolute;
+            top: 84px;
+            left: 50%;
+            transform: translateX(-50%);
+            min-width: 560px;
+            max-width: 92%;
+            padding: 14px 22px;
+            border-radius: 16px;
+            border: 2px solid rgba(156,98,255,0.72);
+            background: rgba(5, 8, 23, 0.9);
+            box-shadow: 0 0 26px rgba(156,98,255,0.18);
+            z-index: 11;
+            display: none;
+            text-align: center;
         }
 
-        #wordLabel { font-size: 24px; color: var(--purple); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; text-shadow: 0 0 8px var(--purple); }
-        #wordDisplay { font-size: 84px; line-height: 1; letter-spacing: 8px; text-shadow: 0 0 14px rgba(255,255,255,0.18); }
+        #wordLabel {
+            font-size: 24px;
+            color: #c6d2df;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        #wordDisplay {
+            font-size: 84px;
+            line-height: 1;
+            letter-spacing: 8px;
+            color: var(--white);
+            text-shadow: 0 0 14px rgba(255,255,255,0.18);
+        }
 
         #helperText {
-            position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); z-index: 11;
-            font-size: 24px; padding: 8px 18px; border-radius: 999px;
-            border: 1px solid rgba(255,255,255,0.14); background: rgba(3, 8, 22, 0.68);
-            display: none; text-align: center; box-shadow: 0 0 18px rgba(0,245,255,0.08);
+            position: absolute;
+            bottom: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 11;
+            font-size: 24px;
+            padding: 8px 18px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.14);
+            background: rgba(3, 8, 22, 0.72);
+            color: #d8e4ef;
+            display: none;
+            text-align: center;
+            box-shadow: 0 0 18px rgba(0,245,255,0.08);
         }
 
-        .typed { color: rgba(255,255,255,0.25); text-shadow: none; }
-        .untyped { color: var(--cyan); text-shadow: 0 0 16px rgba(0,245,255,0.85); }
-        .error { color: var(--red); text-shadow: 0 0 16px rgba(255,78,106,0.9); animation: blinkError 0.16s 2; }
+        .typed {
+            color: rgba(255,255,255,0.24);
+            text-shadow: none;
+        }
 
-        @keyframes blinkError { 50% { opacity: 0.15; } }
+        .untyped {
+            color: var(--cyan);
+            text-shadow: 0 0 16px rgba(0,245,255,0.82);
+        }
+
+        .error {
+            color: var(--red);
+            text-shadow: 0 0 16px rgba(255,78,106,0.9);
+            animation: blinkError 0.16s 2;
+        }
+
+        @keyframes blinkError {
+            50% { opacity: 0.15; }
+        }
 
         #overlay {
-            position: absolute; inset: 0; z-index: 50; display: flex;
-            align-items: center; justify-content: center;
-            background: rgba(2, 4, 12, 0.76); backdrop-filter: blur(4px);
+            position: absolute;
+            inset: 0;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(2, 4, 12, 0.76);
+            backdrop-filter: blur(4px);
         }
 
         .panel {
-            width: min(940px, 94%); max-height: 92%; overflow-y: auto;
-            background: var(--panel); border: 2px solid rgba(0,245,255,0.45);
-            border-radius: 20px; padding: 24px;
+            width: min(950px, 94%);
+            max-height: 92%;
+            overflow-y: auto;
+            background: var(--panel);
+            border: 2px solid rgba(0,245,255,0.42);
+            border-radius: 20px;
+            padding: 24px;
             box-shadow: 0 0 36px rgba(0,245,255,0.14), 0 0 36px rgba(255,43,214,0.08);
         }
+
         .panel::-webkit-scrollbar { width: 8px; }
-        .panel::-webkit-scrollbar-thumb { background: rgba(0,245,255,0.5); border-radius: 999px; }
+        .panel::-webkit-scrollbar-thumb {
+            background: rgba(0,245,255,0.5);
+            border-radius: 999px;
+        }
 
-        .panel-title { margin: 0 0 8px; font-size: 62px; text-align: center; color: var(--pink); text-shadow: 0 0 18px rgba(255,43,214,0.85); letter-spacing: 3px; }
-        .panel-subtitle { margin: 0 0 18px; text-align: center; color: #d5dfeb; font-size: 26px; }
+        .panel-title {
+            margin: 0 0 8px;
+            font-size: 62px;
+            text-align: center;
+            color: var(--pink);
+            text-shadow: 0 0 18px rgba(255,43,214,0.85);
+            letter-spacing: 3px;
+        }
 
-        .ticket-bank { text-align: center; color: var(--yellow); font-size: 40px; text-shadow: 0 0 16px rgba(255,240,102,0.8); margin-bottom: 20px; }
+        .panel-subtitle {
+            margin: 0 0 18px;
+            text-align: center;
+            color: #d5dfeb;
+            font-size: 28px;
+        }
 
-        .game-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .ticket-bank {
+            text-align: center;
+            color: var(--yellow);
+            font-size: 40px;
+            text-shadow: 0 0 16px rgba(255,240,102,0.8);
+            margin-bottom: 20px;
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
 
         .game-card {
-            display: flex; flex-direction: column; gap: 10px; padding: 18px; border-radius: 16px;
-            background: rgba(7, 11, 24, 0.88); border: 2px solid rgba(156,98,255,0.35); box-shadow: inset 0 0 22px rgba(0,0,0,0.34);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 18px;
+            border-radius: 16px;
+            background: rgba(7, 11, 24, 0.9);
+            border: 2px solid rgba(156,98,255,0.35);
+            box-shadow: inset 0 0 22px rgba(0,0,0,0.34);
         }
 
-        .game-card h3 { margin: 0; font-size: 42px; color: var(--cyan); text-shadow: 0 0 12px rgba(0,245,255,0.72); }
-        .game-card p { margin: 0; font-size: 22px; color: #d2dde8; line-height: 1.1; }
-
-        /* Schwierigkeits-Badges */
-        .diff-badge {
-            display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 20px; font-weight: bold; width: fit-content; margin-bottom: 4px; text-transform: uppercase;
+        .game-card h3 {
+            margin: 0;
+            font-size: 42px;
+            color: var(--cyan);
+            text-shadow: 0 0 12px rgba(0,245,255,0.72);
         }
-        .diff-easy { background: rgba(55,255,159,0.15); color: var(--green); border: 1px solid var(--green); box-shadow: 0 0 8px rgba(55,255,159,0.3); }
-        .diff-med { background: rgba(255,240,102,0.15); color: var(--yellow); border: 1px solid var(--yellow); box-shadow: 0 0 8px rgba(255,240,102,0.3); }
-        .diff-hard { background: rgba(255,78,106,0.15); color: var(--red); border: 1px solid var(--red); box-shadow: 0 0 8px rgba(255,78,106,0.3); }
 
-        .progression-note { font-size: 19px; color: #9db0c0; border-top: 1px dashed rgba(255,255,255,0.12); padding-top: 10px; }
+        .game-card p {
+            margin: 0;
+            font-size: 23px;
+            color: #d2dde8;
+            line-height: 1.08;
+        }
+
+        .difficulty-pill {
+            width: fit-content;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: 1px solid rgba(255,255,255,0.18);
+        }
+
+        .pill-easy {
+            color: var(--green);
+            border-color: rgba(55,255,159,0.5);
+            background: rgba(55,255,159,0.1);
+            box-shadow: 0 0 12px rgba(55,255,159,0.14);
+        }
+
+        .pill-medium {
+            color: var(--yellow);
+            border-color: rgba(255,240,102,0.52);
+            background: rgba(255,240,102,0.1);
+            box-shadow: 0 0 12px rgba(255,240,102,0.14);
+        }
+
+        .pill-hard {
+            color: var(--red);
+            border-color: rgba(255,78,106,0.5);
+            background: rgba(255,78,106,0.1);
+            box-shadow: 0 0 12px rgba(255,78,106,0.14);
+        }
+
+        .progression-note {
+            font-size: 20px;
+            color: #9fe7c5;
+            border-top: 1px dashed rgba(255,255,255,0.12);
+            padding-top: 10px;
+        }
 
         .bootBtn {
-            margin-top: auto; min-height: 56px; padding: 12px 20px; border-radius: 12px;
-            border: 2px solid var(--pink); background: rgba(255,43,214,0.08); color: var(--pink);
-            font-family: 'VT323', monospace; font-size: 32px; cursor: pointer; text-transform: uppercase;
-            text-shadow: 0 0 8px rgba(255,43,214,0.8); transition: 0.18s ease;
+            margin-top: auto;
+            min-height: 56px;
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 2px solid var(--pink);
+            background: rgba(255,43,214,0.08);
+            color: var(--pink);
+            font-family: 'VT323', monospace;
+            font-size: 32px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 0 8px rgba(255,43,214,0.8);
+            transition: 0.18s ease;
         }
 
-        .bootBtn:hover:not(:disabled) { background: var(--pink); color: #05080f; box-shadow: 0 0 24px rgba(255,43,214,0.55); }
-        .bootBtn.secondary { border-color: var(--cyan); color: var(--cyan); background: rgba(0,245,255,0.08); text-shadow: 0 0 8px rgba(0,245,255,0.8); }
-        .bootBtn.secondary:hover:not(:disabled) { background: var(--cyan); color: #05080f; box-shadow: 0 0 24px rgba(0,245,255,0.55); }
-        .bootBtn:disabled { opacity: 0.42; cursor: not-allowed; }
+        .bootBtn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            background: var(--pink);
+            color: #05080f;
+            box-shadow: 0 0 24px rgba(255,43,214,0.55);
+        }
 
-        .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 18px; }
-        .summary-box { padding: 12px; text-align: center; border-radius: 12px; background: rgba(4, 8, 22, 0.8); border: 1px solid rgba(255,255,255,0.1); }
-        .summary-label { color: #9db0c0; font-size: 22px; text-transform: uppercase; }
-        .summary-value { font-size: 44px; color: var(--white); text-shadow: 0 0 12px rgba(0,245,255,0.5); }
-        .summary-actions { margin-top: 22px; display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
-        
-        .small-note { text-align: center; color: #a8bac8; font-size: 22px; margin-top: 16px; }
-        .danger { color: var(--red); text-shadow: 0 0 12px rgba(255,78,106,0.75); }
+        .bootBtn.secondary {
+            border-color: var(--cyan);
+            color: var(--cyan);
+            background: rgba(0,245,255,0.08);
+            text-shadow: 0 0 8px rgba(0,245,255,0.8);
+        }
 
+        .bootBtn.secondary:hover:not(:disabled) {
+            background: var(--cyan);
+            color: #05080f;
+            box-shadow: 0 0 24px rgba(0,245,255,0.55);
+        }
+
+        .bootBtn:disabled {
+            opacity: 0.42;
+            cursor: not-allowed;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 14px;
+            margin-top: 18px;
+        }
+
+        .summary-box {
+            padding: 12px;
+            text-align: center;
+            border-radius: 12px;
+            background: rgba(4, 8, 22, 0.8);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .summary-label {
+            color: #9db0c0;
+            font-size: 22px;
+            text-transform: uppercase;
+        }
+
+        .summary-value {
+            font-size: 40px;
+            color: var(--white);
+            text-shadow: 0 0 12px rgba(0,245,255,0.5);
+        }
+
+        .summary-actions {
+            margin-top: 22px;
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .small-note {
+            text-align: center;
+            color: #a8bac8;
+            font-size: 22px;
+            margin-top: 16px;
+        }
+
+        .danger {
+            color: var(--red);
+            text-shadow: 0 0 12px rgba(255,78,106,0.75);
+        }
+
+        @media (max-width: 1140px) {
+            body { padding: 10px; }
+            #gameContainer { width: 94vw; height: 74vh; }
+            .game-grid { grid-template-columns: 1fr; }
+            #hud { grid-template-columns: 1fr 1fr; }
+            #wordDisplay { font-size: 62px; }
+            .summary-grid { grid-template-columns: repeat(2, 1fr); }
+        }
     </style>
 </head>
 <body>
     <h1 class="page-title">Arcade Trainer</h1>
-    <p class="page-subtitle">Strikte Grundreihe: A S D F &nbsp; J K L Ö</p>
+    <p class="page-subtitle">Strikte Grundreihe: A S D F   J K L Ö</p>
 
     <div id="gameWrapper">
         <div id="gameContainer">
@@ -184,6 +446,7 @@
                 <div class="hud-box" id="modeDisplay">MODE: LOBBY</div>
                 <div class="hud-box" id="scoreDisplay">SCORE: 0</div>
                 <div class="hud-box" id="levelDisplay">LEVEL: 1</div>
+                <div class="hud-box" id="difficultyDisplay">DIFF: LEICHT</div>
                 <div class="hud-box" id="creditsDisplay">TICKETS: 5</div>
             </div>
 
@@ -193,39 +456,40 @@
             </div>
 
             <div id="helperText"></div>
-            <canvas id="gameCanvas" width="980" height="600"></canvas>
+            <canvas id="gameCanvas" width="1000" height="620"></canvas>
 
             <div id="overlay">
                 <div id="lobbyScreen" class="panel">
                     <h2 class="panel-title">Choose Your Game</h2>
-                    <p class="panel-subtitle">Jeder Start kostet 1 Ticket. Die Tasten sind auf <b>A S D F J K L Ö</b> beschränkt.</p>
+                    <p class="panel-subtitle">Jeder Start kostet 1 Ticket. Du hast insgesamt 5 Tickets für die ganze Session.</p>
                     <div class="ticket-bank" id="lobbyTicketBank">TICKETS VERFÜGBAR: 5</div>
 
                     <div class="game-grid">
                         <div class="game-card">
-                            <span class="diff-badge diff-easy">Schwierigkeit: Leicht</span>
+                            <div class="difficulty-pill pill-hard">Schwierigkeit: Schwer</div>
+                            <h3>Type Dash</h3>
+                            <p>Geometry Dash Stil mit rotierendem Würfel, Neon Trails und echter Progression von Einzelbuchstaben bis zu längeren Mustern.</p>
+                            <div class="progression-note">Startet mit einzelnen Buchstaben. Danach folgen Zweierkombinationen, kurze Muster und erst später komplexere Folgen.</div>
+                            <button class="bootBtn" data-game="dash">Start Dash</button>
+                        </div>
+
+                        <div class="game-card">
+                            <div class="difficulty-pill pill-easy">Schwierigkeit: Leicht</div>
                             <h3>Astro Keys</h3>
-                            <p>Alien-Ufos greifen an! Tippe ihre Buchstaben, um den Laser abzufeuern.</p>
-                            <div class="progression-note">Fokus: Einzelne Tasten suchen & visuelle Reaktion ohne Druckketten.</div>
+                            <p>Aliens kommen in Wellen herunter. Tippe ihre Buchstaben, feuere Laser ab und verteidige dein Raumschiff.</p>
+                            <div class="progression-note">Ideal für Einzelbuchstaben, schnelle Zielerkennung und lockeren Einstieg ohne Wortketten.</div>
                             <button class="bootBtn" data-game="astro">Start Astro</button>
                         </div>
 
                         <div class="game-card">
-                            <span class="diff-badge diff-med">Schwierigkeit: Mittel</span>
+                            <div class="difficulty-pill pill-medium">Schwierigkeit: Mittel</div>
                             <h3>Neon Beat</h3>
-                            <p>Piano-Style! Die Noten fallen in 8 exakten Spuren für jeden Finger herab.</p>
-                            <div class="progression-note">Fokus: Räumliche Zuordnung, Timing und blindes Fingertraining.</div>
+                            <p>Acht präzise Spuren für A S D F J K L Ö. Buchstaben fallen wie Notes auf den Hit Bereich zu.</p>
+                            <div class="progression-note">Trainiert Timing, räumliche Zuordnung und saubere Fingerverteilung auf der Grundreihe.</div>
                             <button class="bootBtn" data-game="beat">Start Beat</button>
                         </div>
-
-                        <div class="game-card">
-                            <span class="diff-badge diff-hard">Schwierigkeit: Schwer</span>
-                            <h3>Type Dash</h3>
-                            <p>Geometry Dash! Springe fehlerfrei über die Spikes.</p>
-                            <div class="progression-note">Progression: Startet mit Einzelbuchstaben, wächst organisch zu Silben heran.</div>
-                            <button class="bootBtn" data-game="dash">Start Dash</button>
-                        </div>
                     </div>
+
                     <div class="small-note" id="lobbyMessage">Wenn alle 5 Tickets aufgebraucht sind, ist die Session beendet.</div>
                 </div>
 
@@ -248,6 +512,10 @@
                             <div class="summary-value" id="sumLevel">1</div>
                         </div>
                         <div class="summary-box">
+                            <div class="summary-label">Diff</div>
+                            <div class="summary-value" id="sumDiff">Leicht</div>
+                        </div>
+                        <div class="summary-box">
                             <div class="summary-label">Accuracy</div>
                             <div class="summary-value" id="sumAcc">0%</div>
                         </div>
@@ -257,6 +525,7 @@
                         <button class="bootBtn" id="retryBtn">Nochmal</button>
                         <button class="bootBtn secondary" id="backLobbyBtn">Zur Lobby</button>
                     </div>
+
                     <div class="small-note" id="summaryHint">Enter startet erneut. Escape geht zur Lobby.</div>
                 </div>
             </div>
@@ -264,456 +533,1082 @@
     </div>
 
     <script>
-        // --- GLOBALS & SETUP ---
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
         const COLORS = {
-            cyan: '#00f5ff', pink: '#ff2bd6', purple: '#9c62ff',
-            yellow: '#fff066', green: '#37ff9f', red: '#ff4e6a',
-            white: '#f5fbff', orange: '#ff9a3d'
+            cyan: '#00f5ff',
+            pink: '#ff2bd6',
+            purple: '#9c62ff',
+            yellow: '#fff066',
+            green: '#37ff9f',
+            red: '#ff4e6a',
+            white: '#f5fbff',
+            orange: '#ff9a3d',
+            blueMid: '#13244f'
         };
 
         const HOME_ROW = ['a', 's', 'd', 'f', 'j', 'k', 'l', 'ö'];
 
-        // Progression für Type Dash (von Einzelbuchstaben bis Wörter)
-        const dashWords = {
+        const DASH_WORDS = {
             1: ['a', 's', 'd', 'f', 'j', 'k', 'l', 'ö'],
             2: ['as', 'df', 'jk', 'lö', 'sa', 'fd', 'kj', 'öl'],
-            3: ['das', 'fad', 'als', 'ass', 'all', 'ja', 'da'],
-            4: ['asdf', 'jklö', 'fdsa', 'ölkj', 'saal', 'lass', 'fall']
+            3: ['das', 'fad', 'als', 'ass', 'all', 'ja', 'da', 'las'],
+            4: ['asdf', 'jklö', 'fdsa', 'ölkj', 'saal', 'lass', 'fall', 'kalk'],
+            5: ['asdfj', 'jklöf', 'dafal', 'lasjk', 'fjklö', 'safdj']
         };
 
-        // UI Elemente
         const DOM = {
-            mode: document.getElementById('modeDisplay'), score: document.getElementById('scoreDisplay'),
-            level: document.getElementById('levelDisplay'), credits: document.getElementById('creditsDisplay'),
-            wordPanel: document.getElementById('wordPanel'), wordLabel: document.getElementById('wordLabel'),
-            wordDisplay: document.getElementById('wordDisplay'), helper: document.getElementById('helperText'),
-            overlay: document.getElementById('overlay'), lobby: document.getElementById('lobbyScreen'),
-            summary: document.getElementById('summaryScreen'), ticketBank: document.getElementById('lobbyTicketBank'),
-            msg: document.getElementById('lobbyMessage'), reason: document.getElementById('summaryReason'),
-            sumTickets: document.getElementById('summaryTickets'), sumGame: document.getElementById('sumGame'),
-            sumScore: document.getElementById('sumScore'), sumLevel: document.getElementById('sumLevel'),
-            sumAcc: document.getElementById('sumAcc'), hint: document.getElementById('summaryHint'),
-            retry: document.getElementById('retryBtn'), back: document.getElementById('backLobbyBtn')
+            mode: document.getElementById('modeDisplay'),
+            score: document.getElementById('scoreDisplay'),
+            level: document.getElementById('levelDisplay'),
+            difficulty: document.getElementById('difficultyDisplay'),
+            credits: document.getElementById('creditsDisplay'),
+            wordPanel: document.getElementById('wordPanel'),
+            wordLabel: document.getElementById('wordLabel'),
+            wordDisplay: document.getElementById('wordDisplay'),
+            helper: document.getElementById('helperText'),
+            overlay: document.getElementById('overlay'),
+            lobby: document.getElementById('lobbyScreen'),
+            summary: document.getElementById('summaryScreen'),
+            ticketBank: document.getElementById('lobbyTicketBank'),
+            lobbyMessage: document.getElementById('lobbyMessage'),
+            summaryReason: document.getElementById('summaryReason'),
+            summaryTickets: document.getElementById('summaryTickets'),
+            sumGame: document.getElementById('sumGame'),
+            sumScore: document.getElementById('sumScore'),
+            sumLevel: document.getElementById('sumLevel'),
+            sumDiff: document.getElementById('sumDiff'),
+            sumAcc: document.getElementById('sumAcc'),
+            summaryHint: document.getElementById('summaryHint'),
+            retry: document.getElementById('retryBtn'),
+            back: document.getElementById('backLobbyBtn')
         };
 
         let tickets = 5;
-        let gameState = 'LOBBY'; // LOBBY, PLAYING, OVER
+        let gameState = 'LOBBY';
         let currentGame = null;
-        let animId = null;
+        let currentScore = 0;
+        let currentLevel = 1;
+        let stats = freshStats();
         let frames = 0;
-        let currentScore = 0, currentLevel = 1;
-        let stats = { strokes: 0, hits: 0, errors: 0 };
-        
-        let stars = Array.from({ length: 80 }, () => ({ x: Math.random() * 980, y: Math.random() * 600, size: Math.random() * 2 + 0.5, speed: Math.random() * 0.8 + 0.15 }));
-        let particles = [], floatTexts = [];
+        let animationFrameId = null;
+        let loopRunning = false;
 
-        // --- GAME STATES ---
-        const dashGame = { groundY: 480, speed: 3.5, bgOff: 0, mountOff: 0, cityOff: 0, typed: '', word: '', obs: [], p: { x: 120, y: 0, w: 42, h: 42, dy: 0, jump: false, rot: 0, trail: [] } };
-        const astroGame = { lives: 3, shipX: 490, aliens: [], lasers: [], timer: 0, interval: 90 };
-        // Beat Game: 8 Spuren exakt gemappt auf die Tasten
-        const beatGame = { lives: 4, hitY: 510, notes: [], timer: 0, interval: 70, combo: 0, pulse: 0,
-            lanes: { 'a': 130, 's': 220, 'd': 310, 'f': 400, /* gap */ 'j': 580, 'k': 670, 'l': 760, 'ö': 850 }
+        let stars = createStars(100);
+        let particles = [];
+        let floatingTexts = [];
+
+        const dashGame = {
+            groundY: 485,
+            speed: 3.4,
+            backgroundOffset: 0,
+            mountainOffset: 0,
+            cityOffset: 0,
+            typed: '',
+            currentWord: '',
+            obstacles: [],
+            player: {
+                x: 140,
+                y: 0,
+                w: 44,
+                h: 44,
+                dy: 0,
+                gravity: 0.88,
+                jumpForce: -15.5,
+                jumping: false,
+                rotation: 0,
+                trail: []
+            }
         };
 
-        // --- UTILS ---
-        function resetStats() { currentScore = 0; currentLevel = 1; stats = { strokes: 0, hits: 0, errors: 0 }; }
-        function updateHUD(mode) { DOM.mode.textContent = `MODE: ${mode}`; DOM.score.textContent = `SCORE: ${currentScore}`; DOM.level.textContent = `LEVEL: ${currentLevel}`; DOM.credits.textContent = `TICKETS: ${tickets}`; }
-        function showHelper(txt, show=true) { DOM.helper.textContent = txt; DOM.helper.style.display = show ? 'block' : 'none'; }
-        
-        function setWordPanel(label, html, show=true) {
+        const astroGame = {
+            lives: 3,
+            shipX: canvas.width / 2,
+            shipY: canvas.height - 88,
+            aliens: [],
+            lasers: [],
+            spawnTimer: 0,
+            spawnEvery: 95,
+            starfieldOffset: 0
+        };
+
+        const beatGame = {
+            lives: 4,
+            hitY: 508,
+            notes: [],
+            spawnTimer: 0,
+            spawnEvery: 74,
+            combo: 0,
+            pulse: 0,
+            lanes: [
+                { key: 'a', x: 120, color: '#00f5ff' },
+                { key: 's', x: 215, color: '#26ffc1' },
+                { key: 'd', x: 310, color: '#76ff8f' },
+                { key: 'f', x: 405, color: '#fff066' },
+                { key: 'j', x: 595, color: '#fff066' },
+                { key: 'k', x: 690, color: '#ffb84d' },
+                { key: 'l', x: 785, color: '#ff7edc' },
+                { key: 'ö', x: 880, color: '#9c62ff' }
+            ]
+        };
+
+        function freshStats() {
+            return { strokes: 0, hits: 0, errors: 0 };
+        }
+
+        function createStars(count) {
+            return Array.from({ length: count }, () => ({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 2.2 + 0.5,
+                speed: Math.random() * 0.9 + 0.1,
+                alpha: Math.random() * 0.5 + 0.4
+            }));
+        }
+
+        function updateHUD(mode = 'LOBBY') {
+            DOM.mode.textContent = `MODE: ${mode}`;
+            DOM.score.textContent = `SCORE: ${currentScore}`;
+            DOM.level.textContent = `LEVEL: ${currentLevel}`;
+            DOM.difficulty.textContent = `DIFF: ${getDifficultyLabel().toUpperCase()}`;
+            DOM.credits.textContent = `TICKETS: ${tickets}`;
+        }
+
+        function getDifficultyLabel() {
+            if (currentGame === 'astro') return 'Leicht';
+            if (currentGame === 'beat') return 'Mittel';
+            if (currentGame === 'dash') {
+                if (currentLevel <= 2) return 'Leicht';
+                if (currentLevel <= 4) return 'Mittel';
+                return 'Schwer';
+            }
+            return 'Leicht';
+        }
+
+        function getAccuracy() {
+            if (stats.strokes === 0) return 0;
+            return Math.round((stats.hits / stats.strokes) * 100);
+        }
+
+        function resetSessionStats() {
+            currentScore = 0;
+            currentLevel = 1;
+            stats = freshStats();
+        }
+
+        function setHelper(text = '', visible = false) {
+            DOM.helper.textContent = text;
+            DOM.helper.style.display = visible ? 'block' : 'none';
+        }
+
+        function setWordPanel(label = '', content = '', visible = false, isHtml = true) {
             DOM.wordLabel.textContent = label;
-            DOM.wordDisplay.innerHTML = html;
-            DOM.wordPanel.style.display = show ? 'block' : 'none';
+            if (isHtml) DOM.wordDisplay.innerHTML = content;
+            else DOM.wordDisplay.textContent = content;
+            DOM.wordPanel.style.display = visible ? 'block' : 'none';
         }
 
-        function spawnParticles(x, y, color, count=16) {
-            for(let i=0; i<count; i++) particles.push({ x, y, vx: (Math.random()-0.5)*12, vy: (Math.random()-0.8)*12, life: 1, size: Math.random()*4+2, color });
+        function createParticles(x, y, color, count = 16, spread = 12) {
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x,
+                    y,
+                    vx: (Math.random() - 0.5) * spread,
+                    vy: (Math.random() - 0.8) * spread,
+                    life: 1,
+                    size: Math.random() * 5 + 2,
+                    color
+                });
+            }
         }
-        function spawnText(text, x, y, color) { floatTexts.push({ text, x, y, color, life: 1 }); }
 
-        // --- TYPE DASH ---
-        function pickDashWord() {
-            const pool = dashWords[Math.min(4, currentLevel)];
-            dashGame.word = pool[Math.floor(Math.random() * pool.length)];
+        function addFloatingText(text, x, y, color) {
+            floatingTexts.push({ text, x, y, color, life: 1 });
+        }
+
+        function updateParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.32;
+                p.life -= 0.03;
+                if (p.life <= 0) particles.splice(i, 1);
+            }
+
+            for (let i = floatingTexts.length - 1; i >= 0; i--) {
+                const t = floatingTexts[i];
+                t.y -= 0.8;
+                t.life -= 0.02;
+                if (t.life <= 0) floatingTexts.splice(i, 1);
+            }
+        }
+
+        function updateStars() {
+            stars.forEach(s => {
+                s.y += s.speed * 0.15;
+                if (s.y > canvas.height) {
+                    s.y = -4;
+                    s.x = Math.random() * canvas.width;
+                }
+            });
+        }
+
+        function stopLoop() {
+            loopRunning = false;
+            if (animationFrameId !== null) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
+        }
+
+        function startLoop() {
+            if (loopRunning) return;
+            loopRunning = true;
+            loop();
+        }
+
+        function spendTicketAndStart(gameId) {
+            if (tickets <= 0) {
+                DOM.lobbyMessage.innerHTML = '<span class="danger">Keine Tickets mehr. Session beendet.</span>';
+                return;
+            }
+            tickets -= 1;
+            launchGame(gameId);
+        }
+
+        function chooseDashWord() {
+            const tier = Math.min(5, currentLevel);
+            const pool = DASH_WORDS[tier];
+            dashGame.currentWord = pool[Math.floor(Math.random() * pool.length)];
             dashGame.typed = '';
             renderDashWord();
         }
-        
-        function renderDashWord(err=false) {
+
+        function renderDashWord(error = false) {
             let html = '';
-            for(let i=0; i<dashGame.word.length; i++) {
-                if(i < dashGame.typed.length) html += `<span class="typed">${dashGame.word[i]}</span>`;
-                else if(i === dashGame.typed.length && err) html += `<span class="error">${dashGame.word[i]}</span>`;
-                else html += `<span class="untyped">${dashGame.word[i]}</span>`;
+            for (let i = 0; i < dashGame.currentWord.length; i++) {
+                if (i < dashGame.typed.length) html += `<span class="typed">${dashGame.currentWord[i]}</span>`;
+                else if (i === dashGame.typed.length && error) html += `<span class="error">${dashGame.currentWord[i]}</span>`;
+                else html += `<span class="untyped">${dashGame.currentWord[i]}</span>`;
             }
-            setWordPanel('Target', html);
+            setWordPanel('Target', html, true, true);
         }
 
         function spawnDashObstacle() {
-            const types = currentLevel < 2 ? ['spike'] : currentLevel < 4 ? ['spike', 'double'] : ['spike', 'double', 'block'];
+            const types = currentLevel <= 2
+                ? ['spike']
+                : currentLevel <= 4
+                    ? ['spike', 'double']
+                    : ['spike', 'double', 'block'];
+
             const type = types[Math.floor(Math.random() * types.length)];
-            let w = type==='double' ? 84 : type==='block' ? 48 : 42;
-            let h = type==='block' ? 52 : 42;
-            dashGame.obs.push({ x: canvas.width + 40, y: dashGame.groundY - h, w, h, type, passed: false });
+            const obs = { x: canvas.width + 50, type, passed: false };
+
+            if (type === 'spike') {
+                obs.w = 42;
+                obs.h = 42;
+                obs.y = dashGame.groundY - obs.h;
+            } else if (type === 'double') {
+                obs.w = 84;
+                obs.h = 42;
+                obs.y = dashGame.groundY - obs.h;
+            } else {
+                obs.w = 52;
+                obs.h = 56;
+                obs.y = dashGame.groundY - obs.h;
+            }
+
+            dashGame.obstacles.push(obs);
         }
 
-        function updateDash() {
-            currentLevel = Math.floor(currentScore / 50) + 1; // Level up alle 50 punkte
-            dashGame.speed = 3.5 + currentLevel * 0.4;
-            dashGame.bgOff -= dashGame.speed * 0.6; dashGame.mountOff -= dashGame.speed * 0.15; dashGame.cityOff -= dashGame.speed * 0.08;
-            if(dashGame.bgOff < -80) dashGame.bgOff = 0; if(dashGame.mountOff < -980) dashGame.mountOff = 0; if(dashGame.cityOff < -980) dashGame.cityOff = 0;
-
-            let p = dashGame.p;
-            p.dy += 0.85; // gravity
-            p.y += p.dy;
-            
-            if(p.y >= dashGame.groundY - p.h) {
-                if(p.jump) { spawnParticles(p.x+p.w/2, p.y+p.h, COLORS.cyan, 12); p.rot = Math.round(p.rot/(Math.PI/2))*(Math.PI/2); }
-                p.y = dashGame.groundY - p.h; p.dy = 0; p.jump = false;
-            } else { p.jump = true; p.rot += 0.16; }
-
-            p.trail.push({x: p.x, y: p.y, rot: p.rot, life: 1});
-            if(p.trail.length > 8) p.trail.shift();
-            p.trail.forEach(t => t.life -= 0.14);
-
-            let last = dashGame.obs[dashGame.obs.length-1];
-            if(!last || canvas.width - last.x > 340 + dashGame.speed*15) spawnDashObstacle();
-
-            for(let i=dashGame.obs.length-1; i>=0; i--) {
-                let o = dashGame.obs[i]; o.x -= dashGame.speed;
-                // Collision
-                let hitboxMargin = o.type === 'block' ? 0 : 8;
-                if(p.x < o.x + o.w - hitboxMargin && p.x + p.w - hitboxMargin > o.x && p.y + p.h > o.y + (o.type==='block'?0:10) && p.y < o.y + o.h) {
-                    endGame('Kollision!'); return;
-                }
-                if(o.x + o.w < p.x && !o.passed) { o.passed = true; currentScore += 10; spawnText('+10', p.x, p.y-20, COLORS.pink); }
-                if(o.x + o.w < -100) dashGame.obs.splice(i, 1);
-            }
+        function startDash() {
+            resetSessionStats();
+            dashGame.speed = 3.4;
+            dashGame.backgroundOffset = 0;
+            dashGame.mountainOffset = 0;
+            dashGame.cityOffset = 0;
+            dashGame.obstacles = [];
+            dashGame.player.y = dashGame.groundY - dashGame.player.h;
+            dashGame.player.dy = 0;
+            dashGame.player.jumping = false;
+            dashGame.player.rotation = 0;
+            dashGame.player.trail = [];
+            chooseDashWord();
+            spawnDashObstacle();
+            setHelper('Type Dash startet mit Einzelbuchstaben und wird dann Schritt für Schritt schwerer.', true);
             updateHUD('TYPE DASH');
         }
 
-        // --- ASTRO KEYS ---
-        function updateAstro() {
-            currentLevel = Math.floor(currentScore / 60) + 1;
-            astroGame.shipX = canvas.width/2 + Math.sin(frames*0.02) * 120; // Leichtes Schweben
-            astroGame.interval = Math.max(30, 90 - currentLevel * 8);
-            astroGame.timer++;
+        function updateDash() {
+            currentLevel = Math.floor(currentScore / 45) + 1;
+            dashGame.speed = 3.4 + currentLevel * 0.34;
+            dashGame.backgroundOffset -= dashGame.speed * 0.58;
+            dashGame.mountainOffset -= dashGame.speed * 0.16;
+            dashGame.cityOffset -= dashGame.speed * 0.08;
 
-            if(astroGame.timer >= astroGame.interval) {
-                astroGame.timer = 0;
-                astroGame.aliens.push({
-                    x: 80 + Math.random() * (canvas.width - 160), startX: 0,
-                    y: -50, size: 28 + Math.random()*10, speed: 1.5 + currentLevel*0.2,
-                    letter: HOME_ROW[Math.floor(Math.random()*HOME_ROW.length)],
-                    offset: Math.random() * Math.PI * 2 // Für Wackeln
-                });
-                astroGame.aliens[astroGame.aliens.length-1].startX = astroGame.aliens[astroGame.aliens.length-1].x;
-            }
+            if (dashGame.backgroundOffset < -80) dashGame.backgroundOffset = 0;
+            if (dashGame.mountainOffset < -canvas.width) dashGame.mountainOffset = 0;
+            if (dashGame.cityOffset < -canvas.width) dashGame.cityOffset = 0;
 
-            for(let i=astroGame.aliens.length-1; i>=0; i--) {
-                let a = astroGame.aliens[i];
-                a.y += a.speed;
-                a.x = a.startX + Math.sin(frames*0.04 + a.offset) * 25; // Alien wackelt
+            const p = dashGame.player;
+            p.dy += p.gravity;
+            p.y += p.dy;
 
-                if(a.y > canvas.height - 80) {
-                    spawnParticles(a.x, a.y, COLORS.red, 20);
-                    astroGame.aliens.splice(i, 1);
-                    astroGame.lives--;
-                    if(astroGame.lives <= 0) { endGame('Schild zerstört!'); return; }
+            if (p.y >= dashGame.groundY - p.h) {
+                const justLanded = p.jumping;
+                p.y = dashGame.groundY - p.h;
+                p.dy = 0;
+                p.jumping = false;
+                if (justLanded) {
+                    createParticles(p.x + p.w / 2, p.y + p.h, COLORS.cyan, 14, 10);
+                    p.rotation = Math.round(p.rotation / (Math.PI / 2)) * (Math.PI / 2);
                 }
+            } else {
+                p.jumping = true;
+                p.rotation += 0.16;
             }
 
-            for(let i=astroGame.lasers.length-1; i>=0; i--) {
-                astroGame.lasers[i].life -= 0.1;
-                if(astroGame.lasers[i].life <= 0) astroGame.lasers.splice(i, 1);
+            p.trail.push({ x: p.x, y: p.y, rot: p.rotation, life: 1 });
+            if (p.trail.length > 10) p.trail.shift();
+            p.trail.forEach(t => t.life -= 0.12);
+
+            const last = dashGame.obstacles[dashGame.obstacles.length - 1];
+            const minDistance = 360 + dashGame.speed * 20;
+            if (!last || canvas.width - last.x > minDistance) spawnDashObstacle();
+
+            for (let i = dashGame.obstacles.length - 1; i >= 0; i--) {
+                const obs = dashGame.obstacles[i];
+                obs.x -= dashGame.speed;
+
+                if (obs.type === 'spike' || obs.type === 'double') {
+                    if (
+                        p.x < obs.x + obs.w - 8 &&
+                        p.x + p.w - 8 > obs.x &&
+                        p.y + p.h > obs.y + 10
+                    ) {
+                        endGame('Obstacle hit');
+                        return;
+                    }
+                } else {
+                    if (
+                        p.x < obs.x + obs.w &&
+                        p.x + p.w > obs.x &&
+                        p.y < obs.y + obs.h &&
+                        p.y + p.h > obs.y
+                    ) {
+                        endGame('Cube collision');
+                        return;
+                    }
+                }
+
+                if (obs.x + obs.w < p.x && !obs.passed) {
+                    obs.passed = true;
+                    currentScore += 10;
+                    addFloatingText('+10', p.x + 20, p.y - 14, COLORS.pink);
+                }
+
+                if (obs.x + obs.w < -120) dashGame.obstacles.splice(i, 1);
             }
-            updateHUD(`ASTRO HP ${astroGame.lives}`);
+
+            updateHUD('TYPE DASH');
         }
 
-        // --- NEON BEAT ---
-        function updateBeat() {
-            currentLevel = Math.floor(currentScore / 50) + 1;
-            beatGame.interval = Math.max(25, 70 - currentLevel * 6);
-            beatGame.timer++; beatGame.pulse += 0.1;
+        function startAstro() {
+            resetSessionStats();
+            astroGame.lives = 3;
+            astroGame.shipX = canvas.width / 2;
+            astroGame.aliens = [];
+            astroGame.lasers = [];
+            astroGame.spawnTimer = 0;
+            setWordPanel('', '', false);
+            setHelper('Tippe den Buchstaben eines Aliens, um sofort zu feuern.', true);
+            updateHUD('ASTRO KEYS');
+        }
 
-            if(beatGame.timer >= beatGame.interval) {
-                beatGame.timer = 0;
-                let letter = HOME_ROW[Math.floor(Math.random() * HOME_ROW.length)];
-                beatGame.notes.push({
-                    letter: letter, x: beatGame.lanes[letter], y: -30,
-                    speed: 2.5 + currentLevel * 0.3, r: 28, glow: COLORS.cyan
+        function spawnAlienWave() {
+            const waveSize = Math.random() > 0.55 ? 2 : 1;
+            const baseX = 120 + Math.random() * (canvas.width - 240);
+            for (let i = 0; i < waveSize; i++) {
+                const offsetX = (i - (waveSize - 1) / 2) * 90;
+                astroGame.aliens.push({
+                    x: baseX + offsetX,
+                    startX: baseX + offsetX,
+                    y: -60 - i * 25,
+                    size: 26 + Math.random() * 10,
+                    speed: 1.5 + currentLevel * 0.16,
+                    letter: HOME_ROW[Math.floor(Math.random() * HOME_ROW.length)],
+                    wobble: Math.random() * Math.PI * 2,
+                    beamPulse: Math.random() * Math.PI * 2,
+                    bodyColor: Math.random() > 0.5 ? COLORS.green : COLORS.purple
                 });
             }
+        }
 
-            for(let i=beatGame.notes.length-1; i>=0; i--) {
-                let n = beatGame.notes[i]; n.y += n.speed;
-                if(n.y > beatGame.hitY + 50) {
-                    spawnParticles(n.x, n.y, COLORS.red);
-                    beatGame.notes.splice(i, 1);
-                    beatGame.combo = 0; beatGame.lives--;
-                    if(beatGame.lives <= 0) { endGame('Zu viele Fehler!'); return; }
+        function updateAstro() {
+            currentLevel = Math.floor(currentScore / 60) + 1;
+            astroGame.shipX = canvas.width / 2 + Math.sin(frames * 0.028) * 120;
+            astroGame.spawnEvery = Math.max(32, 95 - currentLevel * 7);
+            astroGame.spawnTimer++;
+
+            if (astroGame.spawnTimer >= astroGame.spawnEvery) {
+                astroGame.spawnTimer = 0;
+                spawnAlienWave();
+            }
+
+            for (let i = astroGame.aliens.length - 1; i >= 0; i--) {
+                const alien = astroGame.aliens[i];
+                alien.y += alien.speed;
+                alien.x = alien.startX + Math.sin(frames * 0.045 + alien.wobble) * 26;
+                alien.beamPulse += 0.08;
+
+                if (alien.y > canvas.height - 110) {
+                    createParticles(alien.x, alien.y, COLORS.red, 22, 12);
+                    astroGame.aliens.splice(i, 1);
+                    astroGame.lives -= 1;
+                    if (astroGame.lives <= 0) {
+                        endGame('Shield destroyed');
+                        return;
+                    }
                 }
             }
+
+            for (let i = astroGame.lasers.length - 1; i >= 0; i--) {
+                astroGame.lasers[i].life -= 0.08;
+                if (astroGame.lasers[i].life <= 0) astroGame.lasers.splice(i, 1);
+            }
+
+            updateHUD('ASTRO KEYS');
+        }
+
+        function startBeat() {
+            resetSessionStats();
+            beatGame.lives = 4;
+            beatGame.notes = [];
+            beatGame.spawnTimer = 0;
+            beatGame.spawnEvery = 74;
+            beatGame.combo = 0;
+            beatGame.pulse = 0;
+            setWordPanel('Next Notes', '<span class="typed">WARMUP</span>', true, true);
+            setHelper('Treffe die gelbe Linie mit dem richtigen Grundreihen Buchstaben.', true);
             updateHUD('NEON BEAT');
         }
 
-        // --- DRAWING ---
-        function drawBg() {
-            ctx.fillStyle = ctx.createLinearGradient(0,0,0,canvas.height);
-            ctx.fillStyle.addColorStop(0, '#050812'); ctx.fillStyle.addColorStop(0.5, '#0d1739'); ctx.fillStyle.addColorStop(1, '#02040d');
-            ctx.fillRect(0,0,canvas.width,canvas.height);
-            stars.forEach(s => { ctx.globalAlpha=0.6; ctx.fillStyle=COLORS.white; ctx.fillRect(s.x, s.y, s.size, s.size); });
-            ctx.globalAlpha=1;
+        function updateBeat() {
+            currentLevel = Math.floor(currentScore / 55) + 1;
+            beatGame.spawnEvery = Math.max(26, 74 - currentLevel * 5);
+            beatGame.spawnTimer += 1;
+            beatGame.pulse += 0.08;
+
+            if (beatGame.spawnTimer >= beatGame.spawnEvery) {
+                beatGame.spawnTimer = 0;
+                const lane = beatGame.lanes[Math.floor(Math.random() * beatGame.lanes.length)];
+                beatGame.notes.push({
+                    laneKey: lane.key,
+                    x: lane.x,
+                    y: -28,
+                    r: 29,
+                    speed: 2.5 + currentLevel * 0.24,
+                    letter: lane.key,
+                    glow: lane.color
+                });
+            }
+
+            for (let i = beatGame.notes.length - 1; i >= 0; i--) {
+                const note = beatGame.notes[i];
+                note.y += note.speed;
+                if (note.y > beatGame.hitY + 50) {
+                    createParticles(note.x, note.y, COLORS.red, 18, 10);
+                    beatGame.notes.splice(i, 1);
+                    beatGame.combo = 0;
+                    beatGame.lives -= 1;
+                    if (beatGame.lives <= 0) {
+                        endGame('Beat missed');
+                        return;
+                    }
+                }
+            }
+
+            const upcoming = beatGame.notes
+                .slice()
+                .sort((a, b) => b.y - a.y)
+                .slice(0, 5)
+                .map(note => `<span class="untyped">${note.letter.toUpperCase()}</span>`)
+                .join(' ');
+
+            setWordPanel('Next Notes', upcoming || '<span class="typed">CLEAR</span>', true, true);
+            updateHUD('NEON BEAT');
+        }
+
+        function drawBackgroundBase() {
+            const sky = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            sky.addColorStop(0, '#050812');
+            sky.addColorStop(0.52, '#0f1b44');
+            sky.addColorStop(1, '#02040d');
+            ctx.fillStyle = sky;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            stars.forEach(star => {
+                ctx.globalAlpha = star.alpha;
+                ctx.fillStyle = COLORS.white;
+                ctx.fillRect(star.x, star.y, star.size, star.size);
+            });
+            ctx.globalAlpha = 1;
+        }
+
+        function drawLobbyPreview() {
+            drawBackgroundBase();
+
+            ctx.fillStyle = COLORS.pink;
+            ctx.shadowBlur = 82;
+            ctx.shadowColor = COLORS.pink;
+            ctx.beginPath();
+            ctx.arc(canvas.width / 2, 280, 160, Math.PI, 0);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            ctx.fillStyle = 'rgba(9,16,38,0.95)';
+            for (let i = 0; i < 8; i++) {
+                ctx.fillRect(270, 215 - i * 14, 460, i * 4);
+            }
+
+            ctx.strokeStyle = 'rgba(0,245,255,0.14)';
+            ctx.lineWidth = 2;
+            for (let i = -120; i < canvas.width + 120; i += 64) {
+                ctx.beginPath();
+                ctx.moveTo(i + (frames % 64), 485);
+                ctx.lineTo((i - 500) * 2 + canvas.width / 2, canvas.height);
+                ctx.stroke();
+            }
+
+            ctx.strokeStyle = COLORS.cyan;
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(0, 485);
+            ctx.lineTo(canvas.width, 485);
+            ctx.stroke();
         }
 
         function drawDash() {
-            drawBg();
-            // City
+            drawBackgroundBase();
+
+            ctx.fillStyle = COLORS.pink;
+            ctx.shadowBlur = 72;
+            ctx.shadowColor = COLORS.pink;
+            ctx.beginPath();
+            ctx.arc(canvas.width / 2, 280, 150, Math.PI, 0);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
             ctx.fillStyle = '#09142e';
-            for(let i=0; i<18; i++) {
-                let h=56+Math.abs(Math.sin(i*1.4)*120), x=i*86+dashGame.cityOff;
-                ctx.fillRect(x, dashGame.groundY-h, 70, h);
-                if(i%2===0) { ctx.fillStyle='rgba(0,245,255,0.3)'; ctx.fillRect(x+10, dashGame.groundY-h+12, 14, 18); ctx.fillStyle='#09142e'; }
-            }
-            // Mountains
-            ctx.fillStyle = '#16295d'; ctx.beginPath(); ctx.moveTo(0, dashGame.groundY);
-            for(let i=0; i<18; i++) ctx.lineTo(i*120+dashGame.mountOff, dashGame.groundY-90-Math.abs(Math.sin(i*0.8)*70));
-            ctx.lineTo(canvas.width*2, dashGame.groundY); ctx.fill();
-            // Grid
-            ctx.strokeStyle = 'rgba(0,245,255,0.15)'; ctx.lineWidth=2;
-            for(let i=-120; i<canvas.width+120; i+=64) {
-                ctx.beginPath(); ctx.moveTo(i+dashGame.bgOff, dashGame.groundY); ctx.lineTo((i-490)*2+canvas.width/2, canvas.height); ctx.stroke();
-            }
-            // Ground Line
-            ctx.strokeStyle=COLORS.cyan; ctx.lineWidth=4; ctx.shadowBlur=15; ctx.shadowColor=COLORS.cyan;
-            ctx.beginPath(); ctx.moveTo(0, dashGame.groundY); ctx.lineTo(canvas.width, dashGame.groundY); ctx.stroke(); ctx.shadowBlur=0;
-            
-            // Obstacles
-            dashGame.obs.forEach(o => {
-                ctx.shadowBlur=15; ctx.fillStyle=COLORS.pink; ctx.shadowColor=COLORS.pink;
-                if(o.type === 'block') {
-                    ctx.save(); ctx.translate(o.x+o.w/2, o.y+o.h/2); ctx.rotate(frames*0.05);
-                    ctx.fillStyle=COLORS.purple; ctx.shadowColor=COLORS.purple;
-                    ctx.fillRect(-o.w/2, -o.h/2, o.w, o.h);
-                    ctx.fillStyle='#0a1022'; ctx.fillRect(-o.w/2+6, -o.h/2+6, o.w-12, o.h-12); ctx.restore();
-                } else {
-                    let c = o.type==='double'?2:1;
-                    for(let i=0; i<c; i++) {
-                        ctx.beginPath(); ctx.moveTo(o.x+i*42+21, dashGame.groundY-42); ctx.lineTo(o.x+i*42+42, dashGame.groundY); ctx.lineTo(o.x+i*42, dashGame.groundY); ctx.fill();
-                    }
+            for (let i = 0; i < 18; i++) {
+                const h = 56 + Math.abs(Math.sin(i * 1.4) * 120);
+                const x = i * 86 + dashGame.cityOffset;
+                ctx.fillRect(x, dashGame.groundY - h, 70, h);
+                if (i % 2 === 0) {
+                    ctx.fillStyle = 'rgba(0,245,255,0.35)';
+                    ctx.fillRect(x + 10, dashGame.groundY - h + 12, 14, 18);
+                    ctx.fillRect(x + 38, dashGame.groundY - h + 36, 12, 12);
+                    ctx.fillStyle = '#09142e';
                 }
-                ctx.shadowBlur=0;
+            }
+
+            ctx.fillStyle = '#16295d';
+            ctx.beginPath();
+            ctx.moveTo(0, dashGame.groundY);
+            for (let i = 0; i < 18; i++) {
+                ctx.lineTo((i * 120) + dashGame.mountainOffset, dashGame.groundY - 90 - Math.abs(Math.sin(i * 0.8) * 70));
+            }
+            ctx.lineTo(canvas.width * 2, dashGame.groundY);
+            ctx.fill();
+
+            ctx.strokeStyle = 'rgba(0,245,255,0.16)';
+            ctx.lineWidth = 2;
+            for (let i = -120; i < canvas.width + 120; i += 64) {
+                ctx.beginPath();
+                ctx.moveTo(i + dashGame.backgroundOffset, dashGame.groundY);
+                ctx.lineTo((i - 490) * 2 + canvas.width / 2, canvas.height);
+                ctx.stroke();
+            }
+
+            ctx.strokeStyle = COLORS.cyan;
+            ctx.lineWidth = 5;
+            ctx.shadowBlur = 18;
+            ctx.shadowColor = COLORS.cyan;
+            ctx.beginPath();
+            ctx.moveTo(0, dashGame.groundY);
+            ctx.lineTo(canvas.width, dashGame.groundY);
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            dashGame.obstacles.forEach(obs => {
+                if (obs.type === 'spike' || obs.type === 'double') {
+                    const count = obs.type === 'spike' ? 1 : 2;
+                    ctx.shadowBlur = 20;
+                    ctx.shadowColor = COLORS.pink;
+                    ctx.fillStyle = COLORS.pink;
+                    for (let i = 0; i < count; i++) {
+                        const ox = obs.x + i * 42;
+                        ctx.beginPath();
+                        ctx.moveTo(ox + 21, dashGame.groundY - 42);
+                        ctx.lineTo(ox + 42, dashGame.groundY);
+                        ctx.lineTo(ox, dashGame.groundY);
+                        ctx.closePath();
+                        ctx.fill();
+                    }
+                    ctx.shadowBlur = 0;
+                } else {
+                    ctx.save();
+                    ctx.translate(obs.x + obs.w / 2, obs.y + obs.h / 2);
+                    ctx.rotate(frames * 0.07);
+                    ctx.shadowBlur = 22;
+                    ctx.shadowColor = COLORS.purple;
+                    ctx.fillStyle = COLORS.purple;
+                    ctx.fillRect(-obs.w / 2, -obs.h / 2, obs.w, obs.h);
+                    ctx.fillStyle = '#0a1022';
+                    ctx.fillRect(-obs.w / 2 + 6, -obs.h / 2 + 6, obs.w - 12, obs.h - 12);
+                    ctx.restore();
+                }
             });
 
-            // Player Trail & Box
-            let p = dashGame.p;
-            p.trail.forEach(t => { if(t.life>0) { ctx.save(); ctx.globalAlpha=t.life*0.4; ctx.translate(t.x+p.w/2, t.y+p.h/2); ctx.rotate(t.rot); ctx.fillStyle=COLORS.cyan; ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h); ctx.restore(); } });
-            ctx.globalAlpha=1;
-            ctx.save(); ctx.translate(p.x+p.w/2, p.y+p.h/2); ctx.rotate(p.rot);
-            ctx.shadowBlur=20; ctx.shadowColor=COLORS.cyan; ctx.fillStyle=COLORS.cyan; ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
-            ctx.fillStyle='#08101c'; ctx.fillRect(-12,-12,24,24); ctx.restore();
+            const p = dashGame.player;
+            p.trail.forEach(t => {
+                if (t.life > 0) {
+                    ctx.save();
+                    ctx.globalAlpha = t.life * 0.36;
+                    ctx.translate(t.x + p.w / 2, t.y + p.h / 2);
+                    ctx.rotate(t.rot);
+                    ctx.fillStyle = COLORS.cyan;
+                    ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+                    ctx.restore();
+                    ctx.globalAlpha = 1;
+                }
+            });
+
+            ctx.save();
+            ctx.translate(p.x + p.w / 2, p.y + p.h / 2);
+            ctx.rotate(p.rotation);
+            ctx.shadowBlur = 24;
+            ctx.shadowColor = COLORS.cyan;
+            ctx.fillStyle = COLORS.cyan;
+            ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+            ctx.fillStyle = '#08101c';
+            ctx.fillRect(-12, -12, 24, 24);
+            ctx.fillStyle = COLORS.pink;
+            ctx.fillRect(-4, -4, 8, 8);
+            ctx.restore();
         }
 
         function drawAstro() {
-            drawBg();
-            ctx.strokeStyle = 'rgba(0,245,255,0.08)'; ctx.lineWidth=1;
-            for(let i=0; i<12; i++) { ctx.beginPath(); ctx.moveTo(0, i*50+(frames%50)); ctx.lineTo(canvas.width, i*50+(frames%50)); ctx.stroke(); }
+            drawBackgroundBase();
 
-            astroGame.lasers.forEach(l => {
-                ctx.globalAlpha=l.life; ctx.strokeStyle=COLORS.cyan; ctx.lineWidth=5; ctx.shadowBlur=20; ctx.shadowColor=COLORS.cyan;
-                ctx.beginPath(); ctx.moveTo(l.x1, l.y1); ctx.lineTo(l.x2, l.y2); ctx.stroke(); ctx.globalAlpha=1; ctx.shadowBlur=0;
+            ctx.strokeStyle = 'rgba(0,245,255,0.08)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < 12; i++) {
+                ctx.beginPath();
+                ctx.moveTo(0, i * 52 + (frames % 52));
+                ctx.lineTo(canvas.width, i * 52 + (frames % 52));
+                ctx.stroke();
+            }
+
+            astroGame.lasers.forEach(laser => {
+                ctx.globalAlpha = laser.life;
+                ctx.strokeStyle = COLORS.cyan;
+                ctx.lineWidth = 4;
+                ctx.shadowBlur = 22;
+                ctx.shadowColor = COLORS.cyan;
+                ctx.beginPath();
+                ctx.moveTo(laser.x1, laser.y1);
+                ctx.lineTo(laser.x2, laser.y2);
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+                ctx.shadowBlur = 0;
             });
 
-            // Draw Aliens
-            astroGame.aliens.forEach(a => {
-                ctx.save(); ctx.translate(a.x, a.y); ctx.shadowBlur=15; ctx.shadowColor=COLORS.green;
-                // Dome
-                ctx.fillStyle = 'rgba(55,255,159,0.8)';
-                ctx.beginPath(); ctx.arc(0, -5, a.size*0.65, Math.PI, 0); ctx.fill();
-                // Base
-                ctx.fillStyle = '#222'; ctx.strokeStyle = COLORS.green; ctx.lineWidth=2;
-                ctx.beginPath(); ctx.ellipse(0, 0, a.size, a.size*0.35, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();
-                // Letter inside Dome
-                ctx.shadowBlur=0; ctx.fillStyle=COLORS.white; ctx.font=`${Math.round(a.size*0.9)}px VT323`;
-                ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(a.letter.toUpperCase(), 0, -10);
+            astroGame.aliens.forEach(alien => {
+                ctx.save();
+                ctx.translate(alien.x, alien.y);
+
+                ctx.globalAlpha = 0.18 + Math.sin(alien.beamPulse) * 0.06;
+                ctx.fillStyle = alien.bodyColor;
+                ctx.beginPath();
+                ctx.moveTo(-16, alien.size * 0.45);
+                ctx.lineTo(16, alien.size * 0.45);
+                ctx.lineTo(6, alien.size * 1.45);
+                ctx.lineTo(-6, alien.size * 1.45);
+                ctx.closePath();
+                ctx.fill();
+                ctx.globalAlpha = 1;
+
+                ctx.shadowBlur = 18;
+                ctx.shadowColor = alien.bodyColor;
+                ctx.fillStyle = alien.bodyColor;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, alien.size, alien.size * 0.34, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = 'rgba(220,255,255,0.26)';
+                ctx.beginPath();
+                ctx.arc(0, -7, alien.size * 0.56, Math.PI, 0);
+                ctx.fill();
+
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = COLORS.white;
+                ctx.font = `${Math.round(alien.size * 0.92)}px VT323`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(alien.letter.toUpperCase(), 0, -9);
+
+                ctx.fillStyle = '#09111c';
+                ctx.fillRect(-alien.size * 0.7, -1, alien.size * 1.4, 8);
+                ctx.fillStyle = '#39ff9f';
+                ctx.fillRect(-alien.size * 0.55, 0, alien.size * 0.2, 4);
+                ctx.fillRect(-alien.size * 0.1, 0, alien.size * 0.2, 4);
+                ctx.fillRect(alien.size * 0.35, 0, alien.size * 0.2, 4);
                 ctx.restore();
             });
 
-            // Ship
-            ctx.save(); ctx.translate(astroGame.shipX, canvas.height-60); ctx.scale(1+Math.sin(frames*0.1)*0.02, 1+Math.sin(frames*0.1)*0.02);
-            ctx.shadowBlur=20; ctx.shadowColor=COLORS.cyan; ctx.fillStyle=COLORS.cyan;
-            ctx.beginPath(); ctx.moveTo(0,-30); ctx.lineTo(25,15); ctx.lineTo(0,5); ctx.lineTo(-25,15); ctx.fill();
-            ctx.fillStyle=COLORS.pink; ctx.beginPath(); ctx.moveTo(0,5); ctx.lineTo(10,25); ctx.lineTo(0,20); ctx.lineTo(-10,25); ctx.fill();
+            const shipX = astroGame.shipX;
+            const shipY = astroGame.shipY;
+            const pulse = 1 + Math.sin(frames * 0.18) * 0.04;
+            ctx.save();
+            ctx.translate(shipX, shipY);
+            ctx.scale(pulse, pulse);
+            ctx.shadowBlur = 26;
+            ctx.shadowColor = COLORS.cyan;
+            ctx.fillStyle = COLORS.cyan;
+            ctx.beginPath();
+            ctx.moveTo(0, -34);
+            ctx.lineTo(26, 14);
+            ctx.lineTo(0, 8);
+            ctx.lineTo(-26, 14);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = COLORS.pink;
+            ctx.beginPath();
+            ctx.moveTo(0, 8);
+            ctx.lineTo(12, 32);
+            ctx.lineTo(0, 27);
+            ctx.lineTo(-12, 32);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = '#08101c';
+            ctx.fillRect(-8, -10, 16, 14);
             ctx.restore();
-            // Lives
-            for(let i=0; i<astroGame.lives; i++) { ctx.fillStyle=COLORS.red; ctx.fillRect(830+i*22, 20, 14, 14); }
+
+            for (let i = 0; i < astroGame.lives; i++) {
+                ctx.fillStyle = COLORS.red;
+                ctx.shadowBlur = 12;
+                ctx.shadowColor = COLORS.red;
+                ctx.fillRect(845 + i * 22, 18, 14, 14);
+            }
+            ctx.shadowBlur = 0;
         }
 
         function drawBeat() {
-            drawBg();
-            const keys = ['a','s','d','f','j','k','l','ö'];
-            ctx.lineWidth=2;
-            
-            // Draw 8 Lanes & Bottom Keys
-            keys.forEach(k => {
-                let lx = beatGame.lanes[k];
-                // Lane Background
-                ctx.fillStyle = 'rgba(255,255,255,0.02)';
-                ctx.fillRect(lx - 40, 0, 80, beatGame.hitY);
-                // Lane borders
-                ctx.strokeStyle = 'rgba(0,245,255,0.1)';
-                ctx.strokeRect(lx - 40, 0, 80, beatGame.hitY);
-                
-                // Bottom Piano Key
-                ctx.fillStyle = 'rgba(8, 16, 32, 0.9)';
-                ctx.fillRect(lx - 40, beatGame.hitY, 80, 100);
-                ctx.strokeStyle = COLORS.purple;
-                ctx.strokeRect(lx - 40, beatGame.hitY, 80, 100);
-                
-                // Key Letter
-                ctx.fillStyle = '#555'; ctx.font = '30px VT323'; ctx.textAlign='center';
-                ctx.fillText(k.toUpperCase(), lx, beatGame.hitY + 70);
+            drawBackgroundBase();
+
+            const laneTop = 120;
+            const laneBottom = beatGame.hitY + 92;
+            const laneWidth = 82;
+
+            beatGame.lanes.forEach((lane, index) => {
+                const left = lane.x - laneWidth / 2;
+                ctx.fillStyle = index < 4 ? 'rgba(0,245,255,0.07)' : 'rgba(156,98,255,0.07)';
+                ctx.fillRect(left, laneTop, laneWidth, laneBottom - laneTop);
+                ctx.strokeStyle = index < 4 ? 'rgba(0,245,255,0.18)' : 'rgba(156,98,255,0.18)';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(left, laneTop, laneWidth, laneBottom - laneTop);
+
+                ctx.fillStyle = 'rgba(7,11,24,0.95)';
+                ctx.fillRect(left, beatGame.hitY, laneWidth, 98);
+                ctx.strokeStyle = lane.color;
+                ctx.lineWidth = 2;
+                ctx.shadowBlur = 12;
+                ctx.shadowColor = lane.color;
+                ctx.strokeRect(left, beatGame.hitY, laneWidth, 98);
+                ctx.shadowBlur = 0;
+
+                ctx.fillStyle = COLORS.white;
+                ctx.font = '30px VT323';
+                ctx.textAlign = 'center';
+                ctx.fillText(lane.key.toUpperCase(), lane.x, beatGame.hitY + 65);
             });
 
-            // Hit Line
-            ctx.shadowBlur=20; ctx.shadowColor=COLORS.yellow; ctx.strokeStyle=COLORS.yellow; ctx.lineWidth=4;
-            ctx.beginPath(); ctx.moveTo(50, beatGame.hitY); ctx.lineTo(930, beatGame.hitY); ctx.stroke(); ctx.shadowBlur=0;
+            ctx.shadowBlur = 22;
+            ctx.shadowColor = COLORS.yellow;
+            ctx.strokeStyle = COLORS.yellow;
+            ctx.lineWidth = 5;
+            ctx.beginPath();
+            ctx.moveTo(70, beatGame.hitY);
+            ctx.lineTo(930, beatGame.hitY);
+            ctx.stroke();
+            ctx.shadowBlur = 0;
 
-            // Notes
-            beatGame.notes.forEach(n => {
-                ctx.shadowBlur=15; ctx.shadowColor=n.glow; ctx.fillStyle=n.glow;
-                ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle='#111'; ctx.beginPath(); ctx.arc(n.x, n.y, n.r-5, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle=COLORS.white; ctx.font='32px VT323'; ctx.textAlign='center'; ctx.textBaseline='middle';
-                ctx.fillText(n.letter.toUpperCase(), n.x, n.y+2); ctx.shadowBlur=0;
+            beatGame.notes.forEach(note => {
+                const alpha = Math.max(0.5, 1 - Math.abs(note.y - beatGame.hitY) / 520);
+                ctx.globalAlpha = alpha;
+                ctx.shadowBlur = 18;
+                ctx.shadowColor = note.glow;
+                ctx.fillStyle = note.glow;
+                ctx.beginPath();
+                ctx.arc(note.x, note.y, note.r, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#07111f';
+                ctx.beginPath();
+                ctx.arc(note.x, note.y, note.r - 6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = COLORS.white;
+                ctx.font = '34px VT323';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(note.letter.toUpperCase(), note.x, note.y + 2);
+                ctx.globalAlpha = 1;
+                ctx.shadowBlur = 0;
             });
 
-            // Status Info
-            ctx.fillStyle = COLORS.white; ctx.font = '28px VT323'; ctx.textAlign = 'center';
-            ctx.fillText(`COMBO: ${beatGame.combo}`, canvas.width/2, beatGame.hitY + 50);
-            
-            // Lives Bar
-            ctx.fillStyle = '#222'; ctx.fillRect(canvas.width/2 - 100, beatGame.hitY + 70, 200, 10);
-            ctx.fillStyle = COLORS.green; ctx.fillRect(canvas.width/2 - 100, beatGame.hitY + 70, 50 * beatGame.lives, 10);
+            const pulse = 1 + Math.sin(beatGame.pulse) * 0.03;
+            ctx.save();
+            ctx.translate(canvas.width / 2, 586);
+            ctx.scale(pulse, pulse);
+            ctx.fillStyle = COLORS.cyan;
+            ctx.shadowBlur = 22;
+            ctx.shadowColor = COLORS.cyan;
+            ctx.fillRect(-180, -18, 360, 18);
+            ctx.fillStyle = '#08101c';
+            ctx.fillRect(-170, -12, 340, 8);
+            ctx.fillStyle = COLORS.green;
+            ctx.fillRect(-170, -12, (340 / 4) * beatGame.lives, 8);
+            ctx.restore();
+
+            ctx.fillStyle = '#d7e4ef';
+            ctx.font = '28px VT323';
+            ctx.textAlign = 'center';
+            ctx.fillText(`COMBO ${beatGame.combo}`, canvas.width / 2, 608);
         }
 
-        function drawOverlay() {
-            particles.forEach(p => { ctx.globalAlpha=p.life; ctx.fillStyle=p.color; ctx.shadowBlur=15; ctx.shadowColor=p.color; ctx.fillRect(p.x, p.y, p.size, p.size); });
-            ctx.globalAlpha=1; ctx.shadowBlur=0;
-            floatTexts.forEach(t => { ctx.globalAlpha=t.life; ctx.fillStyle=t.color; ctx.font='28px VT323'; ctx.textAlign='center'; ctx.shadowBlur=10; ctx.shadowColor=t.color; ctx.fillText(t.text, t.x, t.y); });
-            ctx.globalAlpha=1; ctx.shadowBlur=0;
+        function drawParticlesAndTexts() {
+            particles.forEach(p => {
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.shadowBlur = 16;
+                ctx.shadowColor = p.color;
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+            });
+            ctx.globalAlpha = 1;
+            ctx.shadowBlur = 0;
+
+            floatingTexts.forEach(text => {
+                ctx.globalAlpha = text.life;
+                ctx.fillStyle = text.color;
+                ctx.font = '28px VT323';
+                ctx.textAlign = 'center';
+                ctx.shadowBlur = 12;
+                ctx.shadowColor = text.color;
+                ctx.fillText(text.text, text.x, text.y);
+            });
+            ctx.globalAlpha = 1;
+            ctx.shadowBlur = 0;
         }
 
         function draw() {
-            ctx.clearRect(0,0,canvas.width,canvas.height);
-            if(currentGame==='dash') drawDash(); else if(currentGame==='astro') drawAstro(); else if(currentGame==='beat') drawBeat(); else { drawBg(); drawDash(); /* preview */ }
-            drawOverlay();
+            if (currentGame === 'dash') drawDash();
+            else if (currentGame === 'astro') drawAstro();
+            else if (currentGame === 'beat') drawBeat();
+            else drawLobbyPreview();
+            drawParticlesAndTexts();
         }
 
         function update() {
-            frames++;
-            for(let i=particles.length-1; i>=0; i--) { let p=particles[i]; p.x+=p.vx; p.y+=p.vy; p.vy+=0.3; p.life-=0.03; if(p.life<=0) particles.splice(i,1); }
-            for(let i=floatTexts.length-1; i>=0; i--) { let t=floatTexts[i]; t.y-=1; t.life-=0.02; if(t.life<=0) floatTexts.splice(i,1); }
-            stars.forEach(s => { s.y += s.speed; if(s.y > canvas.height) { s.y = 0; s.x = Math.random()*canvas.width; }});
-
-            if(gameState==='PLAYING') {
-                if(currentGame==='dash') updateDash(); else if(currentGame==='astro') updateAstro(); else if(currentGame==='beat') updateBeat();
-            }
+            frames += 1;
+            updateStars();
+            updateParticles();
+            if (gameState !== 'PLAYING') return;
+            if (currentGame === 'dash') updateDash();
+            else if (currentGame === 'astro') updateAstro();
+            else if (currentGame === 'beat') updateBeat();
         }
 
-        function loop() { if(!loopRunning) return; update(); draw(); animId = requestAnimationFrame(loop); }
-        function stopLoop() { loopRunning=false; cancelAnimationFrame(animId); }
-        function startLoop() { if(!loopRunning) { loopRunning=true; loop(); } }
+        function loop() {
+            if (!loopRunning) return;
+            update();
+            draw();
+            animationFrameId = requestAnimationFrame(loop);
+        }
 
-        // --- CORE LOGIC ---
         function showLobby() {
-            gameState='LOBBY'; currentGame=null; stopLoop();
-            setWordPanel('', '', false); showHelper('Wähle ein Spiel. Start kostet 1 Ticket.');
+            gameState = 'LOBBY';
+            currentGame = null;
+            stopLoop();
+            setWordPanel('', '', false);
+            setHelper('Wähle ein Spiel aus. Jeder Start kostet 1 Ticket.', true);
             DOM.ticketBank.textContent = `TICKETS VERFÜGBAR: ${tickets}`;
-            DOM.msg.innerHTML = tickets>0 ? 'Wenn alle 5 Tickets aufgebraucht sind, ist die Session beendet.' : '<span class="danger">Keine Tickets mehr. Session beendet.</span>';
-            document.querySelectorAll('[data-game]').forEach(btn => btn.disabled = tickets<=0);
-            DOM.overlay.style.display='flex'; DOM.lobby.style.display='block'; DOM.summary.style.display='none';
-            updateHUD('LOBBY'); draw();
+            DOM.lobbyMessage.innerHTML = tickets > 0
+                ? 'Wenn alle 5 Tickets aufgebraucht sind, ist die Session beendet.'
+                : '<span class="danger">Keine Tickets mehr. Session beendet.</span>';
+            DOM.overlay.style.display = 'flex';
+            DOM.lobby.style.display = 'block';
+            DOM.summary.style.display = 'none';
+            document.querySelectorAll('[data-game]').forEach(btn => btn.disabled = tickets <= 0);
+            updateHUD('LOBBY');
+            draw();
         }
 
-        function launchGame(id) {
-            if(tickets<=0) return; tickets--;
-            gameState='PLAYING'; currentGame=id; resetStats();
-            particles=[]; floatTexts=[];
-            DOM.overlay.style.display='none'; DOM.lobby.style.display='none'; DOM.summary.style.display='none';
+        function launchGame(gameId) {
+            gameState = 'PLAYING';
+            currentGame = gameId;
+            DOM.overlay.style.display = 'none';
+            DOM.lobby.style.display = 'none';
+            DOM.summary.style.display = 'none';
+            particles = [];
+            floatingTexts = [];
 
-            if(id==='dash') { 
-                dashGame.p.y = dashGame.groundY-42; dashGame.obs=[]; pickDashWord(); spawnDashObstacle();
-                showHelper('Tippe die Kombination. Das letzte Zeichen löst den Sprung aus.');
-            } else if(id==='astro') {
-                astroGame.lives=3; astroGame.aliens=[]; astroGame.lasers=[]; astroGame.timer=0;
-                setWordPanel('', '', false); showHelper('Tippe den Buchstaben des Ufos für den Laser.');
-            } else if(id==='beat') {
-                beatGame.lives=4; beatGame.notes=[]; beatGame.combo=0; beatGame.timer=0;
-                setWordPanel('Next', '<span class="typed">WARMUP</span>'); showHelper('Tippe genau dann, wenn die Note die gelbe Linie trifft.');
-            }
-            stopLoop(); startLoop();
+            if (gameId === 'dash') startDash();
+            if (gameId === 'astro') startAstro();
+            if (gameId === 'beat') startBeat();
+
+            stopLoop();
+            startLoop();
         }
 
         function endGame(reason) {
-            gameState='OVER'; stopLoop(); setWordPanel('','',false); showHelper('',false);
-            DOM.reason.textContent=reason; DOM.sumTickets.textContent=`TICKETS REST: ${tickets}`;
-            DOM.sumGame.textContent = currentGame==='dash'?'Dash':currentGame==='astro'?'Astro':'Beat';
-            DOM.sumScore.textContent=currentScore; DOM.sumLevel.textContent=currentLevel;
-            DOM.sumAcc.textContent=`${stats.strokes===0 ? 0 : Math.round((stats.hits/stats.strokes)*100)}%`;
-            DOM.retry.disabled = tickets<=0;
-            DOM.hint.textContent = tickets>0 ? 'Enter startet erneut. Escape geht zur Lobby.' : 'Keine Tickets mehr. Gehe zurück zur Lobby.';
-            DOM.overlay.style.display='flex'; DOM.lobby.style.display='none'; DOM.summary.style.display='block'; draw();
+            if (gameState === 'OVER') return;
+            gameState = 'OVER';
+            stopLoop();
+            setWordPanel('', '', false);
+            setHelper('', false);
+            DOM.summaryReason.textContent = reason;
+            DOM.summaryTickets.textContent = `TICKETS REST: ${tickets}`;
+            DOM.sumGame.textContent = currentGame === 'dash' ? 'Dash' : currentGame === 'astro' ? 'Astro' : 'Beat';
+            DOM.sumScore.textContent = currentScore;
+            DOM.sumLevel.textContent = currentLevel;
+            DOM.sumDiff.textContent = getDifficultyLabel();
+            DOM.sumAcc.textContent = `${getAccuracy()}%`;
+            DOM.retry.disabled = tickets <= 0;
+            DOM.summaryHint.textContent = tickets > 0
+                ? 'Enter startet erneut. Escape geht zur Lobby.'
+                : 'Keine Tickets mehr. Nur noch zurück zur Lobby möglich.';
+            DOM.overlay.style.display = 'flex';
+            DOM.lobby.style.display = 'none';
+            DOM.summary.style.display = 'block';
+            draw();
         }
 
-        // --- INPUT ---
-        document.addEventListener('keydown', e => {
-            let key = e.key.toLowerCase();
-            if(gameState==='OVER') {
-                if(key==='enter' && tickets>0) launchGame(currentGame);
-                if(key==='escape') showLobby();
+        function handleDashKey(key) {
+            stats.strokes += 1;
+            const expected = dashGame.currentWord[dashGame.typed.length];
+            if (key === expected) {
+                stats.hits += 1;
+                dashGame.typed += key;
+                if (dashGame.typed.length === dashGame.currentWord.length) {
+                    currentScore += 15;
+                    const p = dashGame.player;
+                    p.dy = p.jumpForce;
+                    p.jumping = true;
+                    createParticles(p.x + p.w / 2, p.y + p.h, COLORS.cyan, 22, 13);
+                    addFloatingText('+15', p.x + 20, p.y - 12, COLORS.green);
+                    chooseDashWord();
+                } else {
+                    renderDashWord();
+                }
+            } else {
+                stats.errors += 1;
+                dashGame.typed = '';
+                renderDashWord(true);
+            }
+        }
+
+        function handleAstroKey(key) {
+            stats.strokes += 1;
+            const matches = astroGame.aliens
+                .filter(alien => alien.letter === key)
+                .sort((a, b) => b.y - a.y || Math.abs(a.x - astroGame.shipX) - Math.abs(b.x - astroGame.shipX));
+
+            if (matches.length === 0) {
+                stats.errors += 1;
                 return;
             }
-            if(gameState!=='PLAYING' || !HOME_ROW.includes(key)) return;
-            stats.strokes++;
 
-            if(currentGame==='dash') {
-                if(key === dashGame.word[dashGame.typed.length]) {
-                    stats.hits++; dashGame.typed += key;
-                    if(dashGame.typed.length === dashGame.word.length) {
-                        currentScore+=15; dashGame.p.dy=dashGame.p.jumpForce; dashGame.p.jump=true;
-                        spawnParticles(dashGame.p.x+20, dashGame.p.y+42, COLORS.cyan, 20);
-                        spawnText('+15', dashGame.p.x+20, dashGame.p.y-10, COLORS.green);
-                        pickDashWord();
-                    } else renderDashWord();
-                } else { stats.errors++; dashGame.typed=''; renderDashWord(true); }
-            } else if(currentGame==='astro') {
-                let matches = astroGame.aliens.filter(a => a.letter===key).sort((a,b)=>b.y-a.y);
-                if(matches.length>0) {
-                    stats.hits++; let t = matches[0];
-                    astroGame.lasers.push({x1:astroGame.shipX, y1:canvas.height-60, x2:t.x, y2:t.y, life:1});
-                    spawnParticles(t.x, t.y, COLORS.green, 20); spawnText('+12', t.x, t.y-15, COLORS.cyan);
-                    astroGame.aliens = astroGame.aliens.filter(a=>a!==t); currentScore+=12;
-                } else stats.errors++;
-            } else if(currentGame==='beat') {
-                let cands = beatGame.notes.filter(n=>n.letter===key).sort((a,b)=>Math.abs(a.y-beatGame.hitY)-Math.abs(b.y-beatGame.hitY));
-                if(cands.length>0) {
-                    let t=cands[0], dist=Math.abs(t.y-beatGame.hitY);
-                    if(dist>55) { stats.errors++; beatGame.combo=0; spawnText('MISS', t.x, beatGame.hitY-20, COLORS.red); return; }
-                    stats.hits++; beatGame.combo++;
-                    let pts = dist<18 ? 16 : dist<35 ? 13 : 10;
-                    let txt = dist<18 ? 'PERFECT' : dist<35 ? 'GREAT' : 'GOOD';
-                    currentScore += pts; spawnParticles(t.x, t.y, COLORS.cyan, 20); spawnText(txt, t.x, t.y-15, COLORS.cyan);
-                    beatGame.notes = beatGame.notes.filter(n=>n!==t);
-                } else { stats.errors++; beatGame.combo=0; }
+            stats.hits += 1;
+            const target = matches[0];
+            astroGame.lasers.push({
+                x1: astroGame.shipX,
+                y1: astroGame.shipY - 22,
+                x2: target.x,
+                y2: target.y,
+                life: 1
+            });
+            createParticles(target.x, target.y, COLORS.green, 20, 11);
+            addFloatingText('+12', target.x, target.y - 10, COLORS.cyan);
+            astroGame.aliens = astroGame.aliens.filter(alien => alien !== target);
+            currentScore += 12;
+        }
+
+        function handleBeatKey(key) {
+            stats.strokes += 1;
+            const candidates = beatGame.notes
+                .filter(note => note.letter === key)
+                .sort((a, b) => Math.abs(a.y - beatGame.hitY) - Math.abs(b.y - beatGame.hitY));
+
+            const target = candidates[0];
+            if (!target) {
+                stats.errors += 1;
+                beatGame.combo = 0;
+                return;
             }
+
+            const distance = Math.abs(target.y - beatGame.hitY);
+            if (distance > 55) {
+                stats.errors += 1;
+                beatGame.combo = 0;
+                addFloatingText('MISS', target.x, beatGame.hitY - 20, COLORS.red);
+                return;
+            }
+
+            stats.hits += 1;
+            beatGame.combo += 1;
+            let gain = 10;
+            let label = 'GOOD';
+            if (distance < 18) {
+                gain = 16;
+                label = 'PERFECT';
+            } else if (distance < 34) {
+                gain = 13;
+                label = 'GREAT';
+            }
+
+            currentScore += gain;
+            createParticles(target.x, target.y, COLORS.cyan, 18, 10);
+            addFloatingText(label, target.x, target.y - 18, COLORS.green);
+            beatGame.notes = beatGame.notes.filter(note => note !== target);
+        }
+
+        document.addEventListener('keydown', event => {
+            const key = event.key.toLowerCase();
+
+            if (gameState === 'OVER') {
+                if (key === 'enter' && tickets > 0) spendTicketAndStart(currentGame);
+                if (key === 'escape') showLobby();
+                return;
+            }
+
+            if (gameState !== 'PLAYING') return;
+            if (!HOME_ROW.includes(key)) return;
+
+            if (currentGame === 'dash') handleDashKey(key);
+            else if (currentGame === 'astro') handleAstroKey(key);
+            else if (currentGame === 'beat') handleBeatKey(key);
         });
 
-        document.querySelectorAll('[data-game]').forEach(btn => btn.addEventListener('click', ()=>launchGame(btn.dataset.game)));
-        DOM.retry.addEventListener('click', ()=>launchGame(currentGame));
+        document.querySelectorAll('[data-game]').forEach(button => {
+            button.addEventListener('click', () => spendTicketAndStart(button.dataset.game));
+        });
+
+        DOM.retry.addEventListener('click', () => {
+            if (tickets > 0) spendTicketAndStart(currentGame);
+        });
+
         DOM.back.addEventListener('click', showLobby);
 
         showLobby();
