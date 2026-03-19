@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Typing MVP V1</title>
+    <title>Neon Typing Arcade - Gamification MVP</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 
@@ -22,7 +22,6 @@
             --muted: #9db0c0;
             --orange: #ff9a3d;
             --deep: #08111f;
-            --grid: rgba(0, 245, 255, 0.16);
         }
 
         * {
@@ -44,7 +43,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 16px;
+            padding: 18px;
         }
 
         body::before {
@@ -61,22 +60,29 @@
         }
 
         .page-title {
-            margin: 0 0 4px;
-            font-size: 62px;
+            margin: 0 0 6px;
+            font-size: 66px;
             letter-spacing: 7px;
             color: var(--cyan);
             text-shadow: 0 0 18px var(--cyan), 0 0 36px rgba(0,245,255,0.55);
             text-transform: uppercase;
+            animation: glowPulse 2.4s infinite alternate;
+        }
+
+        @keyframes glowPulse {
+            0% { text-shadow: 0 0 18px var(--cyan), 0 0 36px rgba(0,245,255,0.55); }
+            100% { text-shadow: 0 0 24px var(--cyan), 0 0 44px rgba(0,245,255,0.75); }
         }
 
         .page-subtitle {
-            margin: 0 0 14px;
-            font-size: 24px;
+            margin: 0 0 18px;
+            font-size: 26px;
             color: #d8e4ef;
+            text-shadow: 0 0 8px rgba(255,255,255,0.14);
             text-align: center;
         }
 
-        #shell {
+        #gameWrapper {
             position: relative;
             padding: 18px;
             border-radius: 22px;
@@ -87,10 +93,10 @@
                 inset 0 0 34px rgba(0,0,0,0.55);
         }
 
-        #app {
+        #gameContainer {
             position: relative;
-            width: 1080px;
-            height: 700px;
+            width: 1040px;
+            height: 660px;
             overflow: hidden;
             border-radius: 16px;
             border: 3px solid rgba(0,245,255,0.7);
@@ -111,7 +117,7 @@
             right: 14px;
             z-index: 12;
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
+            grid-template-columns: 1.05fr 0.9fr 1fr 0.9fr 1fr 0.9fr;
             gap: 10px;
             pointer-events: none;
         }
@@ -125,7 +131,7 @@
             border: 2px solid rgba(0,245,255,0.22);
             border-radius: 12px;
             color: var(--white);
-            font-size: 23px;
+            font-size: 24px;
             letter-spacing: 1px;
             text-shadow: 0 0 10px rgba(0,245,255,0.36);
             box-shadow: inset 0 0 18px rgba(0,0,0,0.45);
@@ -133,107 +139,107 @@
             padding: 0 8px;
         }
 
-        #hudTickets { color: var(--yellow); }
-        #hudFlow { color: var(--orange); }
-        #hudStatus { color: var(--pink); }
-        #hudLetters { color: var(--green); }
+        #scoreDisplay { color: var(--yellow); }
+        #flowDisplay { color: var(--green); }
+        #ticketsDisplay { color: var(--yellow); }
+        #profileDisplay { color: var(--cyan); }
 
         #centerPanel {
             position: absolute;
-            top: 92px;
+            top: 88px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 15;
-            width: min(860px, 92%);
-            display: none;
-            padding: 16px 22px;
-            border-radius: 18px;
-            background: rgba(3, 7, 20, 0.95);
+            min-width: 620px;
+            max-width: 92%;
+            padding: 14px 22px;
+            border-radius: 16px;
             border: 2px solid rgba(156,98,255,0.72);
+            background: rgba(3, 7, 20, 0.95);
             box-shadow: 0 0 26px rgba(156,98,255,0.22);
+            z-index: 11;
+            display: none;
             text-align: center;
         }
 
         #centerLabel {
+            font-size: 24px;
             color: #c6d2df;
-            font-size: 22px;
             letter-spacing: 2px;
             text-transform: uppercase;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         #centerTitle {
-            font-size: 54px;
+            font-size: 76px;
             line-height: 1;
-            letter-spacing: 4px;
+            letter-spacing: 8px;
             color: var(--white);
-            margin-bottom: 10px;
+            text-shadow: 0 0 8px rgba(255,255,255,0.2), 0 0 20px rgba(0,245,255,0.14);
         }
 
         #centerBody {
-            color: #d9e5ef;
+            margin-top: 10px;
             font-size: 24px;
-            line-height: 1.1;
+            color: #d5dfe9;
         }
 
-        #practiceBox {
+        #trainingPanel {
             position: absolute;
-            top: 182px;
+            top: 176px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 15;
-            width: min(900px, 94%);
+            width: min(920px, 94%);
+            z-index: 14;
             display: none;
-            padding: 20px 26px;
-            border-radius: 20px;
-            background: rgba(3, 7, 20, 0.95);
-            border: 2px solid rgba(0,245,255,0.42);
-            box-shadow: 0 0 26px rgba(0,245,255,0.16);
+            padding: 18px 22px;
+            border-radius: 18px;
+            border: 2px solid rgba(0,245,255,0.38);
+            background: rgba(4, 8, 22, 0.94);
+            box-shadow: 0 0 28px rgba(0,245,255,0.12);
         }
 
-        .practice-label {
+        .training-label {
             text-align: center;
             color: #c6d2df;
-            font-size: 22px;
-            text-transform: uppercase;
+            font-size: 24px;
             letter-spacing: 2px;
+            text-transform: uppercase;
             margin-bottom: 10px;
         }
 
-        #practicePrompt {
-            min-height: 120px;
-            color: var(--white);
+        #trainingPrompt {
+            min-height: 140px;
             font-size: 42px;
-            line-height: 1.16;
-            letter-spacing: 2px;
+            line-height: 1.2;
+            color: var(--white);
             text-align: center;
             white-space: pre-wrap;
             word-break: break-word;
         }
 
-        #practiceMeta {
+        #trainingMeta {
             margin-top: 12px;
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 12px;
         }
 
-        .meta-card {
+        .meta-box {
             padding: 10px 12px;
-            border-radius: 12px;
-            background: rgba(9, 14, 33, 0.86);
-            border: 1px solid rgba(255,255,255,0.08);
             text-align: center;
+            border-radius: 12px;
+            background: rgba(3, 8, 22, 0.82);
+            border: 1px solid rgba(255,255,255,0.08);
             font-size: 22px;
-            color: #d7e4ef;
+            color: #d5dfeb;
         }
 
-        #helperBar {
+        #helperText {
             position: absolute;
             bottom: 14px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 18;
+            z-index: 11;
             font-size: 24px;
             padding: 8px 18px;
             border-radius: 999px;
@@ -243,6 +249,15 @@
             display: none;
             text-align: center;
             box-shadow: 0 0 18px rgba(0,245,255,0.08);
+        }
+
+        .typed {
+            color: rgba(255,255,255,0.25);
+            text-shadow: none;
+        }
+
+        .pending {
+            color: var(--white);
         }
 
         #overlay {
@@ -257,13 +272,13 @@
         }
 
         .panel {
-            width: min(1020px, 95%);
+            width: min(980px, 94%);
             max-height: 92%;
             overflow-y: auto;
             background: var(--panel);
             border: 2px solid rgba(0,245,255,0.42);
             border-radius: 20px;
-            padding: 22px;
+            padding: 24px;
             box-shadow: 0 0 36px rgba(0,245,255,0.14), 0 0 36px rgba(255,43,214,0.08);
         }
 
@@ -283,32 +298,30 @@
         }
 
         .panel-subtitle {
-            margin: 0 0 16px;
+            margin: 0 0 18px;
             text-align: center;
             color: #d5dfeb;
-            font-size: 27px;
+            font-size: 26px;
         }
 
         .strip {
             text-align: center;
             color: var(--yellow);
-            font-size: 32px;
+            font-size: 34px;
             text-shadow: 0 0 16px rgba(255,240,102,0.8);
             margin-bottom: 18px;
         }
 
-        .hub-grid,
-        .challenge-grid,
-        .summary-grid {
+        .profile-grid, .game-grid, .summary-grid {
             display: grid;
             gap: 16px;
         }
 
-        .hub-grid {
-            grid-template-columns: 1.15fr 1fr;
+        .profile-grid {
+            grid-template-columns: repeat(3, 1fr);
         }
 
-        .challenge-grid {
+        .game-grid {
             grid-template-columns: repeat(3, 1fr);
         }
 
@@ -317,89 +330,61 @@
             margin-top: 18px;
         }
 
-        .card,
-        .lesson-card,
-        .game-card,
-        .sum-card {
-            padding: 16px;
-            border-radius: 16px;
-            background: rgba(7, 11, 24, 0.9);
-            border: 2px solid rgba(156,98,255,0.25);
-            box-shadow: inset 0 0 22px rgba(0,0,0,0.28);
-        }
-
-        .lesson-card {
+        .profile-card, .game-card, .summary-box, .info-card {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
+            padding: 18px;
+            border-radius: 16px;
+            background: rgba(7, 11, 24, 0.9);
+            border: 2px solid rgba(156,98,255,0.35);
+            box-shadow: inset 0 0 22px rgba(0,0,0,0.34);
         }
 
-        .lesson-title,
-        .game-title {
+        .profile-card.active {
+            border-color: rgba(0,245,255,0.65);
+            box-shadow: 0 0 22px rgba(0,245,255,0.16), inset 0 0 22px rgba(0,0,0,0.34);
+        }
+
+        .card-title {
             margin: 0;
-            font-size: 34px;
+            font-size: 38px;
             color: var(--cyan);
-            text-shadow: 0 0 12px rgba(0,245,255,0.62);
+            text-shadow: 0 0 12px rgba(0,245,255,0.72);
         }
 
-        .lesson-copy,
-        .game-copy,
-        .card-copy,
-        .sum-copy {
+        .card-copy {
             margin: 0;
-            font-size: 22px;
-            line-height: 1.08;
+            font-size: 23px;
             color: #d2dde8;
+            line-height: 1.08;
         }
 
         .pill {
             width: fit-content;
             padding: 4px 10px;
             border-radius: 999px;
-            font-size: 18px;
+            font-size: 19px;
             text-transform: uppercase;
             letter-spacing: 1px;
             border: 1px solid rgba(255,255,255,0.18);
         }
 
         .pill.green { color: var(--green); border-color: rgba(55,255,159,0.5); background: rgba(55,255,159,0.1); }
-        .pill.yellow { color: var(--yellow); border-color: rgba(255,240,102,0.5); background: rgba(255,240,102,0.1); }
+        .pill.yellow { color: var(--yellow); border-color: rgba(255,240,102,0.52); background: rgba(255,240,102,0.1); }
         .pill.red { color: var(--red); border-color: rgba(255,78,106,0.5); background: rgba(255,78,106,0.1); }
-        .pill.purple { color: #cab6ff; border-color: rgba(156,98,255,0.55); background: rgba(156,98,255,0.1); }
-
-        .progress {
-            width: 100%;
-            height: 12px;
-            border-radius: 999px;
-            overflow: hidden;
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.08);
-        }
-
-        .progress-fill {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, var(--cyan), var(--green));
-            box-shadow: 0 0 16px rgba(0,245,255,0.45);
-        }
-
-        .button-row {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-top: 18px;
-        }
+        .pill.purple { color: #ccb9ff; border-color: rgba(156,98,255,0.5); background: rgba(156,98,255,0.1); }
 
         .btn {
-            min-height: 54px;
-            padding: 12px 18px;
+            margin-top: auto;
+            min-height: 56px;
+            padding: 12px 20px;
             border-radius: 12px;
             border: 2px solid var(--pink);
             background: rgba(255,43,214,0.08);
             color: var(--pink);
             font-family: 'VT323', monospace;
-            font-size: 28px;
+            font-size: 30px;
             cursor: pointer;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -436,23 +421,28 @@
 
         .btn.green:hover:not(:disabled) {
             background: var(--green);
-            color: #05100a;
+            color: #05080f;
             box-shadow: 0 0 24px rgba(55,255,159,0.55);
         }
 
         .btn:disabled {
-            opacity: 0.38;
+            opacity: 0.42;
             cursor: not-allowed;
         }
 
-        .sum-card { text-align: center; }
-        .sum-label {
+        .summary-box {
+            padding: 12px;
+            text-align: center;
+        }
+
+        .summary-label {
             color: #9db0c0;
             font-size: 20px;
             text-transform: uppercase;
         }
-        .sum-value {
-            font-size: 34px;
+
+        .summary-value {
+            font-size: 36px;
             color: var(--white);
             text-shadow: 0 0 12px rgba(0,245,255,0.45);
         }
@@ -465,14 +455,7 @@
             border: 1px solid rgba(255,255,255,0.08);
         }
 
-        #reviewPrompt,
-        #reviewTyped {
-            font-size: 28px;
-            line-height: 1.14;
-            word-break: break-word;
-        }
-
-        .review-line-title {
+        .review-title {
             color: #c7d4de;
             font-size: 22px;
             margin-bottom: 8px;
@@ -480,32 +463,54 @@
             letter-spacing: 1px;
         }
 
+        #reviewPrompt, #reviewTyped, #historyBox {
+            font-size: 26px;
+            line-height: 1.14;
+            word-break: break-word;
+        }
+
         .ok { color: var(--green); }
         .miss { color: var(--red); text-shadow: 0 0 10px rgba(255,78,106,0.6); }
-        .ghost { color: rgba(255,255,255,0.28); }
+        .ghost { color: rgba(255,255,255,0.26); }
 
-        @media (max-width: 1180px) {
-            body { padding: 8px; }
-            #app { width: 96vw; height: 84vh; }
-            #hud { grid-template-columns: repeat(2, 1fr); }
-            .hub-grid, .challenge-grid, .summary-grid { grid-template-columns: 1fr; }
-            #practicePrompt { font-size: 30px; }
+        .actions {
+            margin-top: 22px;
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .small-note {
+            text-align: center;
+            color: #a8bac8;
+            font-size: 22px;
+            margin-top: 16px;
+        }
+
+        @media (max-width: 1160px) {
+            body { padding: 10px; }
+            #gameContainer { width: 95vw; height: 84vh; }
+            #hud { grid-template-columns: 1fr 1fr; }
+            .profile-grid, .game-grid, .summary-grid { grid-template-columns: 1fr; }
+            #centerTitle { font-size: 56px; }
+            #trainingPrompt { font-size: 32px; }
         }
     </style>
 </head>
 <body>
     <h1 class="page-title">Arcade Trainer</h1>
-    <p class="page-subtitle">MVP V1 mit Lernphase, verzögertem Feedback, Overlearning Gate und freiwilliger Challenge Zone</p>
+    <p class="page-subtitle">Neutrales Training mit Summary Review, danach freiwillige Challenge Zone mit 3 Spielen</p>
 
-    <div id="shell">
-        <div id="app">
+    <div id="gameWrapper">
+        <div id="gameContainer">
             <div id="hud">
-                <div class="hud-box" id="hudMode">MODE: HUB</div>
-                <div class="hud-box" id="hudLesson">LEKTION: 1</div>
-                <div class="hud-box" id="hudLetters">BUCHSTABEN: F J</div>
-                <div class="hud-box" id="hudStatus">STATUS: BEREIT</div>
-                <div class="hud-box" id="hudFlow">FLOW: 1</div>
-                <div class="hud-box" id="hudTickets">TICKETS: 0</div>
+                <div class="hud-box" id="modeDisplay">MODE: TRAINING</div>
+                <div class="hud-box" id="profileDisplay">PROFIL: CORE 4</div>
+                <div class="hud-box" id="scoreDisplay">SCORE: 0</div>
+                <div class="hud-box" id="flowDisplay">FLOW: 1</div>
+                <div class="hud-box" id="errorsDisplay">FEHLER: 0</div>
+                <div class="hud-box" id="ticketsDisplay">TICKETS: 0</div>
             </div>
 
             <div id="centerPanel">
@@ -514,164 +519,160 @@
                 <div id="centerBody"></div>
             </div>
 
-            <div id="practiceBox">
-                <div class="practice-label" id="practiceLabel">Lernphase</div>
-                <div id="practicePrompt"></div>
-                <div id="practiceMeta">
-                    <div class="meta-card" id="practiceMeta1">Fortschritt 0%</div>
-                    <div class="meta-card" id="practiceMeta2">Ziel Accuracy 93%</div>
-                    <div class="meta-card" id="practiceMeta3">Stabile Läufe 0/3</div>
+            <div id="trainingPanel">
+                <div class="training-label" id="trainingLabel">Training</div>
+                <div id="trainingPrompt"></div>
+                <div id="trainingMeta">
+                    <div class="meta-box" id="trainingMeta1">Fortschritt 0%</div>
+                    <div class="meta-box" id="trainingMeta2">Keine Fehlerhinweise während der Sequenz</div>
+                    <div class="meta-box" id="trainingMeta3">Summary Review danach</div>
                 </div>
             </div>
 
-            <div id="helperBar"></div>
-            <canvas id="canvas" width="1080" height="700"></canvas>
+            <div id="helperText"></div>
+            <canvas id="gameCanvas" width="1040" height="660"></canvas>
 
             <div id="overlay">
-                <div id="hubScreen" class="panel">
-                    <h2 class="panel-title">Lern Hub</h2>
-                    <p class="panel-subtitle">Zuerst übst du ohne Spielstress. Das Feedback kommt erst nach der Sequenz. Erst danach gibt es Tickets für die freiwillige Challenge Zone.</p>
-                    <div class="strip" id="hubStrip">Aktueller Fokus: Grundreihe sauber automatisieren</div>
+                <div id="trainingMenuScreen" class="panel">
+                    <h2 class="panel-title">Training Gate</h2>
+                    <p class="panel-subtitle">Das physische Kursheft bleibt die Lernbasis. Im Prototyp testest du hier nur den neutralen Trainingsblock, das Summary Review und den Übergang in die freiwillige Arcade.</p>
+                    <div class="strip" id="trainingStrip">Abschluss einer Sequenz gibt 1 Ticket. Hohe Genauigkeit gibt Zusatztickets.</div>
 
-                    <div class="hub-grid">
-                        <div class="card">
-                            <div class="pill purple">Didaktischer Loop</div>
-                            <p class="card-copy">1. Lektion üben</p>
-                            <p class="card-copy">2. Sequenz beenden</p>
-                            <p class="card-copy">3. Feedback gesammelt anschauen</p>
-                            <p class="card-copy">4. Tickets erhalten</p>
-                            <p class="card-copy">5. Freiwillig ein Spiel starten</p>
-                            <p class="card-copy">6. Danach zurück zur nächsten Lektion</p>
+                    <div class="profile-grid" id="profileGrid"></div>
 
-                            <div style="height:14px"></div>
-                            <div class="pill green">Theme Unlock</div>
-                            <p class="card-copy">Ab 400 Gesamtpunkten wird das Aurora Theme freigeschaltet und lokal gespeichert. Damit gibt es Fortschritt ohne öffentliche Rangliste.</p>
-                            <div class="button-row">
-                                <button class="btn secondary" id="themeBtn">Theme wechseln</button>
-                                <button class="btn" id="openChallengeBtn">Challenge Zone</button>
-                            </div>
-                        </div>
+                    <div class="actions">
+                        <button class="btn green" id="startTrainingBtn">Training starten</button>
+                        <button class="btn secondary" id="openLobbyBtn">Zur Arcade Lobby</button>
+                    </div>
 
-                        <div class="card">
-                            <div class="pill yellow">Lektionsübersicht</div>
-                            <div id="lessonList"></div>
-                        </div>
+                    <div class="review-box">
+                        <div class="review-title">Session Verlauf</div>
+                        <div id="historyBox">Noch keine Trainingsdurchläufe.</div>
                     </div>
                 </div>
 
                 <div id="reviewScreen" class="panel" style="display:none;">
                     <h2 class="panel-title">Summary Review</h2>
-                    <p class="panel-subtitle" id="reviewSubtitle">Feedback erst nach der kompletten Sequenz</p>
-                    <div class="strip" id="reviewStrip">Analyse der letzten Übung</div>
+                    <p class="panel-subtitle" id="reviewSubtitle">Feedback gebündelt nach der kompletten Sequenz</p>
+                    <div class="strip" id="reviewStrip">Ticket Belohnung erst nach Abschluss der Aktivität</div>
 
                     <div class="summary-grid">
-                        <div class="sum-card">
-                            <div class="sum-label">Accuracy</div>
-                            <div class="sum-value" id="sumAccuracy">0%</div>
+                        <div class="summary-box">
+                            <div class="summary-label">Accuracy</div>
+                            <div class="summary-value" id="sumAccuracy">0%</div>
                         </div>
-                        <div class="sum-card">
-                            <div class="sum-label">WPM</div>
-                            <div class="sum-value" id="sumWpm">0</div>
+                        <div class="summary-box">
+                            <div class="summary-label">WPM</div>
+                            <div class="summary-value" id="sumWpm">0</div>
                         </div>
-                        <div class="sum-card">
-                            <div class="sum-label">Fehler</div>
-                            <div class="sum-value" id="sumErrors">0</div>
+                        <div class="summary-box">
+                            <div class="summary-label">Fehler</div>
+                            <div class="summary-value" id="sumErrors">0</div>
                         </div>
-                        <div class="sum-card">
-                            <div class="sum-label">Tickets</div>
-                            <div class="sum-value" id="sumTickets">+0</div>
+                        <div class="summary-box">
+                            <div class="summary-label">Tickets</div>
+                            <div class="summary-value" id="sumTickets">+0</div>
                         </div>
                     </div>
 
                     <div class="review-box">
-                        <div class="review-line-title">Zieltext</div>
+                        <div class="review-title">Zieltext</div>
                         <div id="reviewPrompt"></div>
                     </div>
 
                     <div class="review-box">
-                        <div class="review-line-title">Deine Eingabe</div>
+                        <div class="review-title">Deine Eingabe</div>
                         <div id="reviewTyped"></div>
                     </div>
 
-                    <div class="button-row">
-                        <button class="btn green" id="reviewContinueBtn">Weiter üben</button>
-                        <button class="btn secondary" id="reviewHubBtn">Zum Hub</button>
-                        <button class="btn" id="reviewChallengeBtn">Zur Challenge Zone</button>
+                    <div class="actions">
+                        <button class="btn green" id="reviewTrainAgainBtn">Weiter trainieren</button>
+                        <button class="btn secondary" id="reviewLobbyBtn">Zur Arcade Lobby</button>
                     </div>
                 </div>
 
-                <div id="challengeScreen" class="panel" style="display:none;">
+                <div id="lobbyScreen" class="panel" style="display:none;">
                     <h2 class="panel-title">Challenge Zone</h2>
-                    <p class="panel-subtitle">Die Spiele verwenden nur Buchstaben aus deiner zuletzt geübten Lektion. Ein Ticket entspricht genau einem Spielversuch.</p>
-                    <div class="strip" id="challengeStrip">Keine Tickets verbraucht, solange du noch nicht im Spiel bist</div>
+                    <p class="panel-subtitle">Die Arcade ist freiwillig. Ein Ticket entspricht genau einem Spielversuch. Alle Spiele verwenden nur Inhalte aus dem zuletzt abgeschlossenen Trainingsprofil.</p>
+                    <div class="strip" id="lobbyTicketBank">TICKETS VERFÜGBAR: 0</div>
 
-                    <div class="challenge-grid">
+                    <div class="game-grid">
                         <div class="game-card">
-                            <div class="pill red">Timing und Sequenzen</div>
-                            <h3 class="game-title">Type Dash</h3>
-                            <p class="game-copy">Jump and Run Stil. Die angezeigte Kombination muss blind getippt werden, damit dein Würfel rechtzeitig springt.</p>
-                            <p class="game-copy">Steigerung über Flow statt starre Sprünge. Nur Inhalte aus der geübten Lektion.</p>
-                            <button class="btn game-start" data-game="dash">Dash starten</button>
+                            <div class="pill red">Timing und Druck</div>
+                            <h3 class="card-title">Type Dash</h3>
+                            <p class="card-copy">Geometry Dash Stil mit rotierendem Würfel. Um Hindernisse zu überspringen, müssen die vorgegebenen Sequenzen im richtigen Timing getippt werden.</p>
+                            <p class="card-copy">Ein Fehler setzt die Sequenz zurück. Schwierigkeit steigt weich über Flow statt sprunghaft.</p>
+                            <button class="btn gameBtn" data-game="dash">Start Dash</button>
                         </div>
 
                         <div class="game-card">
                             <div class="pill green">Reaktion und Fokus</div>
-                            <h3 class="game-title">Astro Keys</h3>
-                            <p class="game-copy">Aliens tragen Buchstaben aus deiner Lektion. Du schiesst nur mit korrekten Eingaben. Fehler reduzieren den Flow und kosten Leben.</p>
-                            <p class="game-copy">Beginnt langsam und steigert die Wellen adaptiv.</p>
-                            <button class="btn game-start" data-game="astro">Astro starten</button>
+                            <h3 class="card-title">Astro Keys</h3>
+                            <p class="card-copy">Alien Gegner tragen nur Buchstaben aus deinem letzten Trainingsprofil. Richtige Tasten feuern Laser, Fehler senken den Flow.</p>
+                            <p class="card-copy">Langsamer Start, danach adaptive Wellen statt harter Stufensprünge.</p>
+                            <button class="btn gameBtn" data-game="astro">Start Astro</button>
                         </div>
 
                         <div class="game-card">
                             <div class="pill yellow">Rhythmus und Präzision</div>
-                            <h3 class="game-title">Neon Beat</h3>
-                            <p class="game-copy">Falling Notes für aktive Home Row Tasten. Anfangs wenige Spuren, später mehr. Die Geschwindigkeit folgt deiner Leistung.</p>
-                            <p class="game-copy">Keine unnötigen Hinweise ausser Lane und Timing Linie.</p>
-                            <button class="btn game-start" data-game="beat">Beat starten</button>
+                            <h3 class="card-title">Neon Beat</h3>
+                            <p class="card-copy">Falling Notes für aktive Home Row Tasten aus dem letzten Trainingsprofil. Nur Lane und Hit Linie als Hinweis.</p>
+                            <p class="card-copy">Flow steigt bei Treffern und fällt bei Fehlern. Dadurch bleibt die Steigerung kontrollierbar.</p>
+                            <button class="btn gameBtn" data-game="beat">Start Beat</button>
                         </div>
                     </div>
 
-                    <div class="button-row">
-                        <button class="btn secondary" id="challengeBackBtn">Zurück zum Hub</button>
+                    <div class="review-box">
+                        <div class="review-title">Arcade Progress</div>
+                        <div id="arcadeInfo" class="card-copy">Noch kein Unlock. Ab 450 Gesamtpunkten wird das Aurora Theme freigeschaltet.</div>
                     </div>
+
+                    <div class="actions">
+                        <button class="btn secondary" id="backTrainingMenuBtn">Zurück ins Training</button>
+                        <button class="btn" id="themeToggleBtn">Theme wechseln</button>
+                    </div>
+
+                    <div class="small-note" id="lobbyMessage">Wenn alle Tickets aufgebraucht sind, schliesst die Arcade und du kehrst zurück ins Training.</div>
                 </div>
 
-                <div id="gameSummaryScreen" class="panel" style="display:none;">
+                <div id="summaryScreen" class="panel" style="display:none;">
                     <h2 class="panel-title">Game Over</h2>
-                    <p class="panel-subtitle" id="gameOverReason">Versuch beendet</p>
-                    <div class="strip" id="gameSummaryStrip">Die Challenge Zone bleibt kurz und freiwillig</div>
+                    <p class="panel-subtitle" id="summaryReason">System Halted</p>
+                    <div class="strip" id="summaryTickets">TICKETS REST: 0</div>
 
                     <div class="summary-grid">
-                        <div class="sum-card">
-                            <div class="sum-label">Spiel</div>
-                            <div class="sum-value" id="gameSumName">Dash</div>
+                        <div class="summary-box">
+                            <div class="summary-label">Spiel</div>
+                            <div class="summary-value" id="sumGame">Dash</div>
                         </div>
-                        <div class="sum-card">
-                            <div class="sum-label">Score</div>
-                            <div class="sum-value" id="gameSumScore">0</div>
+                        <div class="summary-box">
+                            <div class="summary-label">Score</div>
+                            <div class="summary-value" id="sumScore">0</div>
                         </div>
-                        <div class="sum-card">
-                            <div class="sum-label">Flow</div>
-                            <div class="sum-value" id="gameSumFlow">1</div>
+                        <div class="summary-box">
+                            <div class="summary-label">Flow</div>
+                            <div class="summary-value" id="sumFlow">1</div>
                         </div>
-                        <div class="sum-card">
-                            <div class="sum-label">Tickets Rest</div>
-                            <div class="sum-value" id="gameSumTickets">0</div>
+                        <div class="summary-box">
+                            <div class="summary-label">Tickets</div>
+                            <div class="summary-value" id="sumTicketsRest">0</div>
                         </div>
                     </div>
 
-                    <div class="button-row">
-                        <button class="btn" id="gameRetryBtn">Nochmal</button>
-                        <button class="btn secondary" id="gameToChallengeBtn">Zur Challenge Zone</button>
-                        <button class="btn green" id="gameToHubBtn">Zur nächsten Lektion</button>
+                    <div class="actions">
+                        <button class="btn" id="retryBtn">Nochmal</button>
+                        <button class="btn secondary" id="backLobbyBtn">Zur Lobby</button>
+                        <button class="btn green" id="backTrainingBtn">Zurück ins Training</button>
                     </div>
+
+                    <div class="small-note" id="summaryHint">Enter startet erneut. Escape beendet die Arcade und bringt dich zurück ins Training.</div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('canvas');
+        const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
         const COLORS = {
@@ -686,93 +687,70 @@
         };
 
         const HOME_ROW = ['a', 's', 'd', 'f', 'j', 'k', 'l', 'ö'];
-        const AURORA_THEME_KEY = 'typing_mvp_theme';
-        const UNLOCK_KEY = 'typing_mvp_aurora_unlocked';
+        const THEME_KEY = 'typing_arcade_theme_v2';
+        const UNLOCK_KEY = 'typing_arcade_unlock_v2';
 
-        const LESSONS = [
+        const TRAINING_PROFILES = [
             {
-                id: 1,
-                name: 'Innenfinger Start',
-                letters: ['f', 'j'],
-                accuracyTarget: 93,
-                wpmTarget: 12,
-                stableNeeded: 3,
-                warmup: 'f j f j',
-                pool: ['f', 'j', 'fj', 'jf', 'ff', 'jj', 'fjf', 'jfj', 'fjjf', 'jffj']
-            },
-            {
-                id: 2,
-                name: 'Zentrum erweitern',
+                id: 'core4',
+                label: 'Core 4',
+                badge: 'Einstieg',
+                badgeClass: 'green',
                 letters: ['d', 'f', 'j', 'k'],
-                accuracyTarget: 93,
-                wpmTarget: 14,
-                stableNeeded: 3,
-                warmup: 'd f j k',
-                pool: ['df', 'jk', 'fd', 'kj', 'dd', 'kk', 'dfjk', 'kjfd', 'fjd', 'jdk', 'dfjk', 'kjdf']
+                baseFlow: 2,
+                accuracyBonus: 95,
+                pool: ['df', 'jk', 'fd', 'kj', 'dfjk', 'kjfd', 'dj', 'fk', 'dfj', 'jkd', 'ddff', 'jjkk', 'df df jk', 'jk fd df']
             },
             {
-                id: 3,
-                name: 'Mittlere Reihe',
+                id: 'core6',
+                label: 'Core 6',
+                badge: 'Mittel',
+                badgeClass: 'yellow',
                 letters: ['s', 'd', 'f', 'j', 'k', 'l'],
-                accuracyTarget: 94,
-                wpmTarget: 16,
-                stableNeeded: 3,
-                warmup: 's d f j k l',
-                pool: ['sd', 'kl', 'sdf', 'jkl', 'fds', 'lkj', 'sdfj', 'jklf', 'sdfjkl', 'jklfds', 'sdfj', 'fjkl']
+                baseFlow: 3,
+                accuracyBonus: 95,
+                pool: ['sd', 'kl', 'sdf', 'jkl', 'fds', 'lkj', 'sdfj', 'jklf', 'sdfjkl', 'jklfds', 'sdf sdf jkl', 'klj fds']
             },
             {
-                id: 4,
-                name: 'Volle Grundreihe',
+                id: 'full8',
+                label: 'Grundreihe 8',
+                badge: 'Fortgeschritten',
+                badgeClass: 'red',
                 letters: ['a', 's', 'd', 'f', 'j', 'k', 'l', 'ö'],
-                accuracyTarget: 95,
-                wpmTarget: 18,
-                stableNeeded: 3,
-                warmup: 'a s d f j k l ö',
-                pool: ['as', 'lö', 'asdf', 'jklö', 'sa', 'öl', 'fdsa', 'ölkj', 'asdfj', 'jklöf', 'asd', 'löj']
-            },
-            {
-                id: 5,
-                name: 'Gemischte Sequenzen',
-                letters: ['a', 's', 'd', 'f', 'j', 'k', 'l', 'ö'],
-                accuracyTarget: 95,
-                wpmTarget: 20,
-                stableNeeded: 3,
-                warmup: 'asdf jklö',
-                pool: ['asdf', 'jklö', 'saal', 'fall', 'lass', 'kalk', 'fass', 'jagd', 'flöj', 'asdf jklö', 'fdsa ölkj', 'als', 'da', 'ja']
+                baseFlow: 4,
+                accuracyBonus: 96,
+                pool: ['as', 'lö', 'asdf', 'jklö', 'fdsa', 'ölkj', 'asdf jklö', 'saal', 'lass', 'fall', 'kalk', 'als', 'ja', 'da', 'följ', 'ölja']
             }
         ];
 
         const DOM = {
-            hudMode: document.getElementById('hudMode'),
-            hudLesson: document.getElementById('hudLesson'),
-            hudLetters: document.getElementById('hudLetters'),
-            hudStatus: document.getElementById('hudStatus'),
-            hudFlow: document.getElementById('hudFlow'),
-            hudTickets: document.getElementById('hudTickets'),
-
+            mode: document.getElementById('modeDisplay'),
+            profile: document.getElementById('profileDisplay'),
+            score: document.getElementById('scoreDisplay'),
+            flow: document.getElementById('flowDisplay'),
+            errors: document.getElementById('errorsDisplay'),
+            tickets: document.getElementById('ticketsDisplay'),
             centerPanel: document.getElementById('centerPanel'),
             centerLabel: document.getElementById('centerLabel'),
             centerTitle: document.getElementById('centerTitle'),
             centerBody: document.getElementById('centerBody'),
-            practiceBox: document.getElementById('practiceBox'),
-            practiceLabel: document.getElementById('practiceLabel'),
-            practicePrompt: document.getElementById('practicePrompt'),
-            practiceMeta1: document.getElementById('practiceMeta1'),
-            practiceMeta2: document.getElementById('practiceMeta2'),
-            practiceMeta3: document.getElementById('practiceMeta3'),
-            helperBar: document.getElementById('helperBar'),
-
+            trainingPanel: document.getElementById('trainingPanel'),
+            trainingLabel: document.getElementById('trainingLabel'),
+            trainingPrompt: document.getElementById('trainingPrompt'),
+            trainingMeta1: document.getElementById('trainingMeta1'),
+            trainingMeta2: document.getElementById('trainingMeta2'),
+            trainingMeta3: document.getElementById('trainingMeta3'),
+            helper: document.getElementById('helperText'),
             overlay: document.getElementById('overlay'),
-            hubScreen: document.getElementById('hubScreen'),
+            trainingMenu: document.getElementById('trainingMenuScreen'),
             reviewScreen: document.getElementById('reviewScreen'),
-            challengeScreen: document.getElementById('challengeScreen'),
-            gameSummaryScreen: document.getElementById('gameSummaryScreen'),
-
-            hubStrip: document.getElementById('hubStrip'),
-            lessonList: document.getElementById('lessonList'),
-            openChallengeBtn: document.getElementById('openChallengeBtn'),
-            themeBtn: document.getElementById('themeBtn'),
-
+            lobby: document.getElementById('lobbyScreen'),
+            summary: document.getElementById('summaryScreen'),
+            trainingStrip: document.getElementById('trainingStrip'),
+            profileGrid: document.getElementById('profileGrid'),
+            startTrainingBtn: document.getElementById('startTrainingBtn'),
+            openLobbyBtn: document.getElementById('openLobbyBtn'),
+            historyBox: document.getElementById('historyBox'),
             reviewSubtitle: document.getElementById('reviewSubtitle'),
             reviewStrip: document.getElementById('reviewStrip'),
             sumAccuracy: document.getElementById('sumAccuracy'),
@@ -781,92 +759,120 @@
             sumTickets: document.getElementById('sumTickets'),
             reviewPrompt: document.getElementById('reviewPrompt'),
             reviewTyped: document.getElementById('reviewTyped'),
-            reviewContinueBtn: document.getElementById('reviewContinueBtn'),
-            reviewHubBtn: document.getElementById('reviewHubBtn'),
-            reviewChallengeBtn: document.getElementById('reviewChallengeBtn'),
-
-            challengeStrip: document.getElementById('challengeStrip'),
-            challengeBackBtn: document.getElementById('challengeBackBtn'),
-            gameStartButtons: Array.from(document.querySelectorAll('.game-start')),
-
-            gameOverReason: document.getElementById('gameOverReason'),
-            gameSummaryStrip: document.getElementById('gameSummaryStrip'),
-            gameSumName: document.getElementById('gameSumName'),
-            gameSumScore: document.getElementById('gameSumScore'),
-            gameSumFlow: document.getElementById('gameSumFlow'),
-            gameSumTickets: document.getElementById('gameSumTickets'),
-            gameRetryBtn: document.getElementById('gameRetryBtn'),
-            gameToChallengeBtn: document.getElementById('gameToChallengeBtn'),
-            gameToHubBtn: document.getElementById('gameToHubBtn')
+            reviewTrainAgainBtn: document.getElementById('reviewTrainAgainBtn'),
+            reviewLobbyBtn: document.getElementById('reviewLobbyBtn'),
+            lobbyTicketBank: document.getElementById('lobbyTicketBank'),
+            lobbyMessage: document.getElementById('lobbyMessage'),
+            arcadeInfo: document.getElementById('arcadeInfo'),
+            themeToggleBtn: document.getElementById('themeToggleBtn'),
+            backTrainingMenuBtn: document.getElementById('backTrainingMenuBtn'),
+            summaryReason: document.getElementById('summaryReason'),
+            summaryTickets: document.getElementById('summaryTickets'),
+            sumGame: document.getElementById('sumGame'),
+            sumScore: document.getElementById('sumScore'),
+            sumFlow: document.getElementById('sumFlow'),
+            sumTicketsRest: document.getElementById('sumTicketsRest'),
+            summaryHint: document.getElementById('summaryHint'),
+            retry: document.getElementById('retryBtn'),
+            backLobby: document.getElementById('backLobbyBtn'),
+            backTraining: document.getElementById('backTrainingBtn')
         };
 
-        const app = {
-            mode: 'HUB',
+        const state = {
+            gameState: 'TRAINING_MENU',
+            selectedProfileId: 'core4',
+            activeProfileId: null,
+            lastCompletedProfileId: null,
             tickets: 0,
-            currentLessonId: 1,
-            lastPracticeLessonId: null,
+            totalArcadeScore: 0,
+            currentScore: 0,
+            currentFlow: 1,
+            currentErrors: 0,
             currentGame: null,
-            flow: 1,
-            totalGameScore: 0,
-            theme: localStorage.getItem(AURORA_THEME_KEY) || 'default',
-            themeUnlocked: localStorage.getItem(UNLOCK_KEY) === 'true',
+            trainingRun: null,
+            reviewData: null,
+            sessionHistory: [],
             stars: [],
             particles: [],
             floatingTexts: [],
-            frame: 0,
+            frames: 0,
             loopRunning: false,
-            loopId: null,
-            practice: null,
-            review: null,
-            lockIn: null,
-            lessonsProgress: LESSONS.map(lesson => ({
-                lessonId: lesson.id,
-                unlocked: lesson.id === 1,
-                mastered: false,
-                stableRuns: 0,
-                bestAccuracy: 0,
-                bestWpm: 0,
-                completions: 0
-            })),
-            game: null
+            animationFrameId: null,
+            theme: localStorage.getItem(THEME_KEY) || 'default',
+            auroraUnlocked: localStorage.getItem(UNLOCK_KEY) === 'true'
         };
 
-        function getLesson(id) {
-            return LESSONS.find(lesson => lesson.id === id);
+        const dashGame = {
+            groundY: 530,
+            speed: 3,
+            backgroundOffset: 0,
+            mountainOffset: 0,
+            cityOffset: 0,
+            typed: '',
+            currentWord: '',
+            obstacles: [],
+            poolBag: [],
+            player: {
+                x: 150,
+                y: 0,
+                w: 46,
+                h: 46,
+                dy: 0,
+                gravity: 0.64,
+                jumpForce: -16.2,
+                rotation: 0,
+                trail: []
+            }
+        };
+
+        const astroGame = {
+            lives: 4,
+            shipX: canvas.width / 2,
+            shipY: canvas.height - 98,
+            aliens: [],
+            lasers: [],
+            spawnTimer: 0,
+            spawnEvery: 100
+        };
+
+        const beatGame = {
+            lives: 5,
+            hitY: 540,
+            notes: [],
+            spawnTimer: 0,
+            spawnEvery: 90,
+            combo: 0,
+            pulse: 0,
+            allLanes: [
+                { key: 'a', x: 120, glow: '#00f5ff' },
+                { key: 's', x: 220, glow: '#2cffc1' },
+                { key: 'd', x: 320, glow: '#76ff8f' },
+                { key: 'f', x: 420, glow: '#fff066' },
+                { key: 'j', x: 620, glow: '#fff066' },
+                { key: 'k', x: 720, glow: '#ffb84d' },
+                { key: 'l', x: 820, glow: '#ff7edc' },
+                { key: 'ö', x: 920, glow: '#9c62ff' }
+            ]
+        };
+
+        function getProfile(id = state.selectedProfileId) {
+            return TRAINING_PROFILES.find(profile => profile.id === id);
         }
 
-        function getProgress(id) {
-            return app.lessonsProgress.find(entry => entry.lessonId === id);
-        }
-
-        function activeLesson() {
-            return getLesson(app.currentLessonId);
-        }
-
-        function lastLesson() {
-            return getLesson(app.lastPracticeLessonId || app.currentLessonId);
+        function activeArcadeProfile() {
+            return getProfile(state.lastCompletedProfileId || state.selectedProfileId);
         }
 
         function setHelper(text = '', visible = false) {
-            DOM.helperBar.textContent = text;
-            DOM.helperBar.style.display = visible ? 'block' : 'none';
+            DOM.helper.textContent = text;
+            DOM.helper.style.display = visible ? 'block' : 'none';
         }
 
-        function showCenter(label = '', title = '', body = '', visible = false) {
+        function setCenter(label = '', title = '', body = '', visible = false) {
             DOM.centerLabel.textContent = label;
             DOM.centerTitle.textContent = title;
             DOM.centerBody.innerHTML = body;
             DOM.centerPanel.style.display = visible ? 'block' : 'none';
-        }
-
-        function updateHUD(statusText = 'BEREIT') {
-            const lesson = activeLesson();
-            DOM.hudMode.textContent = `MODE: ${app.mode}`;
-            DOM.hudLesson.textContent = `LEKTION: ${app.currentLessonId}`;
-            DOM.hudLetters.textContent = `BUCHSTABEN: ${lesson.letters.join(' ').toUpperCase()}`;
-            DOM.hudStatus.textContent = `STATUS: ${statusText}`;
-            DOM.hudFlow.textContent = `FLOW: ${Math.round(app.flow)}`;
-            DOM.hudTickets.textContent = `TICKETS: ${app.tickets}`;
         }
 
         function createStars(count) {
@@ -879,17 +885,7 @@
             }));
         }
 
-        function updateStars() {
-            app.stars.forEach(star => {
-                star.y += star.speed * 0.16;
-                if (star.y > canvas.height) {
-                    star.y = -4;
-                    star.x = Math.random() * canvas.width;
-                }
-            });
-        }
-
-        function shuffle(array) {
+        function shuffleArray(array) {
             const arr = [...array];
             for (let i = arr.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -898,23 +894,311 @@
             return arr;
         }
 
-        function createSequence(lesson, units = 18) {
-            const pieces = [];
-            let bag = shuffle(lesson.pool);
+        function applyTheme(name) {
+            state.theme = name;
+            localStorage.setItem(THEME_KEY, name);
+
+            if (name === 'aurora' && state.auroraUnlocked) {
+                document.documentElement.style.setProperty('--bg-1', '#04151a');
+                document.documentElement.style.setProperty('--bg-2', '#083843');
+                document.documentElement.style.setProperty('--bg-3', '#021014');
+                document.documentElement.style.setProperty('--cyan', '#63fff3');
+                document.documentElement.style.setProperty('--pink', '#86ffb5');
+                document.documentElement.style.setProperty('--purple', '#59f7da');
+            } else {
+                document.documentElement.style.setProperty('--bg-1', '#050812');
+                document.documentElement.style.setProperty('--bg-2', '#0b1538');
+                document.documentElement.style.setProperty('--bg-3', '#02040d');
+                document.documentElement.style.setProperty('--cyan', '#00f5ff');
+                document.documentElement.style.setProperty('--pink', '#ff2bd6');
+                document.documentElement.style.setProperty('--purple', '#9c62ff');
+                if (name === 'aurora' && !state.auroraUnlocked) state.theme = 'default';
+            }
+        }
+
+        function maybeUnlockTheme() {
+            if (state.totalArcadeScore >= 450 && !state.auroraUnlocked) {
+                state.auroraUnlocked = true;
+                localStorage.setItem(UNLOCK_KEY, 'true');
+                addFloatingText('Aurora Theme freigeschaltet', canvas.width / 2, 180, COLORS.green);
+            }
+        }
+
+        function updateArcadeInfo() {
+            DOM.arcadeInfo.textContent = state.auroraUnlocked
+                ? 'Aurora Theme freigeschaltet. Damit gibt es eine kosmetische Belohnung ohne Rangliste oder sozialen Druck.'
+                : `Noch kein Unlock. Aktuell ${state.totalArcadeScore}/450 Gesamtpunkte bis zum Aurora Theme.`;
+        }
+
+        function updateHUD(modeText = 'TRAINING') {
+            const displayProfile = activeArcadeProfile() || getProfile();
+            DOM.mode.textContent = `MODE: ${modeText}`;
+            DOM.profile.textContent = `PROFIL: ${displayProfile.label.toUpperCase()}`;
+            DOM.score.textContent = `SCORE: ${state.currentScore}`;
+            DOM.flow.textContent = `FLOW: ${Math.round(state.currentFlow)}`;
+            DOM.errors.textContent = `FEHLER: ${state.currentErrors}`;
+            DOM.tickets.textContent = `TICKETS: ${state.tickets}`;
+        }
+
+        function drawBackgroundBase() {
+            const sky = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            sky.addColorStop(0, getComputedStyle(document.documentElement).getPropertyValue('--bg-1'));
+            sky.addColorStop(0.52, getComputedStyle(document.documentElement).getPropertyValue('--bg-2'));
+            sky.addColorStop(1, getComputedStyle(document.documentElement).getPropertyValue('--bg-3'));
+            ctx.fillStyle = sky;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            state.stars.forEach(star => {
+                ctx.globalAlpha = star.alpha;
+                ctx.fillStyle = COLORS.white;
+                ctx.fillRect(star.x, star.y, star.size, star.size);
+            });
+            ctx.globalAlpha = 1;
+        }
+
+        function drawLobbyPreview() {
+            drawBackgroundBase();
+
+            ctx.fillStyle = COLORS.pink;
+            ctx.shadowBlur = 82;
+            ctx.shadowColor = COLORS.pink;
+            ctx.beginPath();
+            ctx.arc(canvas.width / 2, 300, 170, Math.PI, 0);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            ctx.fillStyle = 'rgba(9,16,38,0.95)';
+            for (let i = 0; i < 10; i++) {
+                ctx.fillRect(250, 250 - i * 14, 540, i * 4);
+            }
+
+            ctx.strokeStyle = 'rgba(0,245,255,0.14)';
+            ctx.lineWidth = 2;
+            for (let i = -120; i < canvas.width + 120; i += 64) {
+                ctx.beginPath();
+                ctx.moveTo(i + (state.frames % 64), 530);
+                ctx.lineTo((i - 520) * 2 + canvas.width / 2, canvas.height);
+                ctx.stroke();
+            }
+
+            ctx.strokeStyle = COLORS.cyan;
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(0, 530);
+            ctx.lineTo(canvas.width, 530);
+            ctx.stroke();
+        }
+
+        function updateStars() {
+            state.stars.forEach(s => {
+                s.y += s.speed * 0.15;
+                if (s.y > canvas.height) {
+                    s.y = -4;
+                    s.x = Math.random() * canvas.width;
+                }
+            });
+        }
+
+        function createParticles(x, y, color, count = 16, spread = 12) {
+            for (let i = 0; i < count; i++) {
+                state.particles.push({
+                    x,
+                    y,
+                    vx: (Math.random() - 0.5) * spread,
+                    vy: (Math.random() - 0.8) * spread,
+                    life: 1,
+                    size: Math.random() * 5 + 2,
+                    color
+                });
+            }
+        }
+
+        function addFloatingText(text, x, y, color) {
+            state.floatingTexts.push({ text, x, y, color, life: 1 });
+        }
+
+        function updateParticles() {
+            for (let i = state.particles.length - 1; i >= 0; i--) {
+                const p = state.particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.32;
+                p.life -= 0.03;
+                if (p.life <= 0) state.particles.splice(i, 1);
+            }
+
+            for (let i = state.floatingTexts.length - 1; i >= 0; i--) {
+                const t = state.floatingTexts[i];
+                t.y -= 0.8;
+                t.life -= 0.02;
+                if (t.life <= 0) state.floatingTexts.splice(i, 1);
+            }
+        }
+
+        function drawParticlesAndTexts() {
+            state.particles.forEach(p => {
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.shadowBlur = 16;
+                ctx.shadowColor = p.color;
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+            });
+            ctx.globalAlpha = 1;
+            ctx.shadowBlur = 0;
+
+            state.floatingTexts.forEach(text => {
+                ctx.globalAlpha = text.life;
+                ctx.fillStyle = text.color;
+                ctx.font = '28px VT323';
+                ctx.textAlign = 'center';
+                ctx.shadowBlur = 12;
+                ctx.shadowColor = text.color;
+                ctx.fillText(text.text, text.x, text.y);
+            });
+            ctx.globalAlpha = 1;
+            ctx.shadowBlur = 0;
+        }
+
+        function stopLoop() {
+            state.loopRunning = false;
+            if (state.animationFrameId !== null) {
+                cancelAnimationFrame(state.animationFrameId);
+                state.animationFrameId = null;
+            }
+        }
+
+        function startLoop() {
+            if (state.loopRunning) return;
+            state.loopRunning = true;
+            loop();
+        }
+
+        function hideScreens() {
+            DOM.trainingMenu.style.display = 'none';
+            DOM.reviewScreen.style.display = 'none';
+            DOM.lobby.style.display = 'none';
+            DOM.summary.style.display = 'none';
+        }
+
+        function renderProfiles() {
+            DOM.profileGrid.innerHTML = '';
+            TRAINING_PROFILES.forEach(profile => {
+                const card = document.createElement('div');
+                card.className = `profile-card ${state.selectedProfileId === profile.id ? 'active' : ''}`;
+                card.innerHTML = `
+                    <div class="pill ${profile.badgeClass}">${profile.badge}</div>
+                    <h3 class="card-title">${profile.label}</h3>
+                    <p class="card-copy">Aktive Buchstaben: ${profile.letters.join(' ').toUpperCase()}</p>
+                    <p class="card-copy">Weicher Starteinstieg bei Flow ${profile.baseFlow}. Geeignet für die Erprobung verschiedener Schwierigkeitsniveaus.</p>
+                    <button class="btn secondary" data-profile="${profile.id}">Dieses Profil wählen</button>
+                `;
+                DOM.profileGrid.appendChild(card);
+            });
+
+            document.querySelectorAll('[data-profile]').forEach(button => {
+                button.addEventListener('click', () => {
+                    state.selectedProfileId = button.dataset.profile;
+                    renderProfiles();
+                    updateHUD('TRAINING');
+                });
+            });
+        }
+
+        function renderHistory() {
+            if (!state.sessionHistory.length) {
+                DOM.historyBox.textContent = 'Noch keine Trainingsdurchläufe.';
+                return;
+            }
+
+            DOM.historyBox.innerHTML = state.sessionHistory
+                .slice(-5)
+                .reverse()
+                .map(run => `${run.profile} | ${run.accuracy}% Accuracy | ${run.wpm} WPM | +${run.tickets} Tickets`)
+                .join('<br>');
+        }
+
+        function showTrainingMenu() {
+            state.gameState = 'TRAINING_MENU';
+            state.currentGame = null;
+            state.currentScore = 0;
+            state.currentErrors = 0;
+            state.currentFlow = getProfile(state.selectedProfileId).baseFlow;
+            DOM.overlay.style.display = 'flex';
+            DOM.trainingPanel.style.display = 'none';
+            setCenter('', '', '', false);
+            setHelper('Hier wird nur der Gamification Loop getestet. Das Kursheft bleibt ausserhalb des Systems.', true);
+            hideScreens();
+            DOM.trainingMenu.style.display = 'block';
+            DOM.openLobbyBtn.disabled = !(state.tickets > 0 && state.lastCompletedProfileId);
+            DOM.trainingStrip.textContent = state.lastCompletedProfileId
+                ? `Letztes Arcade Profil: ${getProfile(state.lastCompletedProfileId).label} | Aktuelle Tickets: ${state.tickets}`
+                : 'Zuerst eine neutrale Trainingssequenz abschliessen, danach öffnet sich die Arcade.';
+            renderProfiles();
+            renderHistory();
+            updateArcadeInfo();
+            updateHUD('TRAINING');
+            draw();
+        }
+
+        function buildTrainingPrompt(profile) {
+            const units = profile.id === 'full8' ? 18 : 16;
+            let bag = shuffleArray(profile.pool);
+            const parts = [];
             let last = '';
 
-            while (pieces.length < units) {
-                if (!bag.length) bag = shuffle(lesson.pool);
+            while (parts.length < units) {
+                if (!bag.length) bag = shuffleArray(profile.pool);
                 let next = bag.pop();
                 if (next === last && bag.length) {
                     bag.unshift(next);
                     next = bag.pop();
                 }
-                pieces.push(next);
+                parts.push(next);
                 last = next;
             }
 
-            return pieces.join(' ');
+            return parts.join(' ');
+        }
+
+        function startTraining() {
+            const profile = getProfile(state.selectedProfileId);
+            state.gameState = 'TRAINING';
+            state.activeProfileId = profile.id;
+            state.currentGame = null;
+            state.currentScore = 0;
+            state.currentErrors = 0;
+            state.currentFlow = profile.baseFlow;
+            state.trainingRun = {
+                profileId: profile.id,
+                prompt: buildTrainingPrompt(profile),
+                typed: '',
+                startedAt: performance.now()
+            };
+
+            DOM.overlay.style.display = 'none';
+            DOM.trainingPanel.style.display = 'block';
+            DOM.trainingLabel.textContent = `Neutrales Training | ${profile.label}`;
+            DOM.trainingMeta1.textContent = 'Fortschritt 0%';
+            DOM.trainingMeta2.textContent = `Aktive Buchstaben ${profile.letters.join(' ').toUpperCase()}`;
+            DOM.trainingMeta3.textContent = 'Summary Review und Tickets nach Abschluss';
+            renderTrainingPrompt();
+            setCenter('', '', '', false);
+            setHelper('Keine rote Sofortkorrektur. Einfach die ganze Sequenz fertig tippen.', true);
+            updateHUD('TRAINING');
+            startLoop();
+        }
+
+        function renderTrainingPrompt() {
+            const prompt = state.trainingRun.prompt;
+            const typedLength = Math.min(state.trainingRun.typed.length, prompt.length);
+            let html = '';
+            for (let i = 0; i < prompt.length; i++) {
+                html += i < typedLength
+                    ? `<span class="typed">${escapeHtml(prompt[i])}</span>`
+                    : `<span class="pending">${escapeHtml(prompt[i])}</span>`;
+            }
+            DOM.trainingPrompt.innerHTML = html;
+            DOM.trainingMeta1.textContent = `Fortschritt ${Math.round((typedLength / prompt.length) * 100)}%`;
         }
 
         function escapeHtml(str) {
@@ -948,436 +1232,199 @@
             return { promptHtml, typedHtml };
         }
 
-        function calculatePracticeMetrics(prompt, typed, startedAt) {
+        function computeTrainingMetrics() {
+            const prompt = state.trainingRun.prompt;
+            const typed = state.trainingRun.typed;
             let correct = 0;
             for (let i = 0; i < prompt.length; i++) {
                 if (typed[i] === prompt[i]) correct += 1;
             }
             const errors = Math.max(0, prompt.length - correct);
             const accuracy = prompt.length ? Math.round((correct / prompt.length) * 100) : 0;
-            const seconds = Math.max(1, (performance.now() - startedAt) / 1000);
+            const seconds = Math.max(1, (performance.now() - state.trainingRun.startedAt) / 1000);
             const words = typed.length / 5;
             const wpm = Math.round((words / seconds) * 60);
-            return { accuracy, errors, wpm, seconds, correct };
+            const profile = getProfile(state.trainingRun.profileId);
+
+            let tickets = 1;
+            if (accuracy >= profile.accuracyBonus) tickets += 1;
+            if (accuracy >= 98 && errors <= 1) tickets += 1;
+
+            return { accuracy, errors, wpm, tickets };
         }
 
-        function awardTickets(metrics) {
-            let earned = 1;
-            if (metrics.accuracy >= 95) earned += 1;
-            if (metrics.accuracy >= 98 && metrics.errors <= 1) earned += 1;
-            app.tickets += earned;
-            return earned;
-        }
+        function finishTraining() {
+            const metrics = computeTrainingMetrics();
+            const comparison = buildComparison(state.trainingRun.prompt, state.trainingRun.typed);
+            const profile = getProfile(state.trainingRun.profileId);
 
-        function maybeUnlockTheme() {
-            if (app.totalGameScore >= 400 && !app.themeUnlocked) {
-                app.themeUnlocked = true;
-                localStorage.setItem(UNLOCK_KEY, 'true');
-                addFloatingText('Aurora Theme freigeschaltet', canvas.width / 2, 200, COLORS.green);
-            }
-        }
-
-        function applyTheme(name) {
-            app.theme = name;
-            localStorage.setItem(AURORA_THEME_KEY, name);
-
-            if (name === 'aurora' && app.themeUnlocked) {
-                document.documentElement.style.setProperty('--bg-1', '#03111a');
-                document.documentElement.style.setProperty('--bg-2', '#0b3040');
-                document.documentElement.style.setProperty('--bg-3', '#02161a');
-                document.documentElement.style.setProperty('--cyan', '#63fff3');
-                document.documentElement.style.setProperty('--pink', '#7effa5');
-                document.documentElement.style.setProperty('--purple', '#4fffd0');
-            } else {
-                document.documentElement.style.setProperty('--bg-1', '#050812');
-                document.documentElement.style.setProperty('--bg-2', '#0b1538');
-                document.documentElement.style.setProperty('--bg-3', '#02040d');
-                document.documentElement.style.setProperty('--cyan', '#00f5ff');
-                document.documentElement.style.setProperty('--pink', '#ff2bd6');
-                document.documentElement.style.setProperty('--purple', '#9c62ff');
-                if (name === 'aurora' && !app.themeUnlocked) app.theme = 'default';
-            }
-        }
-
-        function renderLessonList() {
-            DOM.lessonList.innerHTML = '';
-            app.lessonsProgress.forEach(entry => {
-                const lesson = getLesson(entry.lessonId);
-                const card = document.createElement('div');
-                card.className = 'lesson-card';
-
-                const statePill = entry.mastered
-                    ? '<div class="pill green">Automatisiert</div>'
-                    : entry.unlocked
-                        ? '<div class="pill yellow">Aktiv</div>'
-                        : '<div class="pill red">Gesperrt</div>';
-
-                const progressPct = Math.min(100, Math.round((entry.stableRuns / lesson.stableNeeded) * 100));
-                card.innerHTML = `
-                    ${statePill}
-                    <h3 class="lesson-title">Lektion ${lesson.id}: ${lesson.name}</h3>
-                    <p class="lesson-copy">Fokus: ${lesson.letters.join(' ').toUpperCase()}</p>
-                    <p class="lesson-copy">Ziel: ${lesson.accuracyTarget}% Accuracy und ${lesson.wpmTarget} WPM über ${lesson.stableNeeded} stabile Läufe</p>
-                    <div class="progress"><div class="progress-fill" style="width:${progressPct}%"></div></div>
-                    <p class="lesson-copy">Stabile Läufe: ${entry.stableRuns}/${lesson.stableNeeded} | Bestwert: ${entry.bestAccuracy}% / ${entry.bestWpm} WPM</p>
-                    <button class="btn ${entry.mastered ? 'secondary' : ''}" ${entry.unlocked ? '' : 'disabled'} data-lesson-start="${lesson.id}">${entry.mastered ? 'Erneut üben' : 'Lektion starten'}</button>
-                `;
-                DOM.lessonList.appendChild(card);
+            state.tickets += metrics.tickets;
+            state.lastCompletedProfileId = state.trainingRun.profileId;
+            state.sessionHistory.push({
+                profile: profile.label,
+                accuracy: metrics.accuracy,
+                wpm: metrics.wpm,
+                tickets: metrics.tickets
             });
 
-            document.querySelectorAll('[data-lesson-start]').forEach(btn => {
-                btn.addEventListener('click', () => startLockIn('practice', { lessonId: Number(btn.dataset.lessonStart) }));
-            });
-        }
-
-        function hideAllOverlayScreens() {
-            DOM.hubScreen.style.display = 'none';
-            DOM.reviewScreen.style.display = 'none';
-            DOM.challengeScreen.style.display = 'none';
-            DOM.gameSummaryScreen.style.display = 'none';
-        }
-
-        function showHub() {
-            app.mode = 'HUB';
-            app.currentGame = null;
-            app.practice = null;
-            app.review = null;
-            app.lockIn = null;
-            app.game = null;
-            DOM.practiceBox.style.display = 'none';
-            showCenter('', '', '', false);
-            setHelper('Wähle eine Lektion. Das Feedback erscheint erst nach der ganzen Sequenz.', true);
-            renderLessonList();
-            DOM.openChallengeBtn.disabled = !app.lastPracticeLessonId || app.tickets <= 0;
-            DOM.hubStrip.textContent = app.lastPracticeLessonId
-                ? `Letzte Übungsbasis: Lektion ${app.lastPracticeLessonId} | Tickets verfügbar: ${app.tickets}`
-                : 'Noch keine Challenge freigeschaltet. Zuerst eine Lektion absolvieren.';
-            DOM.overlay.style.display = 'flex';
-            hideAllOverlayScreens();
-            DOM.hubScreen.style.display = 'block';
-            updateHUD('BEREIT');
-            draw();
-        }
-
-        function openChallengeZone() {
-            app.mode = 'CHALLENGE';
-            DOM.practiceBox.style.display = 'none';
-            showCenter('', '', '', false);
-            DOM.overlay.style.display = 'flex';
-            hideAllOverlayScreens();
-            DOM.challengeScreen.style.display = 'block';
-            DOM.challengeStrip.textContent = app.lastPracticeLessonId
-                ? `Aktive Spielinhalte kommen aus Lektion ${app.lastPracticeLessonId}. Tickets: ${app.tickets}`
-                : 'Zuerst üben, danach spielen.';
-            DOM.gameStartButtons.forEach(button => {
-                button.disabled = !app.lastPracticeLessonId || app.tickets <= 0;
-            });
-            setHelper('Die Challenge Zone ist freiwillig. Erst nach bestandenem Lock in wird ein Ticket verbraucht.', true);
-            updateHUD('FREIWILLIG');
-            draw();
-        }
-
-        function startLockIn(type, payload) {
-            if (type === 'practice') {
-                const lesson = getLesson(payload.lessonId);
-                app.currentLessonId = lesson.id;
-                app.lockIn = {
-                    type,
-                    payload,
-                    prompt: `${lesson.warmup}  ${lesson.warmup}`,
-                    typed: '',
-                    startedAt: performance.now()
-                };
-                app.mode = 'LOCK IN';
-                DOM.overlay.style.display = 'none';
-                DOM.practiceBox.style.display = 'none';
-                showCenter('Lock in', 'Finger auf die Grundreihe', `Tippe zum Start:<br><span style="color:var(--cyan)">${lesson.warmup.toUpperCase()} ${lesson.warmup.toUpperCase()}</span>`, true);
-                setHelper('Nur Grundreihen Tasten verwenden. Keine Bewertung, nur Fokussierung vor der Lernphase.', true);
-                updateHUD('LOCK IN');
-                startLoop();
-                return;
-            }
-
-            if (type === 'game') {
-                const lesson = lastLesson();
-                app.lockIn = {
-                    type,
-                    payload,
-                    prompt: 'asdf jklö asdf jklö',
-                    typed: '',
-                    startedAt: performance.now()
-                };
-                app.mode = 'LOCK IN';
-                DOM.overlay.style.display = 'none';
-                DOM.practiceBox.style.display = 'none';
-                showCenter('Lock in', 'Challenge Freigabe', `Tippe zum Start der Challenge:<br><span style="color:var(--cyan)">ASDF JKLÖ ASDF JKLÖ</span><br><span style="font-size:22px;color:#c6d2df;">Die Spiele nutzen danach nur Buchstaben aus Lektion ${lesson.id}</span>`, true);
-                setHelper('Bestehst du den Lock in mit mindestens 85% Accuracy, startet das Spiel und erst dann wird ein Ticket verbraucht.', true);
-                updateHUD('LOCK IN');
-                startLoop();
-            }
-        }
-
-        function finishLockIn() {
-            const metrics = calculatePracticeMetrics(app.lockIn.prompt, app.lockIn.typed, app.lockIn.startedAt);
-            const ok = app.lockIn.type === 'practice' ? metrics.accuracy >= 80 : metrics.accuracy >= 85;
-
-            if (!ok) {
-                showCenter('Lock in', 'Noch einmal sauber setzen', `Deine Accuracy lag bei ${metrics.accuracy}%.<br>Drücke Enter für einen neuen Versuch.`, true);
-                app.lockIn.typed = '';
-                app.lockIn.startedAt = performance.now();
-                setHelper('Lock in bewusst wiederholen. Erst danach geht es weiter.', true);
-                return;
-            }
-
-            showCenter('', '', '', false);
-            if (app.lockIn.type === 'practice') startPractice(app.lockIn.payload.lessonId);
-            else startGame(app.lockIn.payload.gameId);
-        }
-
-        function startPractice(lessonId) {
-            const lesson = getLesson(lessonId);
-            const progress = getProgress(lessonId);
-            app.mode = 'PRACTICE';
-            app.currentLessonId = lessonId;
-            app.practice = {
-                lessonId,
-                prompt: createSequence(lesson, 16),
-                typed: '',
-                startedAt: performance.now()
-            };
-            app.review = null;
-            DOM.practiceBox.style.display = 'block';
-            DOM.overlay.style.display = 'none';
-            showCenter('', '', '', false);
-            DOM.practiceLabel.textContent = `Lernphase | Lektion ${lesson.id}: ${lesson.name}`;
-            DOM.practicePrompt.textContent = app.practice.prompt;
-            DOM.practiceMeta1.textContent = 'Fortschritt 0%';
-            DOM.practiceMeta2.textContent = `Ziel ${lesson.accuracyTarget}% | ${lesson.wpmTarget} WPM`;
-            DOM.practiceMeta3.textContent = `Stabile Läufe ${progress.stableRuns}/${lesson.stableNeeded}`;
-            setHelper('Jetzt neutral tippen. Keine roten Marker während der Sequenz. Review folgt erst am Ende.', true);
-            updateHUD('LERNPHASE');
-            startLoop();
-        }
-
-        function updatePracticeView() {
-            if (!app.practice) return;
-            const prompt = app.practice.prompt;
-            const typedLen = Math.min(app.practice.typed.length, prompt.length);
-            const pct = Math.round((typedLen / prompt.length) * 100);
-            const fadeIndex = typedLen;
-            let html = '';
-
-            for (let i = 0; i < prompt.length; i++) {
-                const ch = prompt[i];
-                if (i < fadeIndex) html += `<span class="ghost">${escapeHtml(ch)}</span>`;
-                else html += `<span>${escapeHtml(ch)}</span>`;
-            }
-
-            DOM.practicePrompt.innerHTML = html;
-            DOM.practiceMeta1.textContent = `Fortschritt ${pct}%`;
-        }
-
-        function finishPractice() {
-            const lesson = getLesson(app.practice.lessonId);
-            const progress = getProgress(app.practice.lessonId);
-            const metrics = calculatePracticeMetrics(app.practice.prompt, app.practice.typed, app.practice.startedAt);
-            const stable = metrics.accuracy >= lesson.accuracyTarget && metrics.wpm >= lesson.wpmTarget;
-
-            progress.completions += 1;
-            progress.bestAccuracy = Math.max(progress.bestAccuracy, metrics.accuracy);
-            progress.bestWpm = Math.max(progress.bestWpm, metrics.wpm);
-            progress.stableRuns = stable ? progress.stableRuns + 1 : 0;
-
-            let lessonUnlocked = false;
-            if (progress.stableRuns >= lesson.stableNeeded && !progress.mastered) {
-                progress.mastered = true;
-                const next = getProgress(lesson.id + 1);
-                if (next) next.unlocked = true;
-                lessonUnlocked = true;
-            }
-
-            const earned = awardTickets(metrics);
-            app.lastPracticeLessonId = lesson.id;
-            if (lessonUnlocked && lesson.id < LESSONS.length) app.currentLessonId = lesson.id + 1;
-
-            const comparison = buildComparison(app.practice.prompt, app.practice.typed);
-            app.review = {
-                lessonId: lesson.id,
-                metrics,
-                earned,
-                lessonUnlocked,
-                stable,
-                comparison,
-                nextLessonId: lessonUnlocked && lesson.id < LESSONS.length ? lesson.id + 1 : lesson.id
+            state.reviewData = {
+                profileLabel: profile.label,
+                accuracy: metrics.accuracy,
+                errors: metrics.errors,
+                wpm: metrics.wpm,
+                tickets: metrics.tickets,
+                promptHtml: comparison.promptHtml,
+                typedHtml: comparison.typedHtml
             };
 
-            openReview();
-        }
-
-        function openReview() {
-            app.mode = 'REVIEW';
-            DOM.practiceBox.style.display = 'none';
             DOM.overlay.style.display = 'flex';
-            hideAllOverlayScreens();
+            DOM.trainingPanel.style.display = 'none';
+            hideScreens();
             DOM.reviewScreen.style.display = 'block';
-
-            const lesson = getLesson(app.review.lessonId);
-            const progress = getProgress(app.review.lessonId);
-            DOM.reviewSubtitle.textContent = `Lektion ${lesson.id}: ${lesson.name}`;
-            DOM.reviewStrip.textContent = app.review.lessonUnlocked
-                ? `Automatisierungs Gate bestanden. Nächste Lektion freigeschaltet.`
-                : app.review.stable
-                    ? `Guter Lauf. Noch ${Math.max(0, lesson.stableNeeded - progress.stableRuns)} stabile Läufe bis zur Freischaltung.`
-                    : 'Lauf abgeschlossen. Wiederhole die Lektion für stabilere Automatisierung.';
-
-            DOM.sumAccuracy.textContent = `${app.review.metrics.accuracy}%`;
-            DOM.sumWpm.textContent = app.review.metrics.wpm;
-            DOM.sumErrors.textContent = app.review.metrics.errors;
-            DOM.sumTickets.textContent = `+${app.review.earned}`;
-            DOM.reviewPrompt.innerHTML = app.review.comparison.promptHtml;
-            DOM.reviewTyped.innerHTML = app.review.comparison.typedHtml;
-            DOM.reviewChallengeBtn.disabled = app.tickets <= 0;
-
-            setHelper('Hier ist die gebündelte Rückmeldung. Jetzt kannst du weiter üben oder freiwillig in die Challenge Zone wechseln.', true);
+            DOM.reviewSubtitle.textContent = `Abgeschlossenes Profil: ${profile.label}`;
+            DOM.reviewStrip.textContent = metrics.accuracy >= profile.accuracyBonus
+                ? 'Starke Leistung. Zusatztickets wurden freigeschaltet.'
+                : 'Basisticket vergeben. Höhere Genauigkeit gibt beim nächsten Run mehr Tickets.';
+            DOM.sumAccuracy.textContent = `${metrics.accuracy}%`;
+            DOM.sumWpm.textContent = metrics.wpm;
+            DOM.sumErrors.textContent = metrics.errors;
+            DOM.sumTickets.textContent = `+${metrics.tickets}`;
+            DOM.reviewPrompt.innerHTML = comparison.promptHtml;
+            DOM.reviewTyped.innerHTML = comparison.typedHtml;
             updateHUD('REVIEW');
             draw();
         }
 
-        function adaptiveFlowChange(delta) {
-            app.flow = Math.max(1, Math.min(10, app.flow + delta));
+        function showLobby() {
+            state.gameState = 'LOBBY';
+            state.currentGame = null;
+            state.currentScore = 0;
+            state.currentErrors = 0;
+            state.currentFlow = activeArcadeProfile().baseFlow;
+            DOM.overlay.style.display = 'flex';
+            DOM.trainingPanel.style.display = 'none';
+            setCenter('', '', '', false);
+            hideScreens();
+            DOM.lobby.style.display = 'block';
+            DOM.lobbyTicketBank.textContent = `TICKETS VERFÜGBAR: ${state.tickets}`;
+            DOM.lobbyMessage.textContent = state.tickets > 0
+                ? 'Ein Ticket entspricht genau einem Spielversuch. Nach dem letzten Ticket geht es zurück ins Training.'
+                : 'Keine Tickets mehr. Die Arcade ist geschlossen, bis du erneut trainierst.';
+            document.querySelectorAll('.gameBtn').forEach(button => {
+                button.disabled = !(state.tickets > 0 && state.lastCompletedProfileId);
+            });
+            updateArcadeInfo();
+            setHelper('Die Arcade ist freiwillig und nutzt nur Inhalte aus dem zuletzt abgeschlossenen Trainingsprofil.', true);
+            updateHUD('LOBBY');
+            draw();
         }
 
-        function addFloatingText(text, x, y, color) {
-            app.floatingTexts.push({ text, x, y, color, life: 1 });
+        function adjustFlow(delta) {
+            state.currentFlow = Math.max(1, Math.min(10, state.currentFlow + delta));
         }
 
-        function addParticles(x, y, color, count = 16, spread = 10) {
-            for (let i = 0; i < count; i++) {
-                app.particles.push({
-                    x,
-                    y,
-                    vx: (Math.random() - 0.5) * spread,
-                    vy: (Math.random() - 0.8) * spread,
-                    life: 1,
-                    size: Math.random() * 5 + 2,
-                    color
-                });
-            }
+        function gamePool() {
+            const profile = activeArcadeProfile();
+            return profile.pool.filter(item => !item.includes(' '));
         }
 
-        function updateParticles() {
-            for (let i = app.particles.length - 1; i >= 0; i--) {
-                const p = app.particles[i];
-                p.x += p.vx;
-                p.y += p.vy;
-                p.vy += 0.28;
-                p.life -= 0.03;
-                if (p.life <= 0) app.particles.splice(i, 1);
-            }
-
-            for (let i = app.floatingTexts.length - 1; i >= 0; i--) {
-                const t = app.floatingTexts[i];
-                t.y -= 0.8;
-                t.life -= 0.02;
-                if (t.life <= 0) app.floatingTexts.splice(i, 1);
-            }
-        }
-
-        function gameLessonPool() {
-            const lesson = lastLesson();
-            return lesson.pool.filter(item => !item.includes(' '));
-        }
-
-        function gameLetters() {
-            return lastLesson().letters;
-        }
-
-        function startGame(gameId) {
-            if (app.tickets <= 0) {
-                openChallengeZone();
+        function spendTicketAndStart(gameId) {
+            if (state.tickets <= 0 || !state.lastCompletedProfileId) {
+                showTrainingMenu();
                 return;
             }
+            state.tickets -= 1;
+            launchGame(gameId);
+        }
 
-            app.tickets -= 1;
-            app.mode = 'GAME';
-            app.currentGame = gameId;
-            app.flow = Math.max(1, Math.min(10, lastLesson().id + 1));
+        function launchGame(gameId) {
+            const profile = activeArcadeProfile();
+            state.gameState = 'PLAYING';
+            state.currentGame = gameId;
+            state.currentScore = 0;
+            state.currentErrors = 0;
+            state.currentFlow = profile.baseFlow;
+            state.particles = [];
+            state.floatingTexts = [];
             DOM.overlay.style.display = 'none';
-            DOM.practiceBox.style.display = 'none';
-            showCenter('', '', '', false);
-            setHelper('Die Schwierigkeit steigt jetzt adaptiv mit deiner Leistung und fällt bei Fehlern wieder etwas zurück.', true);
+            DOM.trainingPanel.style.display = 'none';
 
-            if (gameId === 'dash') setupDash();
-            if (gameId === 'astro') setupAstro();
-            if (gameId === 'beat') setupBeat();
+            if (gameId === 'dash') startDash();
+            if (gameId === 'astro') startAstro();
+            if (gameId === 'beat') startBeat();
 
-            updateHUD('CHALLENGE');
+            updateHUD(gameId.toUpperCase());
             startLoop();
         }
 
-        function setupDash() {
-            const pool = gameLessonPool();
-            app.game = {
-                type: 'dash',
-                score: 0,
-                lives: 1,
-                typed: '',
-                currentWord: pool[Math.floor(Math.random() * pool.length)],
-                bag: shuffle(pool),
-                player: { x: 150, y: 500, w: 44, h: 44, dy: 0, gravity: 0.72, jump: -15.5, rotation: 0, trail: [] },
-                groundY: 544,
-                obstacles: [],
-                offset: 0,
-                cityOffset: 0,
-                mountainOffset: 0,
-                errors: 0
-            };
-            showCenter('Type Dash', app.game.currentWord.toUpperCase(), 'Tippe die angezeigte Sequenz sauber, damit der Würfel springt.', true);
+        function startDash() {
+            const pool = gamePool();
+            dashGame.speed = 3 + state.currentFlow * 0.34;
+            dashGame.backgroundOffset = 0;
+            dashGame.mountainOffset = 0;
+            dashGame.cityOffset = 0;
+            dashGame.typed = '';
+            dashGame.currentWord = pool[Math.floor(Math.random() * pool.length)];
+            dashGame.obstacles = [];
+            dashGame.poolBag = shuffleArray(pool);
+            dashGame.player.y = dashGame.groundY - dashGame.player.h;
+            dashGame.player.dy = 0;
+            dashGame.player.rotation = 0;
+            dashGame.player.trail = [];
+            spawnDashObstacle();
+            setCenter('Type Dash', dashGame.currentWord.toUpperCase(), 'Tippe die Sequenz im richtigen Moment, damit der Würfel springt.', true);
+            setHelper('Treffer erhöhen den Flow leicht. Fehler senken ihn wieder.', true);
         }
 
         function nextDashWord() {
-            if (!app.game.bag.length) app.game.bag = shuffle(gameLessonPool());
-            const next = app.game.bag.pop();
-            app.game.currentWord = next;
-            app.game.typed = '';
-            showCenter('Type Dash', next.toUpperCase(), 'Tippe im richtigen Moment weiter.', true);
+            if (!dashGame.poolBag.length) dashGame.poolBag = shuffleArray(gamePool());
+            dashGame.currentWord = dashGame.poolBag.pop();
+            dashGame.typed = '';
+            setCenter('Type Dash', dashGame.currentWord.toUpperCase(), 'Blind tippen und im Rhythmus bleiben.', true);
         }
 
         function spawnDashObstacle() {
-            const type = app.flow < 4 ? 'spike' : app.flow < 7 ? (Math.random() > 0.55 ? 'double' : 'spike') : (Math.random() > 0.45 ? 'block' : 'double');
-            const obs = { type, x: canvas.width + 50 };
+            const type = state.currentFlow < 4
+                ? 'spike'
+                : state.currentFlow < 7
+                    ? (Math.random() > 0.55 ? 'double' : 'spike')
+                    : (Math.random() > 0.48 ? 'block' : 'double');
+
+            const obs = { x: canvas.width + 60, type, passed: false };
+
             if (type === 'spike') {
-                obs.w = 44;
-                obs.h = 40;
-                obs.y = app.game.groundY - obs.h;
+                obs.w = 42;
+                obs.h = 42;
+                obs.y = dashGame.groundY - obs.h;
             } else if (type === 'double') {
-                obs.w = 88;
-                obs.h = 40;
-                obs.y = app.game.groundY - obs.h;
+                obs.w = 84;
+                obs.h = 42;
+                obs.y = dashGame.groundY - obs.h;
             } else {
                 obs.w = 52;
-                obs.h = 54;
-                obs.y = app.game.groundY - obs.h;
+                obs.h = 56;
+                obs.y = dashGame.groundY - obs.h;
             }
-            app.game.obstacles.push(obs);
+
+            dashGame.obstacles.push(obs);
         }
 
         function updateDash() {
-            const game = app.game;
-            const speed = 3 + app.flow * 0.45;
-            const p = game.player;
+            dashGame.speed = 3 + state.currentFlow * 0.34;
+            dashGame.backgroundOffset -= dashGame.speed * 0.58;
+            dashGame.mountainOffset -= dashGame.speed * 0.15;
+            dashGame.cityOffset -= dashGame.speed * 0.08;
 
-            game.offset -= speed * 0.7;
-            game.cityOffset -= speed * 0.12;
-            game.mountainOffset -= speed * 0.08;
-            if (game.offset < -80) game.offset = 0;
-            if (game.cityOffset < -canvas.width) game.cityOffset = 0;
-            if (game.mountainOffset < -canvas.width) game.mountainOffset = 0;
+            if (dashGame.backgroundOffset < -80) dashGame.backgroundOffset = 0;
+            if (dashGame.mountainOffset < -canvas.width) dashGame.mountainOffset = 0;
+            if (dashGame.cityOffset < -canvas.width) dashGame.cityOffset = 0;
 
+            const p = dashGame.player;
             p.dy += p.gravity;
             p.y += p.dy;
-            if (p.y >= game.groundY - p.h) {
-                p.y = game.groundY - p.h;
+
+            if (p.y >= dashGame.groundY - p.h) {
+                p.y = dashGame.groundY - p.h;
                 p.dy = 0;
                 p.rotation *= 0.86;
             } else {
@@ -1386,272 +1433,341 @@
 
             p.trail.push({ x: p.x, y: p.y, rot: p.rotation, life: 1 });
             if (p.trail.length > 10) p.trail.shift();
-            p.trail.forEach(t => t.life -= 0.1);
+            p.trail.forEach(t => t.life -= 0.12);
 
-            const last = game.obstacles[game.obstacles.length - 1];
-            const minDistance = 420 - app.flow * 18;
+            const last = dashGame.obstacles[dashGame.obstacles.length - 1];
+            const minDistance = 440 - state.currentFlow * 18;
             if (!last || canvas.width - last.x > minDistance) spawnDashObstacle();
 
-            for (let i = game.obstacles.length - 1; i >= 0; i--) {
-                const obs = game.obstacles[i];
-                obs.x -= speed;
+            for (let i = dashGame.obstacles.length - 1; i >= 0; i--) {
+                const obs = dashGame.obstacles[i];
+                obs.x -= dashGame.speed;
 
-                const hit = p.x < obs.x + obs.w && p.x + p.w > obs.x && p.y + p.h > obs.y + 6 && p.y < obs.y + obs.h;
+                const hit = p.x < obs.x + obs.w && p.x + p.w > obs.x && p.y + p.h > obs.y + 8 && p.y < obs.y + obs.h;
                 if (hit) {
                     endGame('Dash Kollision');
                     return;
                 }
 
-                if (!obs.passed && obs.x + obs.w < p.x) {
+                if (obs.x + obs.w < p.x && !obs.passed) {
                     obs.passed = true;
-                    game.score += 10;
-                    app.totalGameScore += 10;
-                    adaptiveFlowChange(0.12);
-                    addFloatingText('+10', p.x + 10, p.y - 12, COLORS.green);
+                    state.currentScore += 10;
+                    state.totalArcadeScore += 10;
+                    adjustFlow(0.12);
+                    addFloatingText('+10', p.x + 18, p.y - 12, COLORS.green);
                 }
 
-                if (obs.x + obs.w < -100) game.obstacles.splice(i, 1);
+                if (obs.x + obs.w < -120) dashGame.obstacles.splice(i, 1);
             }
+
+            updateHUD('TYPE DASH');
         }
 
-        function setupAstro() {
-            app.game = {
-                type: 'astro',
-                score: 0,
-                lives: 4,
-                shipX: canvas.width / 2,
-                shipY: canvas.height - 110,
-                aliens: [],
-                lasers: [],
-                spawnTimer: 0,
-                spawnEvery: 95,
-                letters: gameLetters()
-            };
-            showCenter('Astro Keys', lastLesson().letters.join(' ').toUpperCase(), 'Tippe die Alien Buchstaben, bevor sie den Schild erreichen.', true);
+        function startAstro() {
+            astroGame.lives = 4;
+            astroGame.shipX = canvas.width / 2;
+            astroGame.aliens = [];
+            astroGame.lasers = [];
+            astroGame.spawnTimer = 0;
+            astroGame.spawnEvery = 104 - state.currentFlow * 6;
+            setCenter('Astro Keys', activeArcadeProfile().letters.join(' ').toUpperCase(), 'Tippe die Buchstaben der Alien Welle.', true);
+            setHelper('Nur Buchstaben aus dem letzten Trainingsprofil sind aktiv.', true);
         }
 
-        function spawnAlien() {
-            const letters = app.game.letters;
-            const count = app.flow < 4 ? 1 : app.flow < 7 ? (Math.random() > 0.65 ? 2 : 1) : (Math.random() > 0.45 ? 2 : 3);
-            const baseX = 180 + Math.random() * (canvas.width - 360);
-            for (let i = 0; i < count; i++) {
-                const offset = (i - (count - 1) / 2) * 100;
-                app.game.aliens.push({
-                    x: baseX + offset,
-                    startX: baseX + offset,
-                    y: -60 - i * 26,
-                    size: 28 + Math.random() * 8,
-                    speed: 1.2 + app.flow * 0.18,
+        function spawnAlienWave() {
+            const letters = activeArcadeProfile().letters;
+            const waveSize = state.currentFlow < 4 ? 1 : state.currentFlow < 7 ? (Math.random() > 0.62 ? 2 : 1) : (Math.random() > 0.48 ? 2 : 3);
+            const baseX = 170 + Math.random() * (canvas.width - 340);
+
+            for (let i = 0; i < waveSize; i++) {
+                const offsetX = (i - (waveSize - 1) / 2) * 95;
+                astroGame.aliens.push({
+                    x: baseX + offsetX,
+                    startX: baseX + offsetX,
+                    y: -60 - i * 20,
+                    size: 28 + Math.random() * 10,
+                    speed: 1.15 + state.currentFlow * 0.16,
                     letter: letters[Math.floor(Math.random() * letters.length)],
                     wobble: Math.random() * Math.PI * 2,
                     pulse: Math.random() * Math.PI * 2,
-                    color: Math.random() > 0.5 ? COLORS.green : COLORS.purple
+                    bodyColor: Math.random() > 0.5 ? COLORS.green : COLORS.purple
                 });
             }
         }
 
         function updateAstro() {
-            const game = app.game;
-            game.shipX = canvas.width / 2 + Math.sin(app.frame * 0.028) * 130;
-            game.spawnEvery = Math.max(36, 95 - Math.round(app.flow * 5));
-            game.spawnTimer += 1;
+            astroGame.shipX = canvas.width / 2 + Math.sin(state.frames * 0.028) * 120;
+            astroGame.spawnEvery = Math.max(42, 104 - Math.round(state.currentFlow * 7));
+            astroGame.spawnTimer++;
 
-            if (game.spawnTimer >= game.spawnEvery) {
-                game.spawnTimer = 0;
-                spawnAlien();
+            if (astroGame.spawnTimer >= astroGame.spawnEvery) {
+                astroGame.spawnTimer = 0;
+                spawnAlienWave();
             }
 
-            for (let i = game.aliens.length - 1; i >= 0; i--) {
-                const alien = game.aliens[i];
+            for (let i = astroGame.aliens.length - 1; i >= 0; i--) {
+                const alien = astroGame.aliens[i];
                 alien.y += alien.speed;
-                alien.x = alien.startX + Math.sin(app.frame * 0.04 + alien.wobble) * 24;
+                alien.x = alien.startX + Math.sin(state.frames * 0.04 + alien.wobble) * 24;
                 alien.pulse += 0.09;
 
-                if (alien.y > canvas.height - 132) {
-                    addParticles(alien.x, alien.y, COLORS.red, 20, 12);
-                    game.aliens.splice(i, 1);
-                    game.lives -= 1;
-                    adaptiveFlowChange(-0.7);
-                    if (game.lives <= 0) {
+                if (alien.y > canvas.height - 122) {
+                    createParticles(alien.x, alien.y, COLORS.red, 22, 12);
+                    astroGame.aliens.splice(i, 1);
+                    astroGame.lives -= 1;
+                    state.currentErrors += 1;
+                    adjustFlow(-0.6);
+                    if (astroGame.lives <= 0) {
                         endGame('Astro Schild zerstört');
                         return;
                     }
                 }
             }
 
-            for (let i = game.lasers.length - 1; i >= 0; i--) {
-                game.lasers[i].life -= 0.08;
-                if (game.lasers[i].life <= 0) game.lasers.splice(i, 1);
+            for (let i = astroGame.lasers.length - 1; i >= 0; i--) {
+                astroGame.lasers[i].life -= 0.08;
+                if (astroGame.lasers[i].life <= 0) astroGame.lasers.splice(i, 1);
             }
+
+            updateHUD('ASTRO KEYS');
         }
 
-        function setupBeat() {
-            const lanes = [
-                { key: 'a', x: 135 },
-                { key: 's', x: 230 },
-                { key: 'd', x: 325 },
-                { key: 'f', x: 420 },
-                { key: 'j', x: 660 },
-                { key: 'k', x: 755 },
-                { key: 'l', x: 850 },
-                { key: 'ö', x: 945 }
-            ].filter(lane => gameLetters().includes(lane.key));
+        function startBeat() {
+            beatGame.lives = 5;
+            beatGame.notes = [];
+            beatGame.spawnTimer = 0;
+            beatGame.spawnEvery = 92 - state.currentFlow * 5;
+            beatGame.combo = 0;
+            beatGame.pulse = 0;
+            setCenter('Neon Beat', activeArcadeProfile().letters.join(' ').toUpperCase(), 'Triff die Note auf der gelben Linie.', true);
+            setHelper('Aktiv sind nur die Spuren des letzten Trainingsprofils.', true);
+        }
 
-            app.game = {
-                type: 'beat',
-                score: 0,
-                lives: 5,
-                notes: [],
-                lanes,
-                hitY: 550,
-                spawnTimer: 0,
-                spawnEvery: 86,
-                combo: 0
-            };
-            showCenter('Neon Beat', gameLetters().join(' ').toUpperCase(), 'Triff die aktive Taste auf der gelben Linie.', true);
+        function activeBeatLanes() {
+            const letters = activeArcadeProfile().letters;
+            return beatGame.allLanes.filter(lane => letters.includes(lane.key));
         }
 
         function updateBeat() {
-            const game = app.game;
-            game.spawnEvery = Math.max(34, 86 - Math.round(app.flow * 5));
-            game.spawnTimer += 1;
+            beatGame.spawnEvery = Math.max(34, 92 - Math.round(state.currentFlow * 6));
+            beatGame.spawnTimer += 1;
+            beatGame.pulse += 0.08;
 
-            if (game.spawnTimer >= game.spawnEvery) {
-                game.spawnTimer = 0;
-                const lane = game.lanes[Math.floor(Math.random() * game.lanes.length)];
-                game.notes.push({
+            if (beatGame.spawnTimer >= beatGame.spawnEvery) {
+                beatGame.spawnTimer = 0;
+                const lanes = activeBeatLanes();
+                const lane = lanes[Math.floor(Math.random() * lanes.length)];
+                beatGame.notes.push({
                     laneKey: lane.key,
                     x: lane.x,
                     y: -30,
                     r: 30,
-                    speed: 2 + app.flow * 0.22
+                    speed: 2 + state.currentFlow * 0.22,
+                    glow: lane.glow
                 });
             }
 
-            for (let i = game.notes.length - 1; i >= 0; i--) {
-                const note = game.notes[i];
+            for (let i = beatGame.notes.length - 1; i >= 0; i--) {
+                const note = beatGame.notes[i];
                 note.y += note.speed;
-                if (note.y > game.hitY + 58) {
-                    game.notes.splice(i, 1);
-                    game.combo = 0;
-                    game.lives -= 1;
-                    adaptiveFlowChange(-0.5);
-                    addParticles(note.x, note.y, COLORS.red, 18, 10);
-                    if (game.lives <= 0) {
+                if (note.y > beatGame.hitY + 56) {
+                    createParticles(note.x, note.y, COLORS.red, 18, 10);
+                    beatGame.notes.splice(i, 1);
+                    beatGame.combo = 0;
+                    beatGame.lives -= 1;
+                    state.currentErrors += 1;
+                    adjustFlow(-0.5);
+                    if (beatGame.lives <= 0) {
                         endGame('Beat Leben aufgebraucht');
                         return;
                     }
                 }
             }
+
+            updateHUD('NEON BEAT');
         }
 
         function endGame(reason) {
-            app.mode = 'GAME OVER';
+            if (state.gameState === 'OVER') return;
+            state.gameState = 'OVER';
             DOM.overlay.style.display = 'flex';
-            hideAllOverlayScreens();
-            DOM.gameSummaryScreen.style.display = 'block';
-            DOM.gameOverReason.textContent = reason;
-            DOM.gameSummaryStrip.textContent = 'Für weitere Versuche brauchst du wieder Tickets aus der Lernphase.';
-            DOM.gameSumName.textContent = app.currentGame.toUpperCase();
-            DOM.gameSumScore.textContent = app.game.score;
-            DOM.gameSumFlow.textContent = Math.round(app.flow);
-            DOM.gameSumTickets.textContent = app.tickets;
-            DOM.gameRetryBtn.disabled = app.tickets <= 0;
+            hideScreens();
+            DOM.summary.style.display = 'block';
+            DOM.summaryReason.textContent = reason;
+            DOM.summaryTickets.textContent = `TICKETS REST: ${state.tickets}`;
+            DOM.sumGame.textContent = state.currentGame === 'dash' ? 'Dash' : state.currentGame === 'astro' ? 'Astro' : 'Beat';
+            DOM.sumScore.textContent = state.currentScore;
+            DOM.sumFlow.textContent = Math.round(state.currentFlow);
+            DOM.sumTicketsRest.textContent = state.tickets;
+            DOM.retry.disabled = state.tickets <= 0;
+            DOM.backLobby.disabled = state.tickets <= 0;
+            DOM.summaryHint.textContent = state.tickets > 0
+                ? 'Enter startet erneut. Escape beendet die Arcade und bringt dich zurück ins Training.'
+                : 'Keine Tickets mehr. Die Arcade schliesst jetzt und führt zurück ins Training.';
             maybeUnlockTheme();
-            updateHUD('ENDE');
+            updateArcadeInfo();
+            updateHUD('GAME OVER');
             draw();
         }
 
-        function updateGame() {
-            if (!app.game) return;
-            if (app.currentGame === 'dash') updateDash();
-            if (app.currentGame === 'astro') updateAstro();
-            if (app.currentGame === 'beat') updateBeat();
+        function handleTrainingKey(key) {
+            if (state.trainingRun.typed.length >= state.trainingRun.prompt.length) return;
+            state.trainingRun.typed += key;
+            renderTrainingPrompt();
+            if (state.trainingRun.typed.length >= state.trainingRun.prompt.length) finishTraining();
         }
 
-        function drawBackground() {
-            const sky = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            sky.addColorStop(0, getComputedStyle(document.documentElement).getPropertyValue('--bg-1'));
-            sky.addColorStop(0.52, getComputedStyle(document.documentElement).getPropertyValue('--bg-2'));
-            sky.addColorStop(1, getComputedStyle(document.documentElement).getPropertyValue('--bg-3'));
-            ctx.fillStyle = sky;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        function handleDashKey(key) {
+            const expected = dashGame.currentWord[dashGame.typed.length];
+            if (key === expected) {
+                dashGame.typed += key;
+                if (dashGame.typed.length === dashGame.currentWord.length) {
+                    const p = dashGame.player;
+                    p.dy = p.jumpForce;
+                    state.currentScore += 14;
+                    state.totalArcadeScore += 14;
+                    adjustFlow(0.26);
+                    createParticles(p.x + p.w / 2, p.y + p.h, COLORS.cyan, 22, 13);
+                    addFloatingText('+14', p.x + 20, p.y - 12, COLORS.green);
+                    nextDashWord();
+                }
+            } else {
+                dashGame.typed = '';
+                state.currentErrors += 1;
+                adjustFlow(-0.32);
+                addFloatingText('MISS', canvas.width / 2, 150, COLORS.red);
+                setCenter('Type Dash', dashGame.currentWord.toUpperCase(), 'Fehler. Sequenz neu starten.', true);
+                if (state.currentErrors >= 6) endGame('Zu viele Dash Fehler');
+            }
+        }
 
-            app.stars.forEach(star => {
-                ctx.globalAlpha = star.alpha;
-                ctx.fillStyle = COLORS.white;
-                ctx.fillRect(star.x, star.y, star.size, star.size);
+        function handleAstroKey(key) {
+            const matches = astroGame.aliens
+                .filter(alien => alien.letter === key)
+                .sort((a, b) => b.y - a.y || Math.abs(a.x - astroGame.shipX) - Math.abs(b.x - astroGame.shipX));
+
+            if (matches.length === 0) {
+                state.currentErrors += 1;
+                adjustFlow(-0.26);
+                addFloatingText('FALSCH', canvas.width / 2, 150, COLORS.red);
+                return;
+            }
+
+            const target = matches[0];
+            astroGame.lasers.push({
+                x1: astroGame.shipX,
+                y1: astroGame.shipY - 22,
+                x2: target.x,
+                y2: target.y,
+                life: 1
             });
-            ctx.globalAlpha = 1;
+
+            createParticles(target.x, target.y, COLORS.green, 20, 11);
+            addFloatingText('+12', target.x, target.y - 10, COLORS.cyan);
+            astroGame.aliens = astroGame.aliens.filter(alien => alien !== target);
+            state.currentScore += 12;
+            state.totalArcadeScore += 12;
+            adjustFlow(0.18);
         }
 
-        function drawHubBackdrop() {
-            drawBackground();
+        function handleBeatKey(key) {
+            const candidates = beatGame.notes
+                .filter(note => note.laneKey === key)
+                .sort((a, b) => Math.abs(a.y - beatGame.hitY) - Math.abs(b.y - beatGame.hitY));
+
+            const target = candidates[0];
+            if (!target) {
+                beatGame.combo = 0;
+                state.currentErrors += 1;
+                adjustFlow(-0.26);
+                addFloatingText('FALSCH', canvas.width / 2, 150, COLORS.red);
+                return;
+            }
+
+            const distance = Math.abs(target.y - beatGame.hitY);
+            if (distance > 58) {
+                beatGame.combo = 0;
+                state.currentErrors += 1;
+                adjustFlow(-0.3);
+                addFloatingText('MISS', canvas.width / 2, 150, COLORS.red);
+                return;
+            }
+
+            beatGame.combo += 1;
+            let gain = 10;
+            let label = 'GOOD';
+
+            if (distance < 18) {
+                gain = 16;
+                label = 'PERFECT';
+            } else if (distance < 34) {
+                gain = 13;
+                label = 'GREAT';
+            }
+
+            state.currentScore += gain;
+            state.totalArcadeScore += gain;
+            adjustFlow(0.16);
+            createParticles(target.x, target.y, COLORS.cyan, 18, 10);
+            addFloatingText(label, target.x, target.y - 18, COLORS.green);
+            beatGame.notes = beatGame.notes.filter(note => note !== target);
+        }
+
+        function drawDash() {
+            drawBackgroundBase();
+
             ctx.fillStyle = COLORS.pink;
             ctx.shadowBlur = 72;
             ctx.shadowColor = COLORS.pink;
             ctx.beginPath();
-            ctx.arc(canvas.width / 2, 310, 160, Math.PI, 0);
+            ctx.arc(canvas.width / 2, 300, 150, Math.PI, 0);
             ctx.fill();
             ctx.shadowBlur = 0;
 
-            ctx.strokeStyle = 'rgba(0,245,255,0.15)';
-            ctx.lineWidth = 2;
-            for (let i = -120; i < canvas.width + 120; i += 64) {
-                ctx.beginPath();
-                ctx.moveTo(i + (app.frame % 64), 540);
-                ctx.lineTo((i - 520) * 2 + canvas.width / 2, canvas.height);
-                ctx.stroke();
-            }
-
-            ctx.strokeStyle = COLORS.cyan;
-            ctx.lineWidth = 4;
-            ctx.beginPath();
-            ctx.moveTo(0, 540);
-            ctx.lineTo(canvas.width, 540);
-            ctx.stroke();
-        }
-
-        function drawDash() {
-            drawHubBackdrop();
-            const game = app.game;
-            const p = game.player;
-
-            ctx.fillStyle = '#0a1330';
-            for (let i = 0; i < 14; i++) {
-                const h = 70 + Math.abs(Math.sin(i * 1.2) * 100);
-                const x = i * 100 + game.cityOffset;
-                ctx.fillRect(x, game.groundY - h, 72, h);
+            ctx.fillStyle = '#09142e';
+            for (let i = 0; i < 18; i++) {
+                const h = 56 + Math.abs(Math.sin(i * 1.4) * 120);
+                const x = i * 86 + dashGame.cityOffset;
+                ctx.fillRect(x, dashGame.groundY - h, 70, h);
             }
 
             ctx.fillStyle = '#16295d';
             ctx.beginPath();
-            ctx.moveTo(0, game.groundY);
+            ctx.moveTo(0, dashGame.groundY);
             for (let i = 0; i < 18; i++) {
-                ctx.lineTo((i * 120) + game.mountainOffset, game.groundY - 90 - Math.abs(Math.sin(i * 0.8) * 70));
+                ctx.lineTo((i * 120) + dashGame.mountainOffset, dashGame.groundY - 90 - Math.abs(Math.sin(i * 0.8) * 70));
             }
-            ctx.lineTo(canvas.width * 2, game.groundY);
+            ctx.lineTo(canvas.width * 2, dashGame.groundY);
             ctx.fill();
+
+            ctx.strokeStyle = 'rgba(0,245,255,0.16)';
+            ctx.lineWidth = 2;
+            for (let i = -120; i < canvas.width + 120; i += 64) {
+                ctx.beginPath();
+                ctx.moveTo(i + dashGame.backgroundOffset, dashGame.groundY);
+                ctx.lineTo((i - 490) * 2 + canvas.width / 2, canvas.height);
+                ctx.stroke();
+            }
 
             ctx.strokeStyle = COLORS.cyan;
             ctx.lineWidth = 5;
             ctx.beginPath();
-            ctx.moveTo(0, game.groundY);
-            ctx.lineTo(canvas.width, game.groundY);
+            ctx.moveTo(0, dashGame.groundY);
+            ctx.lineTo(canvas.width, dashGame.groundY);
             ctx.stroke();
 
-            game.obstacles.forEach(obs => {
+            dashGame.obstacles.forEach(obs => {
                 if (obs.type === 'spike' || obs.type === 'double') {
                     const count = obs.type === 'spike' ? 1 : 2;
-                    ctx.fillStyle = COLORS.pink;
                     ctx.shadowBlur = 20;
                     ctx.shadowColor = COLORS.pink;
+                    ctx.fillStyle = COLORS.pink;
                     for (let i = 0; i < count; i++) {
-                        const ox = obs.x + i * 44;
+                        const ox = obs.x + i * 42;
                         ctx.beginPath();
-                        ctx.moveTo(ox + 22, game.groundY - 40);
-                        ctx.lineTo(ox + 44, game.groundY);
-                        ctx.lineTo(ox, game.groundY);
+                        ctx.moveTo(ox + 21, dashGame.groundY - 42);
+                        ctx.lineTo(ox + 42, dashGame.groundY);
+                        ctx.lineTo(ox, dashGame.groundY);
                         ctx.closePath();
                         ctx.fill();
                     }
@@ -1659,10 +1775,10 @@
                 } else {
                     ctx.save();
                     ctx.translate(obs.x + obs.w / 2, obs.y + obs.h / 2);
-                    ctx.rotate(app.frame * 0.07);
-                    ctx.fillStyle = COLORS.purple;
+                    ctx.rotate(state.frames * 0.07);
                     ctx.shadowBlur = 22;
                     ctx.shadowColor = COLORS.purple;
+                    ctx.fillStyle = COLORS.purple;
                     ctx.fillRect(-obs.w / 2, -obs.h / 2, obs.w, obs.h);
                     ctx.fillStyle = '#0a1022';
                     ctx.fillRect(-obs.w / 2 + 6, -obs.h / 2 + 6, obs.w - 12, obs.h - 12);
@@ -1670,48 +1786,49 @@
                 }
             });
 
+            const p = dashGame.player;
             p.trail.forEach(t => {
-                if (t.life <= 0) return;
-                ctx.save();
-                ctx.globalAlpha = t.life * 0.34;
-                ctx.translate(t.x + p.w / 2, t.y + p.h / 2);
-                ctx.rotate(t.rot);
-                ctx.fillStyle = COLORS.cyan;
-                ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-                ctx.restore();
-                ctx.globalAlpha = 1;
+                if (t.life > 0) {
+                    ctx.save();
+                    ctx.globalAlpha = t.life * 0.36;
+                    ctx.translate(t.x + p.w / 2, t.y + p.h / 2);
+                    ctx.rotate(t.rot);
+                    ctx.fillStyle = COLORS.cyan;
+                    ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+                    ctx.restore();
+                    ctx.globalAlpha = 1;
+                }
             });
 
             ctx.save();
             ctx.translate(p.x + p.w / 2, p.y + p.h / 2);
             ctx.rotate(p.rotation);
-            ctx.fillStyle = COLORS.cyan;
-            ctx.shadowBlur = 22;
+            ctx.shadowBlur = 24;
             ctx.shadowColor = COLORS.cyan;
+            ctx.fillStyle = COLORS.cyan;
             ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-            ctx.fillStyle = '#07101a';
-            ctx.fillRect(-11, -11, 22, 22);
+            ctx.fillStyle = '#08101c';
+            ctx.fillRect(-12, -12, 24, 24);
             ctx.restore();
         }
 
         function drawAstro() {
-            drawBackground();
-            const game = app.game;
+            drawBackgroundBase();
 
             ctx.strokeStyle = 'rgba(0,245,255,0.08)';
             ctx.lineWidth = 1;
             for (let i = 0; i < 12; i++) {
                 ctx.beginPath();
-                ctx.moveTo(0, i * 52 + (app.frame % 52));
-                ctx.lineTo(canvas.width, i * 52 + (app.frame % 52));
+                ctx.moveTo(0, i * 52 + (state.frames % 52));
+                ctx.lineTo(canvas.width, i * 52 + (state.frames % 52));
                 ctx.stroke();
             }
 
-            game.lasers.forEach(laser => {
+            astroGame.lasers.forEach(laser => {
                 ctx.globalAlpha = laser.life;
                 ctx.strokeStyle = COLORS.cyan;
                 ctx.lineWidth = 4;
-                ctx.shadowBlur = 20;
+                ctx.shadowBlur = 22;
                 ctx.shadowColor = COLORS.cyan;
                 ctx.beginPath();
                 ctx.moveTo(laser.x1, laser.y1);
@@ -1721,85 +1838,98 @@
                 ctx.shadowBlur = 0;
             });
 
-            game.aliens.forEach(alien => {
+            astroGame.aliens.forEach(alien => {
                 ctx.save();
                 ctx.translate(alien.x, alien.y);
-                ctx.fillStyle = alien.color;
                 ctx.shadowBlur = 18;
-                ctx.shadowColor = alien.color;
+                ctx.shadowColor = alien.bodyColor;
+                ctx.fillStyle = alien.bodyColor;
                 ctx.beginPath();
-                ctx.ellipse(0, 0, alien.size, alien.size * 0.35, 0, 0, Math.PI * 2);
+                ctx.ellipse(0, 0, alien.size, alien.size * 0.34, 0, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.shadowBlur = 0;
-
                 ctx.fillStyle = COLORS.white;
-                ctx.font = `${Math.round(alien.size * 0.92)}px VT323`;
+                ctx.font = `${Math.round(alien.size * 0.96)}px VT323`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.lineWidth = 4;
-                ctx.strokeStyle = '#06101a';
-                ctx.strokeText(alien.letter.toUpperCase(), 0, -6);
-                ctx.fillText(alien.letter.toUpperCase(), 0, -6);
+                ctx.lineWidth = 5;
+                ctx.strokeStyle = '#07101b';
+                ctx.strokeText(alien.letter.toUpperCase(), 0, -8);
+                ctx.fillText(alien.letter.toUpperCase(), 0, -8);
                 ctx.restore();
             });
 
+            const shipX = astroGame.shipX;
+            const shipY = astroGame.shipY;
+            const pulse = 1 + Math.sin(state.frames * 0.18) * 0.04;
+
             ctx.save();
-            ctx.translate(game.shipX, game.shipY);
-            ctx.fillStyle = COLORS.cyan;
-            ctx.shadowBlur = 22;
+            ctx.translate(shipX, shipY);
+            ctx.scale(pulse, pulse);
+            ctx.shadowBlur = 26;
             ctx.shadowColor = COLORS.cyan;
+            ctx.fillStyle = COLORS.cyan;
             ctx.beginPath();
             ctx.moveTo(0, -38);
-            ctx.lineTo(32, 12);
+            ctx.lineTo(30, 12);
+            ctx.lineTo(12, 8);
             ctx.lineTo(0, 2);
-            ctx.lineTo(-32, 12);
+            ctx.lineTo(-12, 8);
+            ctx.lineTo(-30, 12);
             ctx.closePath();
             ctx.fill();
             ctx.fillStyle = COLORS.pink;
-            ctx.fillRect(-4, 20, 8, 16);
+            ctx.fillRect(-4, 28, 8, 10);
             ctx.restore();
 
-            for (let i = 0; i < game.lives; i++) {
+            for (let i = 0; i < astroGame.lives; i++) {
                 ctx.fillStyle = COLORS.red;
-                ctx.fillRect(930 + i * 20, 24, 14, 14);
+                ctx.shadowBlur = 12;
+                ctx.shadowColor = COLORS.red;
+                ctx.fillRect(900 + i * 22, 18, 14, 14);
             }
+            ctx.shadowBlur = 0;
         }
 
         function drawBeat() {
-            drawBackground();
-            const game = app.game;
-            const laneTop = 150;
-            const laneBottom = game.hitY + 90;
-            const laneWidth = 82;
+            drawBackgroundBase();
 
-            game.lanes.forEach(lane => {
+            const laneTop = 120;
+            const laneBottom = beatGame.hitY + 98;
+            const laneWidth = 82;
+            const lanes = activeBeatLanes();
+
+            lanes.forEach(lane => {
                 const left = lane.x - laneWidth / 2;
                 ctx.fillStyle = 'rgba(0,245,255,0.08)';
                 ctx.fillRect(left, laneTop, laneWidth, laneBottom - laneTop);
-                ctx.strokeStyle = 'rgba(0,245,255,0.16)';
+                ctx.strokeStyle = 'rgba(0,245,255,0.18)';
+                ctx.lineWidth = 2;
                 ctx.strokeRect(left, laneTop, laneWidth, laneBottom - laneTop);
-                ctx.fillStyle = 'rgba(8,16,28,0.92)';
-                ctx.fillRect(left, game.hitY, laneWidth, 90);
+                ctx.fillStyle = 'rgba(7,11,24,0.95)';
+                ctx.fillRect(left, beatGame.hitY, laneWidth, 98);
+                ctx.strokeStyle = lane.glow;
+                ctx.strokeRect(left, beatGame.hitY, laneWidth, 98);
                 ctx.fillStyle = COLORS.white;
-                ctx.font = '30px VT323';
+                ctx.font = '32px VT323';
                 ctx.textAlign = 'center';
-                ctx.fillText(lane.key.toUpperCase(), lane.x, game.hitY + 58);
+                ctx.fillText(lane.key.toUpperCase(), lane.x, beatGame.hitY + 66);
             });
 
+            ctx.shadowBlur = 22;
+            ctx.shadowColor = COLORS.yellow;
             ctx.strokeStyle = COLORS.yellow;
             ctx.lineWidth = 5;
-            ctx.shadowBlur = 18;
-            ctx.shadowColor = COLORS.yellow;
             ctx.beginPath();
-            ctx.moveTo(80, game.hitY);
-            ctx.lineTo(1000, game.hitY);
+            ctx.moveTo(70, beatGame.hitY);
+            ctx.lineTo(970, beatGame.hitY);
             ctx.stroke();
             ctx.shadowBlur = 0;
 
-            game.notes.forEach(note => {
-                ctx.fillStyle = COLORS.cyan;
+            beatGame.notes.forEach(note => {
                 ctx.shadowBlur = 18;
-                ctx.shadowColor = COLORS.cyan;
+                ctx.shadowColor = note.glow;
+                ctx.fillStyle = note.glow;
                 ctx.beginPath();
                 ctx.arc(note.x, note.y, note.r, 0, Math.PI * 2);
                 ctx.fill();
@@ -1808,7 +1938,7 @@
                 ctx.arc(note.x, note.y, note.r - 6, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.fillStyle = COLORS.white;
-                ctx.font = '32px VT323';
+                ctx.font = '36px VT323';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillText(note.laneKey.toUpperCase(), note.x, note.y + 2);
@@ -1818,248 +1948,88 @@
             ctx.fillStyle = '#d7e4ef';
             ctx.font = '28px VT323';
             ctx.textAlign = 'center';
-            ctx.fillText(`COMBO ${game.combo}`, canvas.width / 2, 635);
-        }
-
-        function drawParticlesAndTexts() {
-            app.particles.forEach(p => {
-                ctx.globalAlpha = p.life;
-                ctx.fillStyle = p.color;
-                ctx.shadowBlur = 16;
-                ctx.shadowColor = p.color;
-                ctx.fillRect(p.x, p.y, p.size, p.size);
-            });
-            ctx.globalAlpha = 1;
-            ctx.shadowBlur = 0;
-
-            app.floatingTexts.forEach(t => {
-                ctx.globalAlpha = t.life;
-                ctx.fillStyle = t.color;
-                ctx.font = '28px VT323';
-                ctx.textAlign = 'center';
-                ctx.shadowBlur = 12;
-                ctx.shadowColor = t.color;
-                ctx.fillText(t.text, t.x, t.y);
-            });
-            ctx.globalAlpha = 1;
-            ctx.shadowBlur = 0;
+            ctx.fillText(`COMBO ${beatGame.combo}`, canvas.width / 2, 642);
         }
 
         function draw() {
-            if (app.mode === 'GAME' && app.currentGame === 'dash') drawDash();
-            else if (app.mode === 'GAME' && app.currentGame === 'astro') drawAstro();
-            else if (app.mode === 'GAME' && app.currentGame === 'beat') drawBeat();
-            else drawHubBackdrop();
+            if (state.currentGame === 'dash' && state.gameState === 'PLAYING') drawDash();
+            else if (state.currentGame === 'astro' && state.gameState === 'PLAYING') drawAstro();
+            else if (state.currentGame === 'beat' && state.gameState === 'PLAYING') drawBeat();
+            else drawLobbyPreview();
+
             drawParticlesAndTexts();
         }
 
         function update() {
-            app.frame += 1;
+            state.frames += 1;
             updateStars();
             updateParticles();
-            if (app.mode === 'GAME') updateGame();
-        }
 
-        function startLoop() {
-            if (app.loopRunning) return;
-            app.loopRunning = true;
-            loop();
-        }
+            if (state.gameState !== 'PLAYING') return;
 
-        function stopLoop() {
-            app.loopRunning = false;
-            if (app.loopId) cancelAnimationFrame(app.loopId);
-            app.loopId = null;
+            if (state.currentGame === 'dash') updateDash();
+            else if (state.currentGame === 'astro') updateAstro();
+            else if (state.currentGame === 'beat') updateBeat();
         }
 
         function loop() {
-            if (!app.loopRunning) return;
+            if (!state.loopRunning) return;
             update();
             draw();
-            app.loopId = requestAnimationFrame(loop);
-        }
-
-        function handlePracticeInput(key) {
-            const prompt = app.practice.prompt;
-            if (app.practice.typed.length >= prompt.length) return;
-            app.practice.typed += key;
-            updatePracticeView();
-            if (app.practice.typed.length >= prompt.length) finishPractice();
-        }
-
-        function handleLockInInput(key) {
-            const prompt = app.lockIn.prompt;
-            if (app.lockIn.typed.length >= prompt.length) return;
-            app.lockIn.typed += key;
-            if (app.lockIn.typed.length >= prompt.length) finishLockIn();
-        }
-
-        function handleDashInput(key) {
-            const expected = app.game.currentWord[app.game.typed.length];
-            if (key === expected) {
-                app.game.typed += key;
-                if (app.game.typed.length === app.game.currentWord.length) {
-                    const p = app.game.player;
-                    p.dy = p.jump;
-                    app.game.score += 14;
-                    app.totalGameScore += 14;
-                    adaptiveFlowChange(0.25);
-                    addParticles(p.x + p.w / 2, p.y + p.h, COLORS.cyan, 22, 12);
-                    addFloatingText('+14', p.x + 10, p.y - 12, COLORS.green);
-                    nextDashWord();
-                } else {
-                    showCenter('Type Dash', `${app.game.currentWord.toUpperCase()}`, `Fortschritt ${app.game.typed.length}/${app.game.currentWord.length}`, true);
-                }
-            } else {
-                app.game.typed = '';
-                app.game.errors += 1;
-                adaptiveFlowChange(-0.35);
-                addFloatingText('MISS', canvas.width / 2, 150, COLORS.red);
-                showCenter('Type Dash', app.game.currentWord.toUpperCase(), 'Fehler. Sequenz neu starten.', true);
-                if (app.game.errors >= 6) endGame('Zu viele Dash Fehler');
-            }
-        }
-
-        function handleAstroInput(key) {
-            const matches = app.game.aliens
-                .filter(alien => alien.letter === key)
-                .sort((a, b) => b.y - a.y || Math.abs(a.x - app.game.shipX) - Math.abs(b.x - app.game.shipX));
-
-            if (!matches.length) {
-                adaptiveFlowChange(-0.3);
-                addFloatingText('FALSCH', canvas.width / 2, 150, COLORS.red);
-                return;
-            }
-
-            const target = matches[0];
-            app.game.lasers.push({ x1: app.game.shipX, y1: app.game.shipY - 20, x2: target.x, y2: target.y, life: 1 });
-            app.game.aliens = app.game.aliens.filter(alien => alien !== target);
-            addParticles(target.x, target.y, COLORS.green, 20, 11);
-            addFloatingText('+12', target.x, target.y - 12, COLORS.cyan);
-            app.game.score += 12;
-            app.totalGameScore += 12;
-            adaptiveFlowChange(0.18);
-        }
-
-        function handleBeatInput(key) {
-            const candidates = app.game.notes
-                .filter(note => note.laneKey === key)
-                .sort((a, b) => Math.abs(a.y - app.game.hitY) - Math.abs(b.y - app.game.hitY));
-
-            const target = candidates[0];
-            if (!target) {
-                app.game.combo = 0;
-                adaptiveFlowChange(-0.3);
-                addFloatingText('MISS', canvas.width / 2, 150, COLORS.red);
-                return;
-            }
-
-            const distance = Math.abs(target.y - app.game.hitY);
-            if (distance > 60) {
-                app.game.combo = 0;
-                adaptiveFlowChange(-0.35);
-                addFloatingText('ZU FRÜH / SPÄT', canvas.width / 2, 150, COLORS.red);
-                return;
-            }
-
-            let gain = 10;
-            let label = 'GOOD';
-            if (distance < 18) {
-                gain = 16;
-                label = 'PERFECT';
-            } else if (distance < 32) {
-                gain = 13;
-                label = 'GREAT';
-            }
-
-            app.game.notes = app.game.notes.filter(note => note !== target);
-            app.game.combo += 1;
-            app.game.score += gain;
-            app.totalGameScore += gain;
-            adaptiveFlowChange(0.16);
-            addParticles(target.x, target.y, COLORS.cyan, 18, 9);
-            addFloatingText(label, target.x, target.y - 18, COLORS.green);
+            state.animationFrameId = requestAnimationFrame(loop);
         }
 
         document.addEventListener('keydown', event => {
             const key = event.key.toLowerCase();
-            const allowedChars = [...HOME_ROW, ' '];
 
-            if (event.key === 'Escape') {
-                if (app.mode === 'GAME') endGame('Challenge freiwillig beendet');
-                else if (app.mode === 'REVIEW' || app.mode === 'CHALLENGE') showHub();
+            if (state.gameState === 'OVER') {
+                if (key === 'enter' && state.tickets > 0) spendTicketAndStart(state.currentGame);
+                if (key === 'escape') showTrainingMenu();
                 return;
             }
 
-            if (event.key === 'Enter') {
-                if (app.mode === 'GAME OVER') {
-                    if (app.tickets > 0 && app.currentGame) startLockIn('game', { gameId: app.currentGame });
-                    return;
-                }
-                if (app.mode === 'LOCK IN' && app.lockIn && app.lockIn.typed.length >= app.lockIn.prompt.length) {
-                    finishLockIn();
-                    return;
-                }
-            }
-
-            if (!allowedChars.includes(key)) return;
-
-            if (app.mode === 'LOCK IN') {
-                handleLockInInput(key);
+            if (state.gameState === 'TRAINING') {
+                if (!HOME_ROW.includes(key) && key !== ' ') return;
+                handleTrainingKey(key);
                 return;
             }
-            if (app.mode === 'PRACTICE') {
-                handlePracticeInput(key);
-                return;
-            }
-            if (app.mode === 'GAME') {
-                if (app.currentGame === 'dash') handleDashInput(key);
-                if (app.currentGame === 'astro') handleAstroInput(key);
-                if (app.currentGame === 'beat') handleBeatInput(key);
-            }
+
+            if (state.gameState !== 'PLAYING') return;
+            if (!HOME_ROW.includes(key)) return;
+
+            if (state.currentGame === 'dash') handleDashKey(key);
+            else if (state.currentGame === 'astro') handleAstroKey(key);
+            else if (state.currentGame === 'beat') handleBeatKey(key);
         });
 
-        DOM.openChallengeBtn.addEventListener('click', () => {
-            if (app.lastPracticeLessonId && app.tickets > 0) openChallengeZone();
+        DOM.startTrainingBtn.addEventListener('click', startTraining);
+        DOM.openLobbyBtn.addEventListener('click', () => {
+            if (state.tickets > 0 && state.lastCompletedProfileId) showLobby();
         });
-
-        DOM.themeBtn.addEventListener('click', () => {
-            if (app.theme === 'default' && app.themeUnlocked) applyTheme('aurora');
+        DOM.reviewTrainAgainBtn.addEventListener('click', showTrainingMenu);
+        DOM.reviewLobbyBtn.addEventListener('click', () => {
+            if (state.tickets > 0 && state.lastCompletedProfileId) showLobby();
+            else showTrainingMenu();
+        });
+        DOM.backTrainingMenuBtn.addEventListener('click', showTrainingMenu);
+        DOM.retry.addEventListener('click', () => {
+            if (state.tickets > 0) spendTicketAndStart(state.currentGame);
+        });
+        DOM.backLobby.addEventListener('click', showLobby);
+        DOM.backTraining.addEventListener('click', showTrainingMenu);
+        DOM.themeToggleBtn.addEventListener('click', () => {
+            if (state.theme === 'default' && state.auroraUnlocked) applyTheme('aurora');
             else applyTheme('default');
             draw();
         });
 
-        DOM.reviewContinueBtn.addEventListener('click', () => {
-            const nextLessonId = app.review.lessonUnlocked ? app.review.nextLessonId : app.review.lessonId;
-            startLockIn('practice', { lessonId: nextLessonId });
+        document.querySelectorAll('.gameBtn').forEach(button => {
+            button.addEventListener('click', () => spendTicketAndStart(button.dataset.game));
         });
 
-        DOM.reviewHubBtn.addEventListener('click', showHub);
-        DOM.reviewChallengeBtn.addEventListener('click', () => {
-            if (app.tickets > 0 && app.lastPracticeLessonId) openChallengeZone();
-            else showHub();
-        });
-
-        DOM.challengeBackBtn.addEventListener('click', showHub);
-        DOM.gameStartButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                if (!app.lastPracticeLessonId || app.tickets <= 0) return;
-                startLockIn('game', { gameId: button.dataset.game });
-            });
-        });
-
-        DOM.gameRetryBtn.addEventListener('click', () => {
-            if (app.tickets > 0 && app.currentGame) startLockIn('game', { gameId: app.currentGame });
-        });
-        DOM.gameToChallengeBtn.addEventListener('click', () => {
-            if (app.lastPracticeLessonId && app.tickets > 0) openChallengeZone();
-            else showHub();
-        });
-        DOM.gameToHubBtn.addEventListener('click', showHub);
-
-        app.stars = createStars(100);
-        applyTheme(app.theme);
-        showHub();
+        state.stars = createStars(110);
+        applyTheme(state.theme);
+        showTrainingMenu();
         startLoop();
     </script>
 </body>
