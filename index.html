@@ -15,7 +15,6 @@
         .page-title { margin:0 0 2px; font-size:36px; letter-spacing:4px; color:var(--cyan); text-shadow:0 0 14px var(--cyan),0 0 30px rgba(0,245,255,0.5); text-transform:uppercase; font-family:'Press Start 2P',monospace; }
         .page-subtitle { margin:0 0 6px; font-size:18px; color:#d8e4ef; letter-spacing:2px; }
 
-        /* ═══ HUD — ABOVE the game, not overlaying it ═══ */
         #hudBar {
             width: 1000px; display: grid;
             grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
@@ -38,7 +37,6 @@
         #gameContainer { position:relative; width:1000px; height:560px; overflow:hidden; border-radius:14px; border:2.5px solid rgba(0,245,255,0.65); background:linear-gradient(180deg,#050812 0%,#0f1b44 54%,#02040d 100%); box-shadow:inset 0 0 30px rgba(0,245,255,0.06); }
         canvas { display:block; width:100%; height:100%; }
 
-        /* Word panel - inside game but compact */
         #wordPanel { position:absolute; top:10px; left:50%; transform:translateX(-50%); padding:8px 20px; border-radius:12px; border:2px solid rgba(156,98,255,0.6); background:rgba(3,7,20,0.94); box-shadow:0 0 20px rgba(156,98,255,0.2); z-index:11; display:none; text-align:center; }
         #wordLabel { font-size:16px; color:#a0b4c6; letter-spacing:2px; text-transform:uppercase; margin-bottom:4px; }
         #wordDisplay { font-size:60px; line-height:1; letter-spacing:10px; color:var(--white); font-family:'Press Start 2P',monospace; }
@@ -96,7 +94,6 @@
     <h1 class="page-title">Arcade Trainer</h1>
     <p class="page-subtitle">Lektion 1 — Grundreihe: A S D F &nbsp; J K L Ö</p>
 
-    <!-- ═══ HUD: completely ABOVE the game ═══ -->
     <div id="hudBar">
         <div class="hud-cell" id="hMode">MODE: LOBBY</div>
         <div class="hud-cell" id="hScore">SCORE: 0</div>
@@ -172,7 +169,6 @@
     <script>
         const C = document.getElementById('gameCanvas');
         const ctx = C.getContext('2d');
-        // Canvas sized to container
         const W = 1000, H = 560;
         C.width = W; C.height = H;
 
@@ -184,31 +180,24 @@
 
         const LCFG = {
             dash:[
-                // Lvl 1-2: Alle 8 Einzelbuchstaben, gemütlich
-                {sn:0,   words:['a','s','d','f','j','k','l','ö'], speed:1.1, gap:700, types:['spike']},
-                {sn:120, words:['a','s','d','f','j','k','l','ö'], speed:1.2, gap:680, types:['spike']},
-                // Lvl 3: Kurze echte Silben/Wörter (2 Buchstaben)
-                {sn:280, words:['da','ja','la','sa','öl','al'], speed:1.3, gap:660, types:['spike','gap']},
-                // Lvl 4: 2-3 Buchstaben echte Wörter
-                {sn:460, words:['das','als','ja','da','all','öl'], speed:1.4, gap:640, types:['spike','gap']},
-                // Lvl 5: 3 Buchstaben echte Wörter + Säge
-                {sn:660, words:['das','als','all','fad','öls'], speed:1.5, gap:620, types:['spike','gap','saw']},
-                // Lvl 6: 4 Buchstaben echte Wörter
-                {sn:880, words:['fall','saal','lass','fass','salz','kalk'], speed:1.6, gap:600, types:['spike','gap','saw','triple']},
-                // Lvl 7: Längere Wörter
-                {sn:1120,words:['falls','salsa','klass','saldo'], speed:1.7, gap:580, types:['spike','gap','saw','triple','diamond']},
-                // Lvl 8: Mix
-                {sn:1380,words:['falls','salsa','klass','saldo','flaks'], speed:1.8, gap:560, types:['spike','gap','saw','triple','diamond']},
+                {sn:0,   words:['a','s','d','f','j','k','l','ö'], speed:1.7, gap:400, types:['spike']},
+                {sn:150, words:['a','s','d','f','j','k','l','ö'], speed:1.75, gap:390, types:['spike']},
+                {sn:320, words:['da','ja','la','sa','öl','al'], speed:1.8, gap:380, types:['spike','gap']},
+                {sn:510, words:['das','als','ja','da','all','öl'], speed:1.85, gap:370, types:['spike','gap']},
+                {sn:720, words:['das','als','all','fad','öls'], speed:1.9, gap:360, types:['spike','gap','saw']},
+                {sn:950, words:['fall','saal','lass','fass','salz','kalk'], speed:1.95, gap:350, types:['spike','gap','saw','triple']},
+                {sn:1200,words:['falls','salsa','klass','saldo'], speed:2.0, gap:340, types:['spike','gap','saw','triple','diamond']},
+                {sn:1470,words:['falls','salsa','klass','saldo','flaks'], speed:2.1, gap:330, types:['spike','gap','saw','triple','diamond']},
             ],
             astro:[
-                {sn:0,   se:220,as:0.32,wm:1},{sn:90,se:200,as:0.36,wm:1},{sn:200,se:180,as:0.4,wm:1},
-                {sn:330,se:165,as:0.44,wm:2},{sn:480,se:150,as:0.48,wm:2},{sn:650,se:135,as:0.52,wm:2},
-                {sn:840,se:120,as:0.56,wm:2},{sn:1050,se:108,as:0.6,wm:3},
+                {sn:0,   se:130,as:0.48,wm:1},{sn:110,se:125,as:0.50,wm:1},{sn:240,se:120,as:0.52,wm:1},
+                {sn:390,se:115,as:0.54,wm:2},{sn:560,se:110,as:0.56,wm:2},{sn:750,se:105,as:0.58,wm:2},
+                {sn:960,se:100,as:0.60,wm:2},{sn:1190,se:95,as:0.63,wm:3},
             ],
             beat:[
-                {sn:0,  se:190,ns:0.78},{sn:80,se:172,ns:0.85},{sn:180,se:156,ns:0.92},
-                {sn:300,se:142,ns:1.0},{sn:440,se:130,ns:1.08},{sn:600,se:118,ns:1.15},
-                {sn:780,se:108,ns:1.22},{sn:980,se:98,ns:1.3},
+                {sn:0,  se:120,ns:1.05},{sn:100,se:116,ns:1.08},{sn:220,se:112,ns:1.12},
+                {sn:360,se:108,ns:1.16},{sn:520,se:104,ns:1.20},{sn:700,se:100,ns:1.24},
+                {sn:900,se:96,ns:1.28},{sn:1120,se:92,ns:1.33},
             ]
         };
 
@@ -229,21 +218,20 @@
         let tickets=5,gs='LOBBY',cg=null,score=0,clvl=1,st={s:0,h:0,e:0},fr=0,aid=null,on=false,el=0,rStart=0;
         let stars=mkS(140),parts=[],flts=[];
 
-        /* ═══ DASH — natural wide jump arc ═══ */
-        const GY = 440; // ground line
+        const GY = 440;
         const dg = {
-            groundY:GY, speed:1.3,
+            groundY:GY, speed:1.7,
             bgO:0,mtO:0,ctO:0,
             typed:'',word:'',obs:[],
             p:{
                 x:145,y:0,w:44,h:44,dy:0,
-                gravity:0.14,       // ultra gentle float
-                jumpForce:-7.8,     // soft smooth launch
+                gravity:0.095,
+                jumpForce:-7.4,
                 jumping:false,rotation:0,trail:[]
             }
         };
-        const ag={lives:6,sx:500,sy:H-82,aliens:[],lasers:[],spT:0,spE:220};
-        const bg2={lives:7,hitY:420,notes:[],spT:0,spE:190,combo:0,pulse:0,
+        const ag={lives:6,sx:500,sy:H-82,aliens:[],lasers:[],spT:0,spE:130};
+        const bg2={lives:7,hitY:420,notes:[],spT:0,spE:120,combo:0,pulse:0,
             lanes:[{k:'a',x:120,c:'#00f5ff'},{k:'s',x:215,c:'#26ffc1'},{k:'d',x:310,c:'#76ff8f'},{k:'f',x:405,c:'#fff066'},{k:'j',x:595,c:'#fff066'},{k:'k',x:690,c:'#ffb84d'},{k:'l',x:785,c:'#ff7edc'},{k:'ö',x:880,c:'#9c62ff'}]};
 
         function mkS(n){return Array.from({length:n},()=>({x:Math.random()*W,y:Math.random()*H,sz:Math.random()*2+0.5,sp:Math.random()*0.8+0.1,a:Math.random()*0.5+0.4}));}
@@ -262,25 +250,23 @@
         function spend(g){if(tickets<=0)return;tickets--;launch(g);}
         function updBD(){D.bestDash.textContent=pb.dash>0?`⭐ ${pb.dash}`:'—';D.bestAstro.textContent=pb.astro>0?`⭐ ${pb.astro}`:'—';D.bestBeat.textContent=pb.beat>0?`⭐ ${pb.beat}`:'—';}
 
-        /* ═══ DASH ═══ */
         function chW(){const c=lvl('dash',score);dg.word=c.words[Math.floor(Math.random()*c.words.length)];dg.typed='';rndW();}
         function rndW(err=false){let h='';for(let i=0;i<dg.word.length;i++){const ch=dg.word[i].toUpperCase();if(i<dg.typed.length)h+=`<span class="typed">${ch}</span>`;else if(i===dg.typed.length&&err)h+=`<span class="error">${ch}</span>`;else if(i===dg.typed.length)h+=`<span class="current-char">${ch}</span>`;else h+=`<span class="untyped">${ch}</span>`;}setW('Tippe:',h,true);}
         function spO(){const c=lvl('dash',score);const t=c.types[Math.floor(Math.random()*c.types.length)];const o={x:W+60,type:t,passed:false};
             if(t==='spike'){o.w=36;o.h=36;o.y=dg.groundY-o.h;}
-            else if(t==='gap'){o.w=70;o.h=80;o.y=dg.groundY;}  // hole in ground
-            else if(t==='triple'){o.w=36*3+8;o.h=36;o.y=dg.groundY-o.h;} // 3 spikes in row
+            else if(t==='gap'){o.w=70;o.h=80;o.y=dg.groundY;}
+            else if(t==='triple'){o.w=36*3+8;o.h=36;o.y=dg.groundY-o.h;}
             else if(t==='saw'){o.w=44;o.h=44;o.y=dg.groundY-o.h;o.spin=0;}
             else if(t==='diamond'){o.w=40;o.h=40;o.y=dg.groundY-o.h-14;o.spin=0;}
             else{o.w=36;o.h=36;o.y=dg.groundY-o.h;}
             dg.obs.push(o);}
 
-        function sDash(){score=0;clvl=1;st={s:0,h:0,e:0};el=15;rStart=Date.now();dg.speed=1.3;dg.bgO=0;dg.mtO=0;dg.ctO=0;dg.obs=[];const p=dg.p;p.y=dg.groundY-p.h;p.dy=0;p.jumping=false;p.rotation=0;p.trail=[];chW();spO();setH('Tippe den Buchstaben um zu springen!',true);updH('TYPE DASH');}
+        function sDash(){score=0;clvl=1;st={s:0,h:0,e:0};el=15;rStart=Date.now();dg.speed=1.7;dg.bgO=0;dg.mtO=0;dg.ctO=0;dg.obs=[];const p=dg.p;p.y=dg.groundY-p.h;p.dy=0;p.jumping=false;p.rotation=0;p.trail=[];chW();spO();setH('Tippe den Buchstaben um zu springen!',true);updH('TYPE DASH');}
 
         function uDash(){const c=lvl('dash',score);clvl=c.level;dg.speed=c.speed;
             dg.bgO-=dg.speed*0.55;dg.mtO-=dg.speed*0.14;dg.ctO-=dg.speed*0.07;
             if(dg.bgO<-80)dg.bgO=0;if(dg.mtO<-W)dg.mtO=0;if(dg.ctO<-W)dg.ctO=0;
             const p=dg.p;
-            // Check if player is over a gap
             let overGap=false;
             for(const o of dg.obs){if(o.type==='gap'&&p.x+p.w/2>o.x&&p.x+p.w/2<o.x+o.w)overGap=true;}
             p.dy+=p.gravity; p.y+=p.dy;
@@ -288,12 +274,14 @@
                 const jl=p.jumping;p.y=dg.groundY-p.h;p.dy=0;p.jumping=false;
                 if(jl){mkP(p.x+p.w/2,p.y+p.h,COL.cyan,12,8);p.rotation=Math.round(p.rotation/(Math.PI/2))*(Math.PI/2);}
             }else if(overGap&&p.y>dg.groundY+20){end('In die Lücke gefallen!');return;
-            }else if(p.y<dg.groundY-p.h){p.jumping=true;p.rotation+=0.04;}
+            }else if(p.y<dg.groundY-p.h){
+                p.jumping=true;
+                p.rotation+=0.028;
+            }
             p.trail.push({x:p.x,y:p.y,r:p.rotation,life:1});if(p.trail.length>18)p.trail.shift();p.trail.forEach(t=>t.life-=0.06);
             const last=dg.obs[dg.obs.length-1];if(!last||W-last.x>c.gap+dg.speed*24)spO();
             for(let i=dg.obs.length-1;i>=0;i--){const o=dg.obs[i];o.x-=dg.speed;
                 if(o.spin!==undefined)o.spin+=0.05;
-                // Collision (skip for gap — handled above)
                 if(o.type!=='gap'){
                     const hx=o.x+6,hy=o.y+6,hw=o.w-12,hh=o.h-12;
                     if(p.x+p.w-6>hx&&p.x+6<hx+hw&&p.y+p.h-4>hy&&p.y+4<hy+hh){end('Hindernis getroffen!');return;}
@@ -302,7 +290,6 @@
                 if(o.x+o.w<-120)dg.obs.splice(i,1);}
             updH('TYPE DASH');}
 
-        /* ═══ ASTRO ═══ */
         function spAW(){const c=lvl('astro',score);const ws=Math.min(c.wm,1+Math.floor(Math.random()*c.wm));const bx=160+Math.random()*(W-320);
             for(let i=0;i<ws;i++){const ox=(i-(ws-1)/2)*100;ag.aliens.push({x:bx+ox,sx:bx+ox,y:-60-i*20,sz:34+Math.random()*8,sp:c.as,l:HR[Math.floor(Math.random()*8)],w:Math.random()*Math.PI*2,pu:Math.random()*Math.PI*2,bc:[COL.green,COL.purple,COL.cyan,COL.orange][Math.floor(Math.random()*4)]});}}
         function sAstro(){score=0;clvl=1;st={s:0,h:0,e:0};el=15;rStart=Date.now();ag.lives=6;ag.sx=500;ag.aliens=[];ag.lasers=[];ag.spT=0;setW('','',false);setH('Tippe den Buchstaben auf dem Alien!',true);updH('ASTRO KEYS');}
@@ -313,7 +300,6 @@
             for(let i=ag.lasers.length-1;i>=0;i--){ag.lasers[i].life-=0.08;if(ag.lasers[i].life<=0)ag.lasers.splice(i,1);}
             updH('ASTRO KEYS');}
 
-        /* ═══ BEAT ═══ */
         function sBeat(){score=0;clvl=1;st={s:0,h:0,e:0};el=15;rStart=Date.now();bg2.lives=7;bg2.notes=[];bg2.spT=0;bg2.combo=0;bg2.pulse=0;setW('','',false);setH('Triff die Noten auf der gelben Linie!',true);updH('NEON BEAT');}
         function uBeat(){const c=lvl('beat',score);clvl=c.level;bg2.spE=c.se;bg2.spT++;bg2.pulse+=0.08;
             if(bg2.spT>=bg2.spE){bg2.spT=0;const ln=bg2.lanes[Math.floor(Math.random()*8)];bg2.notes.push({lk:ln.k,x:ln.x,y:-30,r:34,sp:c.ns,l:ln.k,g:ln.c});}
@@ -322,7 +308,6 @@
 
         function regE(l='FEHLER'){st.e++;addF(l,500,100,COL.red);if(st.e>=el)end('Zu viele Fehler!');}
 
-        /* ═══ DRAWING ═══ */
         function dBg(){const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#050812');g.addColorStop(0.5,'#0f1b44');g.addColorStop(1,'#02040d');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);stars.forEach(s=>{ctx.globalAlpha=s.a;ctx.fillStyle=COL.white;ctx.fillRect(s.x,s.y,s.sz,s.sz);});ctx.globalAlpha=1;}
 
         function dLobby(){dBg();ctx.fillStyle=COL.pink;ctx.shadowBlur=70;ctx.shadowColor=COL.pink;ctx.beginPath();ctx.arc(500,260,150,Math.PI,0);ctx.fill();ctx.shadowBlur=0;
@@ -335,7 +320,6 @@
             ctx.fillStyle='#16295d';ctx.beginPath();ctx.moveTo(0,dg.groundY);for(let i=0;i<18;i++)ctx.lineTo(i*120+dg.mtO,dg.groundY-80-Math.abs(Math.sin(i*0.8)*60));ctx.lineTo(2000,dg.groundY);ctx.fill();
             ctx.strokeStyle='rgba(0,245,255,0.14)';ctx.lineWidth=2;for(let i=-120;i<W+120;i+=64){ctx.beginPath();ctx.moveTo(i+dg.bgO,dg.groundY);ctx.lineTo((i-490)*2+500,H);ctx.stroke();}
             ctx.strokeStyle=COL.cyan;ctx.lineWidth=4;ctx.shadowBlur=14;ctx.shadowColor=COL.cyan;
-            // Draw ground line with gaps
             ctx.beginPath();
             let gx=0;
             const gaps=dg.obs.filter(o=>o.type==='gap');
@@ -355,13 +339,11 @@
                     for(let t=0;t<3;t++){const tx=o.x+t*38;ctx.beginPath();ctx.moveTo(tx+18,dg.groundY-36);ctx.lineTo(tx+36,dg.groundY);ctx.lineTo(tx,dg.groundY);ctx.closePath();ctx.fill();}
                     ctx.shadowBlur=0;
                 }else if(o.type==='gap'){
-                    // Draw gap as dark hole with danger edges
                     ctx.fillStyle='#010208';ctx.fillRect(o.x,dg.groundY,o.w,80);
                     ctx.shadowBlur=12;ctx.shadowColor=COL.red;
                     ctx.strokeStyle=COL.red;ctx.lineWidth=2;
                     ctx.beginPath();ctx.moveTo(o.x,dg.groundY);ctx.lineTo(o.x,dg.groundY+40);ctx.stroke();
                     ctx.beginPath();ctx.moveTo(o.x+o.w,dg.groundY);ctx.lineTo(o.x+o.w,dg.groundY+40);ctx.stroke();
-                    // Warning stripes
                     ctx.fillStyle='rgba(255,78,106,0.3)';
                     for(let s=0;s<3;s++){ctx.fillRect(o.x+8+s*22,dg.groundY+4,12,4);}
                     ctx.shadowBlur=0;
@@ -385,22 +367,14 @@
         function dAstro(){dBg();ctx.strokeStyle='rgba(0,245,255,0.05)';ctx.lineWidth=1;for(let i=0;i<12;i++){ctx.beginPath();ctx.moveTo(0,i*50+(fr%50));ctx.lineTo(W,i*50+(fr%50));ctx.stroke();}
             ag.lasers.forEach(l=>{ctx.globalAlpha=l.life;ctx.strokeStyle=COL.cyan;ctx.lineWidth=5;ctx.shadowBlur=24;ctx.shadowColor=COL.cyan;ctx.beginPath();ctx.moveTo(l.x1,l.y1);ctx.lineTo(l.x2,l.y2);ctx.stroke();ctx.globalAlpha=1;ctx.shadowBlur=0;});
             ag.aliens.forEach(a=>{ctx.save();ctx.translate(a.x,a.y);
-            // Beam below
             ctx.globalAlpha=0.12+Math.sin(a.pu)*0.04;ctx.fillStyle=a.bc;ctx.beginPath();ctx.moveTo(-14,a.sz*0.4);ctx.lineTo(14,a.sz*0.4);ctx.lineTo(5,a.sz*1.4);ctx.lineTo(-5,a.sz*1.4);ctx.closePath();ctx.fill();ctx.globalAlpha=1;
-            // UFO saucer body
             ctx.shadowBlur=20;ctx.shadowColor=a.bc;ctx.fillStyle=a.bc;ctx.beginPath();ctx.ellipse(0,0,a.sz,a.sz*0.32,0,0,Math.PI*2);ctx.fill();
-            // Glass dome (no letter inside)
             ctx.fillStyle='rgba(220,255,255,0.2)';ctx.beginPath();ctx.arc(0,-6,a.sz*0.48,Math.PI,0);ctx.fill();ctx.shadowBlur=0;
-            // Eyes on saucer
             ctx.fillStyle='#09111c';ctx.fillRect(-a.sz*0.65,-1,a.sz*1.3,7);ctx.fillStyle='#39ff9f';ctx.fillRect(-a.sz*0.5,0,a.sz*0.18,3);ctx.fillRect(-a.sz*0.08,0,a.sz*0.16,3);ctx.fillRect(a.sz*0.32,0,a.sz*0.18,3);
-            // LETTER: floating bubble ABOVE the alien
             const bY=-a.sz-16;const bR=a.sz*0.62;
-            // Connector line
             ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(0,-a.sz*0.32);ctx.lineTo(0,bY+bR);ctx.stroke();
-            // Bubble background
             ctx.shadowBlur=18;ctx.shadowColor=a.bc;ctx.fillStyle='rgba(5,8,18,0.92)';ctx.beginPath();ctx.arc(0,bY,bR,0,Math.PI*2);ctx.fill();
             ctx.strokeStyle=a.bc;ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,bY,bR,0,Math.PI*2);ctx.stroke();ctx.shadowBlur=0;
-            // Letter text
             const fs=Math.round(bR*1.4);
             ctx.font=`bold ${fs}px 'Press Start 2P',monospace`;ctx.textAlign='center';ctx.textBaseline='middle';
             ctx.fillStyle='#fff';ctx.shadowBlur=14;ctx.shadowColor='#fff';ctx.fillText(a.l.toUpperCase(),0,bY+1);ctx.shadowBlur=0;
@@ -440,7 +414,6 @@
             D.sumHint.textContent=tickets>0?'Enter = nochmal · Escape = Lobby':'Keine Tickets mehr.';
             D.overlay.style.display='flex';D.lobbyScreen.style.display='none';D.summaryScreen.style.display='block';draw();}
 
-        /* ═══ INPUT ═══ */
         function iDash(k){if(dg.p.jumping)return;st.s++;const e=dg.word[dg.typed.length];if(k===e){st.h++;dg.typed+=k;if(dg.typed.length===dg.word.length){const p=dg.p;p.dy=p.jumpForce;p.jumping=true;mkP(p.x+p.w/2,p.y+p.h,COL.cyan,18,12);chW();}else rndW();}else{dg.typed='';rndW(true);regE('MISS');}}
         function iAstro(k){st.s++;const m=ag.aliens.filter(a=>a.l===k).sort((a,b)=>b.y-a.y);if(!m.length){regE('FALSCH');return;}st.h++;const t=m[0];ag.lasers.push({x1:ag.sx,y1:ag.sy-20,x2:t.x,y2:t.y,life:1});mkP(t.x,t.y,COL.green,18,10);addF('+12',t.x,t.y-10,COL.cyan);ag.aliens=ag.aliens.filter(a=>a!==t);score+=12;}
         function iBeat(k){st.s++;const c=bg2.notes.filter(n=>n.l===k).sort((a,b)=>Math.abs(a.y-bg2.hitY)-Math.abs(b.y-bg2.hitY));const t=c[0];if(!t){bg2.combo=0;regE('FALSCH');return;}const d=Math.abs(t.y-bg2.hitY);if(d>85){bg2.combo=0;regE('MISS');return;}st.h++;bg2.combo++;let g=10,l='GOOD';if(d<26){g=16;l='PERFECT';}else if(d<48){g=13;l='GREAT';}score+=g;mkP(t.x,t.y,COL.cyan,16,10);addF(l,t.x,t.y-18,COL.green);bg2.notes=bg2.notes.filter(n=>n!==t);}
